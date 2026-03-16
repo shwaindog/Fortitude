@@ -325,8 +325,23 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
     
     public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        State.StyleFormatter.AppendCloseCollection(State, ResultCount, TypeOfElement, TotalCount, "", State.CreateMoldFormatFlags);
-        base.AppendClosing();
+        if (State.WroteInnerTypeClose)
+        {
+            State.StyleFormatter.Gb.Complete(formatFlags);
+        }
+        else
+        {
+            State.StyleFormatter.AppendCloseCollection(State, ResultCount, TypeOfElement, TotalCount, "", State.CreateMoldFormatFlags);
+            State.StyleFormatter.Gb.Complete(formatFlags);
+        }
+        base.AppendClosing(formatFlags);
+    }
+    
+    public override AppendSummary Complete(FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        if (State == null) { throw new NullReferenceException("Expected MoldState to be set"); }
+        AppendClosing(State.CreateMoldFormatFlags);
+        return RunShutdown();
     }
 
     public AppendSummary AppendCollectionComplete() => Complete();

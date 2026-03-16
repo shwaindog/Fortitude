@@ -63,7 +63,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
 
             if (showTypeName)
             {
-                var isComplexContentType = mws.CurrentWriteMethod.HasAnyOf(AsContent | WrittenAsFlags.AsCollection);
+                var isComplexContentType = mws.CurrentWriteMethod.HasAnyOf(AsContent | WrittenAsFlags.AsCollection | AsCollectionItem);
                 if (isComplexContentType)
                 {
                     Gb.AppendContent(RndBrktOpn);
@@ -173,7 +173,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         {
             var sb = mws.Sb;
             Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-            if ((itemElementType == typeof(char) && StyleOptions.CharBufferWritesAsCharCollection)
+            if ((itemElementType == typeof(char) && !StyleOptions.CharBufferWritesAsCharCollection)
              || (itemElementType == typeof(byte) && StyleOptions.ByteArrayWritesBase64String))
             {
                 Gb.AppendContent(DblQt);

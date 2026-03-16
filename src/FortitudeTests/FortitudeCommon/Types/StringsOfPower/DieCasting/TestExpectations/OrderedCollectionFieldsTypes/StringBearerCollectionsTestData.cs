@@ -40,16 +40,16 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
                   , """
                     [
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 32.6193819415085 }
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 32.6193819415085 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -76,34 +76,34 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, PrettyLog)
                   , """
                     [
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 32.6193819415085
                       }
                     ]
@@ -156,11 +156,11 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
                   , """
                     [
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 }
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -182,19 +182,19 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, PrettyLog)
                   , """
                     [
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286
                       }
                     ]
@@ -231,11 +231,11 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
                   , """
                     [
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 }
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -257,19 +257,19 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, PrettyLog)
                   , """
                     [
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775
                       }
                     ]
@@ -306,11 +306,11 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
                   , """
                     [
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 32.6193819415085 }
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 32.6193819415085 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -332,19 +332,19 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsAnyClass | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, PrettyLog)
                   , """
                     [
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 32.6193819415085
                       }
                     ]
@@ -398,19 +398,19 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                      null,
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
                      null,
                      null,
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904 },
                      null,
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 32.6193819415085 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 32.6193819415085 },
                      null
                      ]
                     """.RemoveLineEndings()
@@ -444,37 +444,37 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                       null,
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592
                       },
                       null,
                       null,
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904
                       },
                       null,
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 32.6193819415085
                       },
                       null
@@ -534,9 +534,9 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                      null,
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592 },
                      null
                      ]
                     """.RemoveLineEndings()
@@ -560,13 +560,13 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                       null,
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 12.5663706143592
                       },
                       null
@@ -601,12 +601,12 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                      null,
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904 },
                      null,
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775 },
                      null
                      ]
                     """.RemoveLineEndings()
@@ -633,20 +633,20 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                       null,
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 2.71828182845904
                       },
                       null,
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 27.1828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 37.6991118430775
                       },
                       null
@@ -688,10 +688,10 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                      null,
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 }
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -714,16 +714,16 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                       null,
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 21.9911485751286
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattable: 31.4159265358979
                       }
                     ]
@@ -889,11 +889,11 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
                   , """
                     [
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 }
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -915,19 +915,19 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, PrettyLog)
                   , """
                     [
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286
                       }
                     ]
@@ -964,11 +964,11 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
                   , """
                     [
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 }
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -990,19 +990,19 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, PrettyLog)
                   , """
                     [
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775
                       }
                     ]
@@ -1039,11 +1039,11 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
                   , """
                     [
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 32.6193819415085 }
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 32.6193819415085 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -1065,19 +1065,19 @@ public class StringBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, PrettyLog)
                   , """
                     [
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 32.6193819415085
                       }
                     ]
@@ -1131,19 +1131,19 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                      null,
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
                      null,
                      null,
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904 },
                      null,
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 32.6193819415085 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 32.6193819415085 },
                      null
                      ]
                     """.RemoveLineEndings()
@@ -1177,37 +1177,37 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                       null,
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592
                       },
                       null,
                       null,
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904
                       },
                       null,
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 32.6193819415085
                       },
                       null
@@ -1267,9 +1267,9 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                      null,
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
                      null
                      ]
                     """.RemoveLineEndings()
@@ -1293,13 +1293,13 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                       null,
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592
                       },
                       null
@@ -1334,12 +1334,12 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                      null,
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
                      null,
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 },
                      null
                      ]
                     """.RemoveLineEndings()
@@ -1366,20 +1366,20 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                       null,
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904
                       },
                       null,
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775
                       },
                       null
@@ -1421,10 +1421,10 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                      null,
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 }
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -1447,16 +1447,16 @@ public class StringBearerCollectionsTestData
                   , """
                     [
                       null,
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979
                       }
                     ]

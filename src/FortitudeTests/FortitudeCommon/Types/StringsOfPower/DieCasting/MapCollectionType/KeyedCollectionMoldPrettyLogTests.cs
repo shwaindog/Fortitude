@@ -71,11 +71,12 @@ public class KeyedCollectionMoldPrettyLogTests : KeyedCollectionMoldTests
         (IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod] 
+    [TestMethod] 
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(SimpleDictTestData.AllSubListFilteredDictExpectations[13], ScaffoldingRegistry.AllScaffoldingTypes[991]);
+        ExecuteIndividualScaffoldExpectation(SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations[19]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[912], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

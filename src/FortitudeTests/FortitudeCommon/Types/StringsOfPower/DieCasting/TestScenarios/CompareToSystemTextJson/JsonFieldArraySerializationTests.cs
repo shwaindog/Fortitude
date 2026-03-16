@@ -80,6 +80,7 @@ public class JsonFieldArraySerializationTests
         {
             Style                          = StringStyle.Json | StringStyle.Compact
           , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
+          , CharBufferWritesAsCharCollection = true
           , WriteKeyValuePairsAsCollection = true
         });
         arrayPropertyFieldClass.RevealState(styledStringBuilder);
@@ -105,9 +106,10 @@ public class JsonFieldArraySerializationTests
         var styledStringBuilder = new TheOneString();
         styledStringBuilder.ClearAndReinitialize(new StyleOptions
         {
-            Style                          = StringStyle.Json | StringStyle.Compact
-          , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
-          , WriteKeyValuePairsAsCollection = true
+            Style                            = StringStyle.Json | StringStyle.Compact
+          , JsonEncodingTransferType         = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
+          , CharBufferWritesAsCharCollection = true
+          , WriteKeyValuePairsAsCollection   = true
         });
         arrayPropertyFieldClass.RevealState(styledStringBuilder);
         var oneStringify = styledStringBuilder.WriteBuffer.ToString();
@@ -135,9 +137,10 @@ public class JsonFieldArraySerializationTests
         var styledStringBuilder = new TheOneString();
         styledStringBuilder.ClearAndReinitialize(new StyleOptions
         {
-            Style                          = StringStyle.Json | StringStyle.Compact
-          , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
-          , WriteKeyValuePairsAsCollection = true
+            Style                            = StringStyle.Json | StringStyle.Compact
+          , JsonEncodingTransferType         = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
+          , CharBufferWritesAsCharCollection = true
+          , WriteKeyValuePairsAsCollection   = true
         });
         arrayPropertyFieldClass.RevealState(styledStringBuilder);
         var oneStringify = styledStringBuilder.WriteBuffer.ToString();
@@ -168,9 +171,10 @@ public class JsonFieldArraySerializationTests
         var styledStringBuilder = new TheOneString();
         styledStringBuilder.ClearAndReinitialize(new StyleOptions
         {
-            Style = StringStyle.Json | StringStyle.Pretty
-          , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
-          , WriteKeyValuePairsAsCollection = true
+            Style                            = StringStyle.Json | StringStyle.Pretty
+          , JsonEncodingTransferType         = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
+          , CharBufferWritesAsCharCollection = true
+          , WriteKeyValuePairsAsCollection   = true
         });
         arrayPropertyFieldClass.RevealState(styledStringBuilder);
         var oneStringify = styledStringBuilder.WriteBuffer.ToString();
@@ -190,9 +194,10 @@ public class JsonFieldArraySerializationTests
         var theOneString = new TheOneString();
         theOneString.ClearAndReinitialize(new StyleOptions
         {
-            Style                          = StringStyle.Json | StringStyle.Pretty
-          , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
-          , WriteKeyValuePairsAsCollection = true
+            Style                            = StringStyle.Json | StringStyle.Pretty
+          , JsonEncodingTransferType         = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
+          , CharBufferWritesAsCharCollection = true
+          , WriteKeyValuePairsAsCollection   = true
         });
         arrayPropertyFieldClass.RevealState(theOneString);
         
@@ -260,9 +265,10 @@ public class JsonFieldArraySerializationTests
         var theOneString = new TheOneString();
         theOneString.ClearAndReinitialize(new StyleOptions
         {
-            Style                          = StringStyle.Json | StringStyle.Compact
-          , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
-          , WriteKeyValuePairsAsCollection = true
+            Style                            = StringStyle.Json | StringStyle.Compact
+          , JsonEncodingTransferType         = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
+          , CharBufferWritesAsCharCollection = true
+          , WriteKeyValuePairsAsCollection   = true
         });
         arrayPropertyFieldClass.RevealState(theOneString);
         

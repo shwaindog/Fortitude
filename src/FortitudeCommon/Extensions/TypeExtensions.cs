@@ -83,6 +83,12 @@ public static class TypeExtensions
         ((type.BaseType?.IsGenericType ?? false) && type.BaseType.GetGenericTypeDefinition() == genericTypeDef) ||
         type.BaseType != null && type.BaseType != typeof(object) && type.BaseType.ExtendsGenericBaseType(genericTypeDef);
 
+    public static bool IsConcreteOfGeneric(this Type type, Type genericDefType)
+        => type.IsGenericType && type.GetGenericTypeDefinition() == genericDefType;
+
+    public static bool IsConcreteOfGeneric(this Type type, Type genericDefType, Type firstGenericParameter)
+        => type.IsConcreteOfGeneric(genericDefType) && type.GenericTypeArguments.FirstOrDefault() == firstGenericParameter;
+
     public static bool IsCollection(this Type type) =>
         type.GetInterfaces().Any(i => i == CollectionType || i.IsGenericType && i.GetGenericTypeDefinition() == CollectionTypeDef);
 

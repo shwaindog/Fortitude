@@ -211,6 +211,11 @@ public static class FieldContentHandlingExtensions
 
     public static FormatFlags RemoveEmbeddedContentFlags(this FormatFlags flags) => (flags & ~AsEmbeddedContent);
 
+    public static bool HasAllOf(this FormatFlags flags, FormatFlags checkAllFound)    => (flags & checkAllFound) == checkAllFound;
+    public static bool HasNoneOf(this FormatFlags flags, FormatFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;
+    public static bool HasAnyOf(this FormatFlags flags, FormatFlags checkAnyAreFound) => (flags & checkAnyAreFound) > 0;
+    public static bool IsExactly(this FormatFlags flags, FormatFlags checkAllFound)   => flags == checkAllFound;
+
     public static StringStyle UpdateStringStyle(this FormatFlags flags, StyleOptions newStyleOptions)
     {
         var existingStyle = newStyleOptions.Style;
@@ -240,33 +245,30 @@ public static class FieldContentHandlingExtensions
 
     public const FormatFlags MultiGenerationInheritFlags
         = IsFieldName | DisableFieldNameDelimiting | OnOneLine | DisableAutoDelimiting | AsStringContent | AsValueContent;
-
-    public const FormatFlags MultiGenerationInheritPassFlags
-        = MultiGenerationInheritFlags | LogSuppressTypeNames | AddTypeNameField;
-
-    public const FormatFlags JustSingleGenerationPassFlags
-        = MultiGenerationInheritPassFlags | JustSingleGenerationInheritFlags;
-
-    public const FormatFlags JustSingleGenerationInheritFlags
-        = NoRevisitCheck | LogSuppressTypeNames | AddTypeNameField | AsCollection | SuppressOpening | SuppressClosing;
-
-    public const FormatFlags AllSingleGenerationInheritFlags
-        = MultiGenerationInheritFlags | JustSingleGenerationInheritFlags;
+    
 
     public const FormatFlags TypeBoundarySuppression =
         LogSuppressTypeNames | SuppressOpening | SuppressClosing;
         
-    public static FormatFlags MoldSingleGenerationPassFlags(this FormatFlags moldCreatedFlags) => moldCreatedFlags & AllSingleGenerationInheritFlags;
-
-    public static FormatFlags MoldCallerPassFlags(this FormatFlags moldCreatedFlags) => moldCreatedFlags & JustSingleGenerationPassFlags;
-
-    public static FormatFlags MoldRemoveSingleGenerationPassFlags(this FormatFlags moldCreatedFlags) =>
-        moldCreatedFlags & ~JustSingleGenerationPassFlags;
+    public static FormatFlags MoldSingleGenerationPassFlags(this FormatFlags moldCreatedFlags) => moldCreatedFlags & MultiGenerationInheritFlags;
 
     public static FormatFlags MoldMultiGenerationInheritFlags(this FormatFlags moldCreatedFlags) => moldCreatedFlags & MultiGenerationInheritFlags;
 
-    public static FormatFlags MoldMultiGenerationPassFlags(this FormatFlags moldCreatedFlags) => moldCreatedFlags & MultiGenerationInheritPassFlags;
 
+    public static FormatFlags GetParentInheritedFlags(this FormatFlags currentCreateFlags, FormatFlags inheritedFormatFlags)
+    {
+        // var parentGen         = currentCreateFlags & MultiGenerationInheritFlags;
+        // var grandParentGen    = inheritedFormatFlags & MultiGenerationInheritFlags;
+        // var unexpired         = parentGen & (parentGen ^ grandParentGen);
+        // var wipedSingleGen    = currentCreateFlags & ~(MultiGenerationInheritFlags);
+        // var finishedSingleGen = wipedSingleGen | unexpired;
+        var result            = currentCreateFlags & MultiGenerationInheritFlags;
+        return result;
+    }
+
+    
+    public static FormatFlags RemoveInstanceTrackingFlags(this FormatFlags moldCreatedFlags) =>
+        moldCreatedFlags & ~(TypeBoundarySuppression | AddTypeNameField | LogSuppressTypeNames);
     
     public static FormatFlags RemoveTypeBoundarySuppression(this FormatFlags moldCreatedFlags) =>
         moldCreatedFlags & ~TypeBoundarySuppression;

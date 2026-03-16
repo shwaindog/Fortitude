@@ -107,7 +107,7 @@ public class ContentTypeMoldPrettyLogAsStringTests : ContentTypeMoldAsStringTest
     {
         var prettyLogTemplate = 
             condition.HasComplexTypeFlag() && className.IsStringBearerOrNullableCached() 
-                ? "({0}) {{{1}{2}{3}{1}}}"
+                ? "{0} {{{1}{2}{3}{1}}}"
                 : "({0}) {3}" ;
 
         var maybeNewLine = "";

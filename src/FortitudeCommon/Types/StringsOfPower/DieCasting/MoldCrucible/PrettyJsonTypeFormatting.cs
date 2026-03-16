@@ -196,7 +196,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         // if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
         // {
             Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags);
-            if ((elementType.IsChar() && (JsonOptions.CharBufferWritesAsCharCollection || inheritedFmtFlags.HasAsStringContentFlag())))
+            
+            if (elementType.IsChar()
+             && (formatSwitches.TreatCharArrayAsString()
+              || !(JsonOptions.CharBufferWritesAsCharCollection 
+                || formatSwitches.HasAsCollectionFlag())) 
+             || inheritedFmtFlags.HasAsStringContentFlag())
             {
                 if (inheritedFmtFlags.DoesNotHaveAsValueContentFlag() || inheritedFmtFlags.HasAsStringContentFlag()) Gb.AppendContent(DblQt);
                 return sb.Length - preAppendLen;
@@ -224,7 +229,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         // if (inheritedFmtFlags.DoesNotHaveSuppressOpening() || StyleOptions.Style.IsLog())
         // {
             Gb.ResetCurrent(inheritedFmtFlags);
-            if ((elementType.IsChar() && (JsonOptions.CharBufferWritesAsCharCollection || inheritedFmtFlags.HasAsStringContentFlag())))
+            if (elementType.IsChar()
+             && (formatSwitches.TreatCharArrayAsString()
+              || !(JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.HasAsCollectionFlag()))
+             || inheritedFmtFlags.HasAsStringContentFlag())
             {
                 if (inheritedFmtFlags.DoesNotHaveAsValueContentFlag() || inheritedFmtFlags.HasAsStringContentFlag())
                     charsAdded = LayoutEncoder.OverwriteTransfer(DblQt, destSpan, destStartIndex);
@@ -308,7 +316,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         // {
             Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
             Gb.MarkContentStart(preAppendAt);
-            if ((itemElementType.IsChar() && (JsonOptions.CharBufferWritesAsCharCollection || inheritedFmtFlags.HasAsStringContentFlag())))
+            
+            if (itemElementType.IsChar()
+             && (formatFlags.TreatCharArrayAsString()
+              || !(JsonOptions.CharBufferWritesAsCharCollection 
+                || formatFlags.HasAsCollectionFlag()))
+             || inheritedFmtFlags.HasAsStringContentFlag())
             {
                 if (inheritedFmtFlags.DoesNotHaveAsValueContentFlag() || inheritedFmtFlags.HasAsStringContentFlag()) Gb.AppendContent(DblQt);
                 return sb.Length - preAppendAt;
@@ -348,7 +361,11 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         var inheritedFmtFlags = Gb.LastContentSeparatorPaddingRanges.PreviousFormatFlags | (FormatFlags)formatSwitches;
         // if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
         // {
-            if ((elementType.IsChar() && (JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.HasAsStringContentFlag())))
+            if (elementType.IsChar()
+             && (formatSwitches.TreatCharArrayAsString()
+              || !(JsonOptions.CharBufferWritesAsCharCollection 
+                || formatSwitches.HasAsCollectionFlag()))
+             || inheritedFmtFlags.HasAsStringContentFlag())
             {
                 if (inheritedFmtFlags.DoesNotHaveAsValueContentFlag() || inheritedFmtFlags.HasAsStringContentFlag()) Gb.AppendContent(DblQt);
                 return sb.Length - preAppendLen;
@@ -365,7 +382,7 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags, true);
             if (itemsCount > 0)
             {
-                if (inheritedFmtFlags.CanAddNewLine()) { AddCollectionElementPadding(elementType, sb, itemsCount); }
+                if (inheritedFmtFlags.CanAddNewLine()) { AddCollectionElementPadding(elementType, sb, itemsCount, formatSwitches); }
             }
             if (elementType == typeof(KeyValuePair<string, JsonNode>)) { Gb.AppendContent(BrcCls); }
             else { Gb.AppendContent(SqBrktCls); }
@@ -385,8 +402,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
         var inheritedFmtFlags = Gb.LastContentSeparatorPaddingRanges.PreviousFormatFlags | (FormatFlags)formatSwitches;
 
         // if (inheritedFmtFlags.DoesNotHaveSuppressClosing() || StyleOptions.Style.IsLog())
-        // {
-            if (inheritedFmtFlags.HasAsStringContentFlag() && elementType.IsCharArray())
+        
+            if (elementType.IsChar()
+             && (formatSwitches.TreatCharArrayAsString()
+              || !(JsonOptions.CharBufferWritesAsCharCollection 
+                || formatSwitches.HasAsCollectionFlag()))
+             || inheritedFmtFlags.HasAsStringContentFlag())
             {
                 if (inheritedFmtFlags.DoesNotHaveAsValueContentFlag() || inheritedFmtFlags.HasAsStringContentFlag())
                 {
@@ -409,7 +430,10 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
             Gb.MarkContentStart();
             if (itemsCount > 0)
             {
-                if (inheritedFmtFlags.CanAddNewLine()) { charsAdded += AddCollectionElementPadding(elementType, destSpan, destIndex, itemsCount); }
+                if (inheritedFmtFlags.CanAddNewLine())
+                {
+                    charsAdded += AddCollectionElementPadding(elementType, destSpan, destIndex, itemsCount, formatSwitches);
+                }
             }
             if (elementType == typeof(KeyValuePair<string, JsonNode>))
             {
@@ -429,7 +453,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasNoItemPaddingFlag()) return Gb.Complete(formatFlags);
-        if (elementType.IsChar() && JsonOptions.CharBufferWritesAsCharCollection) { return Gb.Complete(formatFlags); }
+        if (elementType.IsChar()
+         && (formatFlags.TreatCharArrayAsString()
+          || !(JsonOptions.CharBufferWritesAsCharCollection 
+            || formatFlags.HasAsCollectionFlag()))
+         || formatFlags.HasAsStringContentFlag())
+        { return Gb.Complete(formatFlags); }
         if (elementType.IsByte() && JsonOptions.ByteArrayWritesBase64String) { return Gb.Complete(formatFlags); }
         if (formatFlags.UseMainItemPadding() && formatFlags.CanAddNewLine())
         {
@@ -445,7 +474,11 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     {
         var fmtFlgs = Gb.CurrentSectionRanges.StartedWithFormatFlags;
         if (fmtFlgs.HasNoFieldPaddingFlag()) return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-        if (collectionElementType.IsChar() && JsonOptions.CharBufferWritesAsCharCollection)
+        if (collectionElementType.IsChar()
+         && (formatFlags.TreatCharArrayAsString()
+          || !(JsonOptions.CharBufferWritesAsCharCollection 
+            || formatFlags.HasAsCollectionFlag()))
+         || formatFlags.HasAsStringContentFlag())
             return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
         if (collectionElementType.IsByte() && JsonOptions.ByteArrayWritesBase64String)
             return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
@@ -463,7 +496,11 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     {
         var fmtFlgs = Gb.CurrentSectionRanges.StartedWithFormatFlags;
         if (fmtFlgs.HasNoFieldPaddingFlag()) return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
-        if (collectionElementType.IsChar() && JsonOptions.CharBufferWritesAsCharCollection)
+        if (collectionElementType.IsChar()
+         && (formatFlags.TreatCharArrayAsString()
+          || !(JsonOptions.CharBufferWritesAsCharCollection 
+            || formatFlags.HasAsCollectionFlag()))
+         || formatFlags.HasAsStringContentFlag())
             return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;
         if (collectionElementType.IsByte() && JsonOptions.ByteArrayWritesBase64String)
             return Gb.Complete(fmtFlgs).SeparatorPaddingRange?.PaddingRange?.Length() ?? 0;

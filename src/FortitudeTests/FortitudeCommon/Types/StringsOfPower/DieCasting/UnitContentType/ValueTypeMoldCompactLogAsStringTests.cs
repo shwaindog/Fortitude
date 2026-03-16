@@ -98,8 +98,8 @@ public class ContentTypeMoldCompactLogAsStringTests : ContentTypeMoldAsStringTes
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BoolTestData.AllBoolExpectations[3], ScaffoldingRegistry.AllScaffoldingTypes[1200]
-                                           , StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[26], ScaffoldingRegistry.AllScaffoldingTypes[1200],
+                                             StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
@@ -107,7 +107,7 @@ public class ContentTypeMoldCompactLogAsStringTests : ContentTypeMoldAsStringTes
     {
         var compactLogTemplate = 
             condition.HasComplexTypeFlag() && className.IsStringBearerOrNullableCached() 
-                    ? "({0}) {{ {1}: {2} }}"
+                    ? "{0} {{ {1}: {2} }}"
                     : "({0}) {2}" ;
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);

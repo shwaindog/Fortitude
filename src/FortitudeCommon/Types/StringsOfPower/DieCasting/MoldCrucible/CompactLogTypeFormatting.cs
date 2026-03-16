@@ -193,38 +193,23 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         return (resolvedWrittenAs, resolvedFlags);
     }
 
-    public (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags(ITheOneString tos, Type actualType, WrittenAsFlags proposedWriteType
+    public virtual (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags(ITheOneString tos, Type actualType, WrittenAsFlags proposedWriteType
       , VisitResult visitResult, FormatFlags formatFlags)
     {
+        actualType = actualType.IfRecyclableContainerGetType();
+        
         var resolvedFlags     = formatFlags;
         var resolvedWrittenAs = proposedWriteType;
 
         var settings = tos.Settings;
-        
-        var actualTypeFullName = actualType.FullName ?? "";
 
-        var showOrSuppress = visitResult.IsARevisit;
-        if (!showOrSuppress)
+        var shouldDisplayTypeName = visitResult.IsARevisit;
+        if (!shouldDisplayTypeName)
         {
-            if (actualType.IsIterable())
-            {
-                var elementType         = actualType.GetIterableElementType() ?? actualType;
-                var elementTypeFullName = elementType.FullName ?? "";
-
-                showOrSuppress =
-                    !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => actualTypeFullName.StartsWith(s))
-                   && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)));
-            }
-            else
-            {
-                showOrSuppress =
-                    !StyleOptions
-                     .LogSuppressDisplayTypeNames
-                     .Any(s => actualTypeFullName.StartsWith(s));
-            }
+            shouldDisplayTypeName = StyleOptions.ShouldDisplayTypeName(actualType);
         }
-        var shouldShowTypeNameDecision = showOrSuppress ? AddTypeNameField : LogSuppressTypeNames;
-        
+        var shouldShowTypeNameDecision = shouldDisplayTypeName ? AddTypeNameField : LogSuppressTypeNames;
+
         switch (proposedWriteType & WrittenAsFlagsExtensions.ProposedMaskSelectionMask)
         {
             case AsObject | AsRaw:
@@ -241,7 +226,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             case AsCollectionItem | WrittenAsFlags.AsCollection | AsSimple:
             case AsCollectionItem | WrittenAsFlags.AsCollection | AsComplex:
             case AsCollectionItem | WrittenAsFlags.AsCollection | AsRaw:
-            case AsObject | AsComplex:
             case WrittenAsFlags.AsCollection | AsRaw:
             case WrittenAsFlags.AsCollection | AsSimple:
             case WrittenAsFlags.AsCollection | AsComplex:
@@ -254,51 +238,83 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 resolvedFlags = formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType;
                 if (visitResult.IsARevisit)
                 {
-                    resolvedFlags     &= ~(SuppressOpening | SuppressClosing);
+                    resolvedFlags     &= ~(SuppressOpening | SuppressClosing | LogSuppressTypeNames);
                     resolvedFlags     |= AddTypeNameField;
                     resolvedWrittenAs |= WithReferenceToInstanceId;
                 }
-                if (actualType.IsStringBearerOrNullableCached())
+                var isPalantirRevealer = actualType.IsConcreteOfGeneric(typeof(PalantírReveal<>));
+                if (actualType.IsStringBearerOrNullableCached() || isPalantirRevealer)
                 {
-                    if (visitResult is { ReusedCount: <= 0 }
-                        // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
-                     && (proposedWriteType.HasAllOf(AsComplex | AsContent | AsOuterType))
-                     || proposedWriteType.HasAllOf(AsComplex | AsCollectionItem)
-                       )
+                    resolvedFlags |= shouldShowTypeNameDecision;
+                    if (visitResult is { IsARevisit: false }
+                     && (proposedWriteType.HasAllOf(AsSimple | WrittenAsFlags.AsCollection)
+                      || proposedWriteType.HasAllOf(AsComplex | WrittenAsFlags.AsCollection)
+                      || proposedWriteType.HasAllOf(AsRaw | WrittenAsFlags.AsCollection)))
                     {
-                        resolvedFlags     |= shouldShowTypeNameDecision | ContentAllowComplexType;
-                        resolvedWrittenAs &= ~(AsContent);
-                        resolvedWrittenAs |= AsComplex | AsObject;
-                    }
-                    else if (visitResult is { ReusedCount: <= 0 }
-                             // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
-                          && (proposedWriteType.HasAllOf(AsSimple | AsContent | AsOuterType)))
-                    {
-                        resolvedFlags     |= SuppressOpening | SuppressClosing | shouldShowTypeNameDecision;
-                        resolvedWrittenAs &= ~(AsComplex);
-                        resolvedWrittenAs |= AsContent | AsSimple;
-                        resolvedWrittenAs |= visitResult.IsARevisit ? Empty : ShowSuppressedContents;
-                    }
-                    else if (visitResult is { IsARevisit: false }
-                          && (proposedWriteType.HasAllOf(AsSimple | WrittenAsFlags.AsCollection)
-                           || proposedWriteType.HasAllOf(AsComplex | WrittenAsFlags.AsCollection)
-                           || proposedWriteType.HasAllOf(AsRaw | WrittenAsFlags.AsCollection)))
-                    {
-                        if (visitResult.ReusedCount <= 0) { resolvedFlags &= ~(SuppressOpening | SuppressClosing); }
-                        resolvedFlags     |= shouldShowTypeNameDecision;
+                        if (!actualType.IsValueType && visitResult.ReusedCount <= 0) { resolvedFlags &= ~(SuppressOpening | SuppressClosing); }
                         resolvedWrittenAs |= AsContent;
+                        break;
                     }
-                    else if ((proposedWriteType.HasAllOf(AsCollectionItem)))
+                    if ((proposedWriteType.HasAllOf(AsCollectionItem))
+                     && proposedWriteType.HasNoneOf(AsContent))
                     {
+                        resolvedWrittenAs |= AsContent;
+                        if (actualType.IsValueType) { break; }
                         if (visitResult is { IsARevisit: false, ReusedCount: <= 0 })
                         {
                             resolvedFlags     |= SuppressOpening | SuppressClosing;
                             resolvedWrittenAs |= ShowSuppressedContents;
                         }
                         else { resolvedFlags &= ~(SuppressOpening | SuppressClosing); }
-                        resolvedFlags |= shouldShowTypeNameDecision | ContentAllowComplexType;
+                        resolvedFlags     |= ContentAllowComplexType;
                         resolvedWrittenAs &= ~(AsSimple);
-                        resolvedWrittenAs |= AsContent | AsComplex;
+                        resolvedWrittenAs |= AsComplex;
+                        break;
+                    }
+                    if (visitResult is { ReusedCount: <= 0 }
+                        // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
+                     && (proposedWriteType.HasAllOf(AsComplex | AsContent | AsOuterType))
+                     || (proposedWriteType.HasAllOf(AsComplex | AsCollectionItem)))
+                    {
+                        resolvedFlags     |= ContentAllowComplexType;
+                        resolvedWrittenAs &= ~(AsContent);
+                        resolvedWrittenAs |= AsComplex | AsObject;
+                        break;
+                    }
+                    if (visitResult is { ReusedCount: <= 0 }
+                        // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
+                     && !actualType.IsValueType
+                     && (proposedWriteType.HasAllOf(AsSimple | AsContent | AsOuterType)
+                      || (proposedWriteType.HasAllOf(AsComplex | AsCollectionItem))))
+                    {
+                        resolvedFlags     |= SuppressOpening | SuppressClosing;
+                        resolvedWrittenAs &= ~(AsComplex);
+                        resolvedWrittenAs |= AsContent | AsSimple;
+                        resolvedWrittenAs |= visitResult.IsARevisit ? Empty : ShowSuppressedContents;
+                        break;
+                    }
+                    if (visitResult is { ReusedCount: <= 0 }
+                        // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
+                     && proposedWriteType.HasAllOf(AsContent | AsInnerType))
+                    {
+                        if (!actualType.IsValueType && !isPalantirRevealer)
+                        {
+                            resolvedFlags     |= SuppressOpening | SuppressClosing;
+                            resolvedWrittenAs &= ~(AsComplex | AsContent);
+                            resolvedWrittenAs |= AsSimple | AsObject;
+
+                            resolvedWrittenAs |= visitResult.IsARevisit ? Empty : ShowSuppressedContents;
+                        }
+                        else
+                        {
+                            resolvedFlags |= ContentAllowComplexType;
+                            if (proposedWriteType.HasNoneOf(AsCollectionItem))
+                            {
+                                resolvedWrittenAs &= ~(AsContent);
+                                resolvedWrittenAs |= AsObject;
+                            }
+                        }
+                        break;
                     }
                     // else 
                     // if (visitResult is { IsARevisit: true, ReusedCount: <= 0 } 
@@ -311,21 +327,23 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                     //     resolvedWrittenAs |= ShowSuppressedContents;
                     //     resolvedWrittenAs |= AsComplex | AsObject;
                     // }
-                    else if (visitResult.ReusedCount <= 0
-                             // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
-                          && (proposedWriteType.HasAsRawFlag()) && !proposedWriteType.HasAsCollectionFlag())
+                    if (visitResult.ReusedCount <= 0
+                        // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
+                     && !actualType.IsValueType
+                     && (proposedWriteType.HasAsRawFlag())
+                     && !proposedWriteType.HasAsCollectionFlag())
                     {
-                        resolvedFlags |= SuppressOpening | SuppressClosing | ContentAllowComplexType | shouldShowTypeNameDecision;
+                        resolvedFlags |= SuppressOpening | SuppressClosing | ContentAllowComplexType;
                         // resolvedFlags     |= LogSuppressTypeNames;
                         resolvedWrittenAs |= ShowSuppressedContents;
                         resolvedWrittenAs &= ~(AsContent);
                         resolvedWrittenAs |= AsComplex | AsObject;
+                        break;
                     }
-                    break;
                 }
                 if (actualType.IsSpanFormattableOrNullableCached() || actualType.IsBoolOrNullable())
                 {
-                    resolvedFlags     |= shouldShowTypeNameDecision;
+                    resolvedFlags |= shouldShowTypeNameDecision;
                     if (visitResult.IsARevisit)
                     {
                         // resolvedFlags     |= AddTypeNameField;
@@ -340,10 +358,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                         if (visitResult.ReusedCount <= 0
                             // if (visitResult is { IsARevisit: false, ReusedCount: <= 0 } 
                          && (formatFlags.HasContentTreatmentFlags()
-                          && (proposedWriteType.HasAllOf(AsContent | AsInnerType)
+                          && (!proposedWriteType.HasAllOf(AsContent | AsInnerType)
                            || proposedWriteType.HasAllOf(AsRaw | AsContent))))
                         {
-                            resolvedFlags     |= SuppressOpening | SuppressClosing | LogSuppressTypeNames;
+                            resolvedFlags     |= SuppressOpening | SuppressClosing;
                             resolvedWrittenAs |= ShowSuppressedContents | AsContent;
                         }
                     }
@@ -366,7 +384,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 }
                 if (actualType.IsAnyTypeHoldingCharsCached())
                 {
-                    resolvedFlags     |= shouldShowTypeNameDecision;
+                    resolvedFlags |= shouldShowTypeNameDecision;
                     if (resolvedWrittenAs.HasAnyOf(AsRaw | AsContent) && visitResult.IsARevisit)
                     {
                         if ((settings.InstanceTrackingIncludeStringInstances
@@ -469,7 +487,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             //         }
             //     }
             //     break;
-            case AsComplex | AsRaw | AsContent:
             case AsMapCollection:
                 resolvedFlags |= formatFlags | ContentAllowNull | ContentAllowNumber | ContentAllowText | ContentAllowAnyValueType |
                                  ContentAllowComplexType;
@@ -477,8 +494,17 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                     ? AsSimple | AsMapCollection
                     : AsComplex | AsMapCollection;
                 break;
+            case AsComplex | AsCollectionItem:
+            case AsComplex | AsRaw | AsCollectionItem:
+            case AsComplex | AsRaw | AsContent:
+            case AsComplex | AsObject:
+            case AsComplex | AsRaw:
             case AsComplex:
                 resolvedFlags |= ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType;
+                // if (proposedWriteType.HasAsCollectionItemFlag())
+                // {
+                //     resolvedWrittenAs |= AsContent;
+                // }
                 if (visitResult.IsARevisit)
                 {
                     // if (visitResult.ReusedCount < 0)
@@ -492,9 +518,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                     //         resolvedFlags |= SuppressOpening | SuppressClosing | AddTypeNameField;
                     //     }
                     // }
-                    resolvedFlags &= (SuppressOpening | SuppressClosing);
-
-                    resolvedFlags     |= shouldShowTypeNameDecision;
+                    resolvedFlags     &= (SuppressOpening | SuppressClosing);
                     resolvedWrittenAs |= WithReferenceToInstanceId;
                     break;
                 }
@@ -507,8 +531,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                 //     }
                 //     break;
                 // }
-                resolvedWrittenAs =  AsComplex | AsObject;
-                resolvedFlags     |= ContentAllowComplexType;
+                resolvedWrittenAs |= AsComplex | AsObject;
+                resolvedFlags     |= ContentAllowComplexType | shouldShowTypeNameDecision;
                 break;
             default: resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType; break;
         }
@@ -527,26 +551,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var buildingType = instanceToOpen is IRecyclableStructContainer structContainer
             ? structContainer.StoredType
             : (instanceToOpen as Type ?? (instanceToOpen?.GetType() ?? typeof(T)));
-        var buildingTypeFullName = buildingType.FullName ?? "";
         Gb.StartNextContentSeparatorPaddingSequence(sb, mergedFlags);
         if ((!mws.WroteTypeName && mergedFlags.DoesNotHaveLogSuppressTypeNamesFlag()) &&
             (!mergedFlags.HasSuppressOpening() || mergedFlags.HasAddTypeNameFieldFlag()))
         {
-            var showTypeName = false;
-
-            showTypeName |= (openAs.HasAnyOf(AsContent | AsObject)
-                          && (!(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildingTypeFullName.StartsWith(s))))
-                          || mergedFlags.HasAddTypeNameFieldFlag());
-
-            if (!showTypeName)
-            {
-                var elementType         = buildingType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? buildingType;
-                var elementTypeFullName = elementType.FullName ?? "";
-                showTypeName |= (openAs.HasAsCollectionFlag()
-                              && !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => buildingTypeFullName.StartsWith(s))
-                                && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)))
-                              || (mws.MoldGraphVisit.IsARevisit && mws is ICollectionMoldWriteState { IsSimple: true }));
-            }
+            var showTypeName = mergedFlags.HasAddTypeNameFieldFlag() || StyleOptions.ShouldDisplayTypeName(buildingType);
 
             if (showTypeName)
             {
@@ -611,7 +620,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var buildingType = instanceToOpen is IRecyclableStructContainer structContainer
             ? structContainer.StoredType
             : (instanceToOpen?.GetType() ?? typeof(T));
-        var buildTypeFullName = buildingType.FullName ?? "";
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
 
@@ -620,21 +628,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (!mws.WroteTypeName && mergedFlags.DoesNotHaveLogSuppressTypeNamesFlag() &&
             (!mergedFlags.HasSuppressOpening() || mergedFlags.HasAddTypeNameFieldFlag()))
         {
-            var showTypeName = false;
-
-            showTypeName |= (openAs.HasAnyOf(AsContent | AsObject)
-                          && (!(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s))))
-                          || mergedFlags.HasAddTypeNameFieldFlag());
-
-            if (!showTypeName)
-            {
-                var elementType         = buildingType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? buildingType;
-                var elementTypeFullName = elementType.FullName ?? "";
-                showTypeName |= (openAs.HasAsCollectionFlag()
-                              && !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => buildTypeFullName.StartsWith(s))
-                                && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)))
-                              || (mws.MoldGraphVisit.IsARevisit && mws is ICollectionMoldWriteState { IsSimple: true }));
-            }
+            var showTypeName = mergedFlags.HasAddTypeNameFieldFlag() || StyleOptions.ShouldDisplayTypeName(buildingType);
 
             if (showTypeName)
             {
@@ -1456,8 +1450,13 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
-        var sb                = mws.Sb;
-        var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+        var sb = mws.Sb;
+
+        var parentFlags          = mws.CreateMoldFormatFlags;
+        var grandParentCallFlags = mws.Caller.FormatFlags;
+        var inherited  = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
+
+        var withMoldInherited = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
@@ -1502,7 +1501,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TBearer : IStringBearer?
     {
         var sb                = mws.Sb;
-        var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+
+        var parentFlags          = mws.CreateMoldFormatFlags;
+        var grandParentCallFlags = mws.Caller.FormatFlags;
+        var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
+        
+        var withMoldInherited = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
@@ -1815,7 +1819,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         where TRevealBase : notnull
     {
         var sb                = mws.Sb;
-        var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+
+        var parentFlags          = mws.CreateMoldFormatFlags;
+        var grandParentCallFlags = mws.Caller.FormatFlags;
+        var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
+        
+        var withMoldInherited    = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited);
@@ -1863,7 +1872,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         var sb = mws.Sb;
 
-        var withMoldInherited = callerFormatFlags | mws.CreateMoldFormatFlags.MoldMultiGenerationPassFlags();
+        var parentFlags          = mws.CreateMoldFormatFlags;
+        var grandParentCallFlags = mws.Caller.FormatFlags;
+        var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
+        
+        var withMoldInherited    = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited);
         mws.Master.SetCallerFormatString(callerFormatString);
         mws.Master.SetCallerFormatFlags(withMoldInherited);
@@ -2102,8 +2115,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             var writtenAsNull = AppendFormattedNull(sb, callerFormatString);
             return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
+        
+        var parentFlags          = mws.CreateMoldFormatFlags;
+        var grandParentCallFlags = mws.Caller.FormatFlags;
+        var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
+        var withInherited        = callerFormatFlags | inherited;
+        
+        mws.Master.SetCallerFormatFlags(withInherited);
+        mws.Master.SetCallerWriteAs(AsCollectionItem);
         mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(callerFormatFlags);
+        
         var contentStart       = sb.Length;
         var stateExtractResult = styler(item, mws.Master);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
@@ -2202,8 +2223,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             return mws.Master.UnregisteredAppend(mws.TypeBeingBuilt, startAt, sb.Length, writtenAsNull, actualType);
         }
         var contentStart = sb.Length;
+        
+        var parentFlags          = mws.CreateMoldFormatFlags;
+        var grandParentCallFlags = mws.Caller.FormatFlags;
+        var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
+        var withInherited        = callerFormatFlags | inherited;
+        
+        mws.Master.SetCallerFormatFlags(withInherited);
+        mws.Master.SetCallerWriteAs(AsCollectionItem);
         mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(callerFormatFlags);
+        
         var stateExtractResult = item.RevealState(mws.Master);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);

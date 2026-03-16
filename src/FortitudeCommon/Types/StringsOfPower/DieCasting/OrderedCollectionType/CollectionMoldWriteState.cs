@@ -55,9 +55,9 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
 
         if (collection != null && !buildTypeSameAsCollectionType && !collType.IsValueType)
         {
-            return Master.EnsureRegisteredClassIsReferenceTracked
+            return Master.GetTrackedInstanceMold
                 (collection, flags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
-                 , CreateMoldFormatFlags.RemoveEmbeddedContentFlags());
+                 , CreateMoldFormatFlags.RemoveInstanceTrackingFlags());
         }
         
         return null;
@@ -67,7 +67,7 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
     {
         formatFlags = formatFlags.RemoveEmbeddedContentFlags();
         TrackedInstanceMold? valueMold              = null;
-        var                  previousWroteOuterName = WroteTypeName;
+        
         if (collection is not null and not Type)
         {
             var actualType = collection.GetType();
@@ -85,19 +85,18 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
                 }
                 if (!buildTypeSameAsCollectionType)
                 {
-                    WroteTypeName = false;
-                    
-                    var actualTypeFullName  = actualType.FullName ?? "";
-                    var elementTypeFullName = elementType.IfNullableGetUnderlyingTypeOrThis().FullName ?? "";
-                    var shouldShowInnerCollectionName =
-                        (!Settings.LogSuppressDisplayCollectionNames.Any(s => actualTypeFullName.StartsWith(s))
-                      && !Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)));
+                    var shouldShowInnerCollectionName = Settings.ShouldDisplayCollectionTypeName(actualType);
                     if (shouldShowInnerCollectionName)
                     {
+                        var previousWroteOpen     = WroteTypeOpen;
+                        var previousWroteTypeName = WroteTypeName;
+                        WroteTypeOpen = false;
+                        WroteTypeName = false;
                         Sf.StartSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
                         Sf.FinishSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                        WroteTypeOpen = previousWroteOpen;
+                        WroteTypeName = previousWroteTypeName;
                     }
-                    WroteTypeName = previousWroteOuterName;
                 }
             }
         } else if (collection is Type collType)
@@ -112,18 +111,18 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
             }
             if(!buildTypeSameAsCollectionType)
             {
-                WroteTypeName = false;
-                var collTypeFullName = collType.FullName ?? "";
-                var elementTypeFullName = elementType.IfNullableGetUnderlyingTypeOrThis().FullName ?? "";
-                var shouldShowInnerCollectionName =
-                    (!Settings.LogSuppressDisplayCollectionNames.Any(s => collTypeFullName.StartsWith(s))
-                  && !Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)));
+                var shouldShowInnerCollectionName = Settings.ShouldDisplayCollectionTypeName(collType);
                 if (shouldShowInnerCollectionName)
                 {
-                    Sf.StartSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
-                    Sf.FinishSimpleTypeOpening(collType, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                    var previousWroteOpen     = WroteTypeOpen;
+                    var previousWroteTypeName = WroteTypeName;
+                    WroteTypeOpen = false;
+                    WroteTypeName = false;
+                    Sf.StartSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                    Sf.FinishSimpleTypeOpening(collection, this, AsSimple | WrittenAsFlags.AsCollection, formatFlags);
+                    WroteTypeOpen = previousWroteOpen;
+                    WroteTypeName = previousWroteTypeName;
                 }
-                WroteTypeName = previousWroteOuterName;
             }
         }
         // always open and close here

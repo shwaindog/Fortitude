@@ -546,7 +546,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
@@ -576,7 +578,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
@@ -620,7 +624,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparatorAndPadding(elementType, sb, i, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
@@ -649,7 +655,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
@@ -693,7 +701,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
@@ -730,7 +740,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
@@ -773,7 +785,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
@@ -810,7 +824,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Length && arg0[i + 1] is char lowSurrogateChar)
@@ -856,7 +872,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
@@ -886,7 +904,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
@@ -930,7 +950,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0[i];
             if (i > 0) AddCollectionElementSeparator(elementType, sb, i);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
@@ -959,7 +981,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item              = arg0[i];
             if (i > 0) addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, i, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (i + 1 < arg0.Count && arg0[i + 1] is char lowSurrogateChar)
@@ -1005,7 +1029,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection = true;
             }
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
@@ -1054,7 +1080,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             }
             if (itemCount > 0)
                 addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
@@ -1113,7 +1141,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 hasStartedCollection = true;
             }
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
@@ -1160,7 +1190,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             }
             if (itemCount > 0)
                 addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
@@ -1221,7 +1253,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0.Current;
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
@@ -1264,7 +1298,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             if (itemCount > 0)
                 addedChars += AddCollectionElementSeparatorAndPadding
                     (elementType, destCharSpan, destStartIndex + addedChars, itemCount, formatSwitches);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
@@ -1316,7 +1352,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             var item = arg0.Current;
             if (itemCount > 0) AddCollectionElementSeparator(elementType, sb, itemCount);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { ContentEncoder.Transfer(new Rune(iChar), sb); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
@@ -1354,7 +1392,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
             var item = arg0.Current;
             if (itemCount > 0)
                 addedChars += AddCollectionElementSeparatorAndPadding(elementType, destCharSpan, destStartIndex + addedChars, itemCount);
-            if (item is char iChar && !JsonOptions.CharBufferWritesAsCharCollection)
+            if (item is char iChar && (formatSwitches.TreatCharArrayAsString()
+                                    || !(JsonOptions.CharBufferWritesAsCharCollection 
+                                      || formatSwitches.HasAsCollectionFlag())))
             {
                 if (iChar.IsSingleCharRune()) { addedChars += ContentEncoder.Transfer(new Rune(iChar), destCharSpan, destStartIndex + addedChars); }
                 else if (iChar.IsTwoCharHighSurrogate()) { lastChar = iChar; }
@@ -1388,7 +1428,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int CollectionStart(Type elementType, IStringBuilder sb, bool hasItems
       , FormatSwitches formatSwitches = EncodeInnerContent)
     {
-        if (elementType == typeof(char) && (!JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.TreatCharArrayAsString()))
+        if (elementType == typeof(char) 
+         && (formatSwitches.TreatCharArrayAsString()
+          || !(JsonOptions.CharBufferWritesAsCharCollection 
+            || formatSwitches.HasAsCollectionFlag())))
         {
             return formatSwitches.ShouldDelimit() ? sb.Append(DblQt).ReturnCharCount(1) : 0;
         }
@@ -1400,9 +1443,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int CollectionStart(Type elementType, Span<char> destSpan, int destStartIndex, bool hasItems
       , FormatSwitches formatSwitches = EncodeInnerContent)
     {
-        if (elementType == typeof(char) &&
-            (!JsonOptions.CharBufferWritesAsCharCollection
-          || formatSwitches.TreatCharArrayAsString()))
+        if (elementType == typeof(char) 
+         && (formatSwitches.TreatCharArrayAsString()
+          || !(JsonOptions.CharBufferWritesAsCharCollection 
+            || formatSwitches.HasAsCollectionFlag())))
             return formatSwitches.ShouldDelimit() ? destSpan.OverWriteAt(destStartIndex, DblQt) : 0;
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return destSpan.OverWriteAt(destStartIndex, DblQt);
         if (elementType == typeof(KeyValuePair<string, JsonNode>)) return destSpan.OverWriteAt(destStartIndex, BrcOpn);
@@ -1412,9 +1456,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int AddCollectionElementSeparator(Type collectionElementType, IStringBuilder sb, int nextItemNumber
       , FormatSwitches formatSwitches = EncodeInnerContent)
     {
-        if (collectionElementType == typeof(char) &&
-            (!JsonOptions.CharBufferWritesAsCharCollection
-          || formatSwitches.TreatCharArrayAsString()))
+        if (collectionElementType == typeof(char) 
+         && (formatSwitches.TreatCharArrayAsString()
+            || !(JsonOptions.CharBufferWritesAsCharCollection 
+              || formatSwitches.HasAsCollectionFlag())))
             return 0;
         if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
         return sb.Append(Cma).ReturnCharCount(1);
@@ -1423,9 +1468,10 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
     public override int AddCollectionElementSeparator(Type collectionElementType, Span<char> destSpan, int atIndex, int nextItemNumber
       , FormatSwitches formatSwitches = EncodeInnerContent)
     {
-        if (collectionElementType == typeof(char) &&
-            (!JsonOptions.CharBufferWritesAsCharCollection
-          || formatSwitches.TreatCharArrayAsString()))
+        if (collectionElementType == typeof(char) 
+         && (formatSwitches.TreatCharArrayAsString()
+          || !(JsonOptions.CharBufferWritesAsCharCollection 
+            || formatSwitches.HasAsCollectionFlag())))
             return 0;
         if (collectionElementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String) return 0;
         return destSpan.OverWriteAt(atIndex, Cma);
@@ -1439,8 +1485,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case Rune runeItem:
-                if (formatSwitches.DoesNotHaveAsCollectionFlag()
-                 && (!JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.TreatCharArrayAsString()))
+                if (formatSwitches.TreatCharArrayAsString()
+                  || !(JsonOptions.CharBufferWritesAsCharCollection 
+                    || formatSwitches.HasAsCollectionFlag()))
                 {
                     if(formatSwitches.HasEncodeInnerContent()) ContentEncoder.Transfer(runeItem, sb);
                     else  sb.Append(runeItem);
@@ -1452,7 +1499,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 if (formatSwitches.ShouldDelimit()) sb.Append(DblQt);
                 return sb.Length - preAppendLen;
             case char charItem:
-                if (formatSwitches.DoesNotHaveAsCollectionFlag() && (!JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.TreatCharArrayAsString()))
+                if (formatSwitches.TreatCharArrayAsString()
+                 || !(JsonOptions.CharBufferWritesAsCharCollection 
+                   || formatSwitches.HasAsCollectionFlag()))
                 {
                     if (charItem.IsSingleCharRune())
                     {
@@ -1491,8 +1540,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case Rune runeItem:
-                if (formatSwitches.DoesNotHaveAsCollectionFlag() 
-                 && (!JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.TreatCharArrayAsString()))
+                if (formatSwitches.TreatCharArrayAsString()
+                 || !(JsonOptions.CharBufferWritesAsCharCollection 
+                   || formatSwitches.HasAsCollectionFlag()))
                 { return ContentEncoder.Transfer(runeItem, destCharSpan, destStartIndex); }
 
                 if (formatSwitches.ShouldDelimit()) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
@@ -1500,7 +1550,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 if (formatSwitches.ShouldDelimit()) charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
                 return charsAdded;
             case char charItem:
-                if ((formatSwitches.DoesNotHaveAsCollectionFlag()) && (!JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.TreatCharArrayAsString()))
+                if (formatSwitches.TreatCharArrayAsString()
+                 || !(JsonOptions.CharBufferWritesAsCharCollection 
+                   || formatSwitches.HasAsCollectionFlag()))
                 {
                     if (charItem.IsSingleCharRune()) return ContentEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
                     return 0;
@@ -1534,8 +1586,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         {
             case Rune runeItem:
                 
-                if (formatSwitches.DoesNotHaveAsCollectionFlag() 
-                 && (!JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.TreatCharArrayAsString()))
+                if (formatSwitches.TreatCharArrayAsString()
+                 || !(JsonOptions.CharBufferWritesAsCharCollection 
+                   || formatSwitches.HasAsCollectionFlag()))
                 { return ContentEncoder.Transfer(runeItem, sb); }
 
                 if (formatSwitches.ShouldDelimit()) sb.Append(DblQt).ReturnCharCount(1);
@@ -1545,8 +1598,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 if (formatSwitches.ShouldDelimit()) sb.Append(DblQt).ReturnCharCount(1);
                 return sb.Length - preAppendLen;
             case char charItem:
-                if (formatSwitches.DoesNotHaveAsCollectionFlag() 
-                 && (!JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.TreatCharArrayAsString()))
+                if (formatSwitches.TreatCharArrayAsString()
+                 || !(JsonOptions.CharBufferWritesAsCharCollection 
+                   || formatSwitches.HasAsCollectionFlag()))
                 {
                     if (charItem.IsSingleCharRune()) return ContentEncoder.Transfer(new Rune(charItem), sb);
                     return 0;
@@ -1576,8 +1630,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         switch (nextItem)
         {
             case Rune runeItem:
-                if (formatSwitches.DoesNotHaveAsCollectionFlag() 
-                 && (!JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.TreatCharArrayAsString())) 
+                if (formatSwitches.TreatCharArrayAsString()
+                 || !(JsonOptions.CharBufferWritesAsCharCollection 
+                   || formatSwitches.HasAsCollectionFlag()))
                 { return ContentEncoder.Transfer(runeItem, destCharSpan, destStartIndex); }
 
                 if (formatSwitches.ShouldDelimit()) charsAdded += destCharSpan.OverWriteAt(destStartIndex, DblQt);
@@ -1587,8 +1642,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
                 if (formatSwitches.ShouldDelimit()) charsAdded += destCharSpan.OverWriteAt(destStartIndex + charsAdded, DblQt);
                 return charsAdded;
             case char charItem:
-                if (formatSwitches.DoesNotHaveAsCollectionFlag() 
-                 && (!JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.TreatCharArrayAsString()))
+                if (formatSwitches.TreatCharArrayAsString()
+                 || !(JsonOptions.CharBufferWritesAsCharCollection 
+                   || formatSwitches.HasAsCollectionFlag()))
                 {
                     if (charItem.IsSingleCharRune()) return ContentEncoder.Transfer(new Rune(charItem), destCharSpan, destStartIndex);
                     return 0;
@@ -1687,8 +1743,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
       , FormatSwitches formatSwitches = EncodeInnerContent)
     {
         if (elementType == typeof(char) &&
-            (!JsonOptions.CharBufferWritesAsCharCollection
-          || formatSwitches.TreatCharArrayAsString()))
+            (formatSwitches.TreatCharArrayAsString()
+          || !(JsonOptions.CharBufferWritesAsCharCollection 
+            || formatSwitches.HasAsCollectionFlag())))
             return formatSwitches.ShouldDelimit() ? sb.Append(DblQt).ReturnCharCount(1) : 0;
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String)
         {
@@ -1705,8 +1762,9 @@ public class JsonFormatter : CustomStringFormatter, ICustomStringFormatter
         CharSpanCollectionScratchBuffer?.DecrementRefCount();
         CharSpanCollectionScratchBuffer = null;
         if (elementType == typeof(char) &&
-            (!JsonOptions.CharBufferWritesAsCharCollection
-          || formatSwitches.TreatCharArrayAsString()))
+            (formatSwitches.TreatCharArrayAsString()
+          || !(JsonOptions.CharBufferWritesAsCharCollection 
+            || formatSwitches.HasAsCollectionFlag())))
             return formatSwitches.ShouldDelimit() ? destSpan.OverWriteAt(destIndex, DblQt) : 0;
         if (elementType == typeof(byte) && JsonOptions.ByteArrayWritesBase64String)
         {

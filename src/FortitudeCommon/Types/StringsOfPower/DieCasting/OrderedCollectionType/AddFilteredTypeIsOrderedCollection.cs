@@ -1284,7 +1284,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1331,7 +1331,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1380,7 +1380,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1427,7 +1427,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1477,7 +1477,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1525,7 +1525,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1574,7 +1574,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1622,7 +1622,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1677,7 +1677,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1732,7 +1732,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1795,7 +1795,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1858,7 +1858,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;

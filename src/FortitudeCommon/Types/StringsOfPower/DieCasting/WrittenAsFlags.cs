@@ -50,6 +50,7 @@ public static class WrittenAsFlagsExtensions
     public static bool           HasAsObjectFlag(this WrittenAsFlags flags)           => (flags & AsObject) > 0;
     public static bool           HasAsCollectionFlag(this WrittenAsFlags flags)       => (flags & AsCollection) > 0;
     public static bool           HasAsMapCollectionFlag(this WrittenAsFlags flags)    => (flags & AsMapCollection) > 0;
+    public static bool           HasAsCollectionItemFlag(this WrittenAsFlags flags)   => (flags & AsCollectionItem) > 0;
     public static bool           HasAsSimpleFlag(this WrittenAsFlags flags)           => (flags & AsSimple) > 0;
     public static bool           HasAsComplexFlag(this WrittenAsFlags flags)          => (flags & AsComplex) > 0;
     public static bool           HasAsOuterTypeFlag(this WrittenAsFlags flags)        => (flags & AsOuterType) > 0;

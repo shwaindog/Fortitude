@@ -73,7 +73,7 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     ComplexOrderedCollectionMold StartComplexCollectionType<T>(T toStyle, CreateContext createContext = default);
 
-    TrackedInstanceMold EnsureRegisteredClassIsReferenceTracked<T>(T toStyle, FormatFlags innerContentFormatFlags
+    TrackedInstanceMold GetTrackedInstanceMold<T>(T toStyle, FormatFlags innerContentFormatFlags
       , WrittenAsFlags proposedWriteAs = AsRaw, CreateContext createContext = default);
 
     ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Type typeOfToStyle
@@ -307,7 +307,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public StyleOptions Settings
     {
-        get => settings ??= AlwaysRecycler.Borrow<StyleOptions>();
+        [DebuggerStepThrough] get => settings ??= AlwaysRecycler.Borrow<StyleOptions>();
         set
         {
             if (ReferenceEquals(settings, value)) return;
@@ -333,7 +333,12 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public TypeMolder? CurrentTypeBuilder => CurrentRegisteredTypeAccess?.Mold;
 
-    public CallerContext CallerContext => MyActiveGraphRegistry.CurrentNode?.MoldState?.Caller ?? new CallerContext();
+    public CallerContext CallerContext => 
+        (unregisteredVisitMolds?.Any() ?? false) 
+            ? unregisteredVisitMolds[^1].Caller
+            : (MyActiveGraphRegistry.CurrentNode?.MoldState?.Caller ?? new CallerContext());
+
+    private List<TypeMolder>? unregisteredVisitMolds;
 
     public CallerContext NextCallContext
     {
@@ -350,13 +355,13 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public ICustomStringFormatter Formatter
     {
-        get => Settings.Formatter ??= this.ResolveStyleFormatter();
+        [DebuggerStepThrough] get => Settings.Formatter ??= this.ResolveStyleFormatter();
         set => Settings.Formatter = value;
     }
 
     public IStyledTypeFormatting CurrentStyledTypeFormatter
     {
-        get => (IStyledTypeFormatting)Formatter;
+        [DebuggerStepThrough] get => (IStyledTypeFormatting)Formatter;
         set => Formatter = value;
     }
 
@@ -420,6 +425,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         Sb?.Clear();
         Sb ??= BufferFactory();
 
+        unregisteredVisitMolds?.Clear();
         AsStringInstanceVisitRegistry?.Clear();
         AsStringInstanceVisitRegistry?.DecrementRefCount();
         AsStringInstanceVisitRegistry = null;
@@ -596,10 +602,10 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         return subject!;
     }
 
-    public TrackedInstanceMold EnsureRegisteredClassIsReferenceTracked<T>(T toStyle, FormatFlags innerContentFormatFlags
+    public TrackedInstanceMold GetTrackedInstanceMold<T>(T toStyle, FormatFlags innerContentFormatFlags
       , WrittenAsFlags proposedWriteAs = AsRaw, CreateContext createContext = default)
     {
-        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         // var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var callWriteAs = NextCallContext.WriteAs | proposedWriteAs;
         var visitType   = typeof(T);
@@ -624,7 +630,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     KeyedCollectionMold ITheOneString.StartKeyedCollectionType<T>(T toStyle, CreateContext createContext)
     {
-        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         // var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var callWriteAs = NextCallContext.WriteAs | AsMapCollection;
         var visitType   = typeof(T);
@@ -649,7 +655,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     public ExplicitKeyedCollectionMold<TKey, TValue> StartExplicitKeyedCollectionType<TKey, TValue>(object keyValueContainerInstance
       , CreateContext createContext)
     {
-        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         // var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var callWriteAs = NextCallContext.WriteAs | AsMapCollection;
         var actualType  = keyValueContainerInstance.GetType();
@@ -674,7 +680,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public SimpleOrderedCollectionMold StartSimpleCollectionType<T>(T toStyle, CreateContext createContext = default)
     {
-        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         // var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var callWriteAs = NextCallContext.WriteAs | AsSimple | WrittenAsFlags.AsCollection;
         var visitType   = typeof(T);
@@ -699,7 +705,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public ComplexOrderedCollectionMold StartComplexCollectionType<T>(T toStyle, CreateContext createContext = default)
     {
-        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         // var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var callWriteAs = NextCallContext.WriteAs | AsComplex | WrittenAsFlags.AsCollection;
         var visitType   = typeof(T);
@@ -725,7 +731,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(object collectionInstance
       , CreateContext createContext = default)
     {
-        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         // var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var callWriteAs = NextCallContext.WriteAs | AsSimple | WrittenAsFlags.AsCollection;
         var actualType  = collectionInstance.GetType();
@@ -749,7 +755,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
     public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<TElement>(Type typeOfToStyle, CreateContext createContext = default)
     {
         // var createFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldMultiGenerationInheritFlags();
-        var callFlags     = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags     = createContext.FormatFlags | NextCallContext.FormatFlags;
         var callWriteAs   = NextCallContext.WriteAs | AsSimple | WrittenAsFlags.AsCollection;
         var actualType    = typeOfToStyle;
         var typeFormatter = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
@@ -771,7 +777,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
       , CreateContext createContext = default) where TElement : struct
     {
         // var createFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldMultiGenerationInheritFlags();
-        var callFlags     = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags     = createContext.FormatFlags | NextCallContext.FormatFlags;
         var callWriteAs   = NextCallContext.WriteAs | AsSimple | WrittenAsFlags.AsCollection;
         var actualType    = typeOfToStyle;
         var typeFormatter = TypeFormattingOverrides.GetValueOrDefault(actualType, CurrentStyledTypeFormatter);
@@ -791,7 +797,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public ExplicitOrderedCollectionMold<TElement> StartExplicitCollectionType<T, TElement>(T toStyle, CreateContext createContext = default)
     {
-        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         var callWriteAs = NextCallContext.WriteAs | AsSimple | WrittenAsFlags.AsCollection;
         // var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var visitType   = typeof(T);
@@ -815,7 +821,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public ComplexPocoTypeMold StartComplexType<T>(T toStyle, CreateContext createContext = default)
     {
-        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         // var createFlags = callFlags.MoldMultiGenerationInheritFlags();
         var callWriteAs = NextCallContext.WriteAs | AsComplex;
         var visitType   = typeof(T);
@@ -838,7 +844,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public SimpleContentTypeMold StartSimpleContentType<T>(T toStyle, CreateContext createContext = default)
     {
-        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         // var createFlags = createContext.FormatFlags | NextCallContext.FormatFlags.MoldMultiGenerationInheritFlags();
         var callWriteAs = NextCallContext.WriteAs | AsSimple | AsContent;
         var visitType   = typeof(T);
@@ -865,7 +871,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
 
     public ComplexContentTypeMold StartComplexContentType<T>(T toStyle, CreateContext createContext = default)
     {
-        var createFlags = createContext.FormatFlags | NextCallContext.FormatFlags.MoldSingleGenerationPassFlags();
+        var createFlags = createContext.FormatFlags | NextCallContext.FormatFlags;
         var callWriteAs = NextCallContext.WriteAs | AsComplex | AsContent;
         var visitType   = typeof(T);
         var actualType  = toStyle?.GetType() ?? visitType;
@@ -1054,6 +1060,11 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             }
             MyActiveGraphRegistry.CurrentGraphNodeIndex = updatedVisit.NodeVisitId.VisitIndex;
         }
+        else
+        {
+            unregisteredVisitMolds ??= new List<TypeMolder>();
+            unregisteredVisitMolds.Add(startingMold);
+        }
         // else if (!startingMold.TypeBeingBuilt.IsValueType
         //       && startingMold.TypeBeingBuilt.IsStringBearer()
         //       && visitId.VisitIndex > 0)
@@ -1120,6 +1131,13 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
                 reg[visitIndex] =
                     currentNode.MarkContentEndClearComponentAccess(currentIndex, lineCount);
                 // return;
+            }
+        } else if (unregisteredVisitMolds?.Any() ?? false)
+        {
+            var last = unregisteredVisitMolds![^1];
+            if (last.MoldVisit.VisitId == completeVisitDetails.VisitId)
+            {
+                unregisteredVisitMolds.RemoveAt(unregisteredVisitMolds.Count - 1);
             }
         }
         MyActiveGraphRegistry.TryCurrentGraphNodeChecked(completeVisitDetails.RequesterVisitId);
