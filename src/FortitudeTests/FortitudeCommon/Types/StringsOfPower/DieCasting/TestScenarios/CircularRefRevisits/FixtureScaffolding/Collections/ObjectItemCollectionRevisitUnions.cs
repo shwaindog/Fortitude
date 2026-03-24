@@ -524,7 +524,7 @@ public class ObjectOrReadOnlySpanClassUnion : IStringBearer
                     else
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
-                    return tos.StartSimpleCollectionType(this).RevealAll((ReadOnlySpan<Object?>)itemCollection, itemRevealer, null
+                    return tos.StartSimpleCollectionType(this).RevealAll((ReadOnlySpan<object?>)itemCollection, itemRevealer, null
                                                                        , isValue ? DefaultCallerTypeFlags : AsStringContent).Complete();
             else if (isItem)
                 if (isValue)
@@ -544,7 +544,7 @@ public class ObjectOrReadOnlySpanClassUnion : IStringBearer
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAll((ReadOnlySpan<Object?>)itemCollection, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       .RevealAll((ReadOnlySpan<object?>)itemCollection, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
@@ -573,7 +573,7 @@ public class ObjectOrReadOnlySpanClassUnion : IStringBearer
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllObjectNullable((ReadOnlySpan<Object?>)itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .AddAllObjectNullable((ReadOnlySpan<object?>)itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyField.AlwaysAdd(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .LogOnlyField.AlwaysAdd(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .Complete();
@@ -1451,7 +1451,7 @@ public readonly struct ObjectOrEnumeratorStructUnion : IStringBearer
                 else
                     return tos.StartSimpleCollectionType(this)
                               .RevealAllIterate<
-                                  ReusableWrappingEnumerator<Object?>?
+                                  ReusableWrappingEnumerator<object?>?
                                 , object
                                 , object
                               >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
@@ -1475,7 +1475,7 @@ public readonly struct ObjectOrEnumeratorStructUnion : IStringBearer
                 return tos
                        .StartComplexCollectionType(this)
                        .RevealAllIterate<
-                           ReusableWrappingEnumerator<Object?>?
+                           ReusableWrappingEnumerator<object?>?
                          , object
                          , object
                        >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)

@@ -40,8 +40,6 @@ public class BinaryBranchNodeAsComplexCollection<TChild> : OrderedParentNodeAsSi
     
     public TChild? Right { get; set; }
 
-    public INode? Parent { get; set; }
-
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
            // to skip over a base RevealState cast derived type to that as AddBaseRevealStateFields will then go to it's base type

@@ -1156,9 +1156,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
         var withMoldInherited = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
-        mws.Master.SetCallerWriteAs(writeAs);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withMoldInherited | IsFieldName);
+        mws.Master.WithNextCallWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (value == null)
@@ -1206,9 +1206,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         
         var withMoldInherited = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(withMoldInherited | IsFieldName);
-        mws.Master.SetCallerWriteAs(writeAs);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withMoldInherited | IsFieldName);
+        mws.Master.WithNextCallWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (styledObj == null)
@@ -1524,9 +1524,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         
         var withMoldInherited    = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited);
-        mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(withMoldInherited);
-        mws.Master.SetCallerWriteAs(writeAs);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withMoldInherited);
+        mws.Master.WithNextCallWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (value == null)
@@ -1572,9 +1572,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         
         var withMoldInherited    = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited);
-        mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(withMoldInherited);
-        mws.Master.SetCallerWriteAs(writeAs);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withMoldInherited);
+        mws.Master.WithNextCallWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (styledObj == null)
@@ -1778,9 +1778,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
         var withInherited        = callerFormatFlags | inherited;
         
-        mws.Master.SetCallerFormatFlags(withInherited);
-        mws.Master.SetCallerWriteAs(AsCollectionItem);
-        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withInherited);
+        mws.Master.WithNextCallWriteAs(AsCollectionItem);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
         
         var contentStart       = sb.Length;
         var stateExtractResult = styler(item, mws.Master);
@@ -1886,9 +1886,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
         var withInherited        = callerFormatFlags | inherited;
         
-        mws.Master.SetCallerFormatFlags(withInherited);
-        mws.Master.SetCallerWriteAs(AsCollectionItem);
-        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withInherited);
+        mws.Master.WithNextCallWriteAs(AsCollectionItem);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
         
         var stateExtractResult = item.RevealState(mws.Master);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);

@@ -1451,7 +1451,7 @@ public readonly struct StringBuilderOrEnumeratorStructUnion : IStringBearer
                 else
                     return tos.StartSimpleCollectionType(this)
                               .RevealAllIterate<
-                                  ReusableWrappingEnumerator<StringBuilder?>?
+                                  ReusableWrappingEnumerator<StringBuilder?>
                                 , StringBuilder
                                 , StringBuilder
                               >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)

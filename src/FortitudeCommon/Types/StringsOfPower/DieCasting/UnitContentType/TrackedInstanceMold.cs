@@ -12,15 +12,9 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
 public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
 {
-    private bool? shouldShowTypeName;
-    private bool  isDefaultSuppressOpenCloseType;
-    private bool  wroteTypeNameOnClose;
-
     private IStyledTypeFormatting? trackedInstanceFormatter;
 
-    private FormatFlags InnerContentFormatFLags;
-
-    private const FormatFlags BoundaryInnerContentUseMask = SuppressOpening | SuppressClosing | LogSuppressTypeNames;
+    private FormatFlags innerContentFormatFLags;
 
     public TrackedInstanceMold InitializeRawContentTypeBuilder
     (
@@ -39,7 +33,7 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, parentTypeFormatFlags);
 
-        InnerContentFormatFLags = innerContentFormatFlags;
+        innerContentFormatFLags = innerContentFormatFlags;
         return this;
     }
 
@@ -53,7 +47,7 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
             (CreateFormatFlags.HasAsStringContentFlag()
           && (Mws.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
             && Mws.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
-           || (Mws.MoldGraphVisit.IsARevisit && InnerContentFormatFLags.HasAsStringContentFlag()))
+           || (Mws.MoldGraphVisit.IsARevisit && innerContentFormatFLags.HasAsStringContentFlag()))
                 ? Mws.StyleFormatter.PreviousContextOrThis
                 : Mws.StyleFormatter;
 
@@ -62,7 +56,7 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
 
     public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
-        var mergedCreateAndInner = formatFlags | InnerContentFormatFLags;
+        var mergedCreateAndInner = formatFlags | innerContentFormatFLags;
         
         base.StartTypeOpening(usingFormatter, mergedCreateAndInner);
     }
@@ -73,7 +67,7 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
             (CreateFormatFlags.HasAsStringContentFlag()
           && (Mws.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
            && Mws.StyleFormatter.LayoutEncoder.Type != EncodingType.PassThrough)
-          || (Mws.MoldGraphVisit.IsARevisit && InnerContentFormatFLags.HasAsStringContentFlag()))
+          || (Mws.MoldGraphVisit.IsARevisit && innerContentFormatFLags.HasAsStringContentFlag()))
                 ? Mws.StyleFormatter.PreviousContextOrThis
                 : Mws.StyleFormatter;
         FinishTypeOpening(trackedInstanceFormatter, formatFlags);
@@ -81,7 +75,7 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
 
     public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
-        var mergedCreateAndInner = formatFlags | InnerContentFormatFLags;
+        var mergedCreateAndInner = formatFlags | innerContentFormatFLags;
         base.FinishTypeOpening(usingFormatter, mergedCreateAndInner);
     }
 
@@ -103,7 +97,7 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
         }
         trackedInstanceFormatter ??= sf;
         trackedInstanceFormatter.Gb.SetHistory(Mws.StyleFormatter.Gb);
-        var innerFormatFlags = InnerContentFormatFLags.RemoveContentTreatmentFlags() | Mws.CreateMoldFormatFlags.OnlyContentTreatmentFlags();
+        var innerFormatFlags = innerContentFormatFLags.RemoveContentTreatmentFlags() | Mws.CreateMoldFormatFlags.OnlyContentTreatmentFlags();
         if (Mws.Style.IsJson() && Mws is { TypeBeingBuilt.IsValueType: false } 
                                && innerFormatFlags.HasAsStringContentFlag())
         {

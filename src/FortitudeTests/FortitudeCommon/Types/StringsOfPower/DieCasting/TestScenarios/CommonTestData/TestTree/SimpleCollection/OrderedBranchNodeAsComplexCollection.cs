@@ -37,8 +37,6 @@ public class OrderedBranchNodeAsComplexCollection<TChild> : OrderedParentNodeAsS
         BranchInstanceId = Interlocked.Increment(ref BranchNodeInstanceId);
     }
 
-    public INode? Parent { get; set; }
-
     public int BranchInstanceId { get; }
 
     public override AppendSummary RevealState(ITheOneString tos)

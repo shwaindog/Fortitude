@@ -5,6 +5,8 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Reflection.Emit;
 using FortitudeCommon.Extensions;
+using static System.Reflection.BindingFlags;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
@@ -14,31 +16,41 @@ public static class KeyedCollectionGenericAddAllInvoker
 
     private const string AddAllMethodName = $"{nameof(KeyedCollectionMold.AddAll)}";
 
-    private const string AddAllEnumerateMethodName = $"{nameof(KeyedCollectionMold.AddAllEnumerate)}";
+    private const string AddAllEnumerateMethodName = $"{nameof(KeyedCollectionMoldEnumeratorExtensions.AddAllEnumerate)}";
+    private const string AddAllIterateMethodName   = $"{nameof(KeyedCollectionMoldIteratorExtensions.AddAllIterate)}";
 
     private static readonly MethodInfo KeyValueReadOnlyDictionaryBuilderArrayAddAll;
     private static readonly MethodInfo KeyValueCollectionBuilderArrayAddAll;
     private static readonly MethodInfo KeyValueCollectionBuilderReadOnlyListAddAll;
-    private static readonly MethodInfo KeyValueCollectionEnumerableAddAllEnumerate;
-    private static readonly MethodInfo KeyValueCollectionEnumeratorAddAllEnumerate;
+    private static readonly MethodInfo KeyValueCollectionAddAllEnumerate;
+    private static readonly MethodInfo KeyValueCollectionAddAllIterate;
 
-    private static readonly Type KeyValueCollectionBuilderType = typeof(KeyedCollectionMold);
-    private static readonly Type StringType                    = typeof(string);
-    private static readonly Type ReadOnlyListTypeDef           = typeof(IReadOnlyList<>);
-    private static readonly Type ReadOnlyDictionaryTypeDef     = typeof(IReadOnlyDictionary<,>);
-    private static readonly Type EnumerableTypeDef             = typeof(IEnumerable<>);
-    private static readonly Type EnumeratorTypeDef             = typeof(IEnumerator<>);
-    private static readonly Type KeyValuePairTypeDef           = typeof(KeyValuePair<,>);
-    private static readonly Type Func5TypesType                = typeof(Func<,,,,>);
+    private static readonly Type KeyValueCollectionBuilderType          = typeof(KeyedCollectionMold);
+    private static readonly Type KeyValueCollectionEnumerateBuilderType = typeof(KeyedCollectionMoldEnumeratorExtensions);
+    private static readonly Type KeyValueCollectionIterateBuilderType   = typeof(KeyedCollectionMoldIteratorExtensions);
+
+    private static readonly Type StringType                = typeof(string);
+    private static readonly Type FormatFlagsType           = typeof(FormatFlags);
+    private static readonly Type ReadOnlyListTypeDef       = typeof(IReadOnlyList<>);
+    private static readonly Type ReadOnlyDictionaryTypeDef = typeof(IReadOnlyDictionary<,>);
+    private static readonly Type EnumerableTypeDef         = typeof(IEnumerable<>);
+    private static readonly Type EnumeratorTypeDef         = typeof(IEnumerator<>);
+    private static readonly Type KeyValuePairTypeDef       = typeof(KeyValuePair<,>);
+    private static readonly Type Func5TypesType            = typeof(Func<,,,,>);
+    private static readonly Type Func6TypesType            = typeof(Func<,,,,,>);
 
     static KeyedCollectionGenericAddAllInvoker()
     {
-        var pubMethods = KeyValueCollectionBuilderType.GetMethods(BindingFlags.Public);
-        KeyValueReadOnlyDictionaryBuilderArrayAddAll = GetReadOnlyDictionaryAddAllMethodInfo(pubMethods);
-        KeyValueCollectionBuilderArrayAddAll         = GetArrayAddAllMethodInfo(pubMethods);
-        KeyValueCollectionBuilderReadOnlyListAddAll  = GetReadOnlyListAddAllMethodInfo(pubMethods);
-        KeyValueCollectionEnumerableAddAllEnumerate  = GetEnumerableAddAllEnumerateMethodInfo(pubMethods);
-        KeyValueCollectionEnumeratorAddAllEnumerate  = GetEnumeratorAddAllEnumerateMethodInfo(pubMethods);
+        var keyedCollPubMethods = KeyValueCollectionBuilderType.GetMethods(Public);
+        KeyValueReadOnlyDictionaryBuilderArrayAddAll = GetReadOnlyDictionaryAddAllMethodInfo(keyedCollPubMethods);
+        KeyValueCollectionBuilderArrayAddAll         = GetArrayAddAllMethodInfo(keyedCollPubMethods);
+        KeyValueCollectionBuilderReadOnlyListAddAll  = GetReadOnlyListAddAllMethodInfo(keyedCollPubMethods);
+
+        var keyedCollEnumblMethods = KeyValueCollectionEnumerateBuilderType.GetMethods(Public | Static);
+        KeyValueCollectionAddAllEnumerate = GetEnumerableAddAllEnumerateMethodInfo(keyedCollEnumblMethods);
+
+        var keyedCollEnumtrMethods = KeyValueCollectionIterateBuilderType.GetMethods(Public | Static);
+        KeyValueCollectionAddAllIterate = GetEnumeratorAddAllEnumerateMethodInfo(keyedCollEnumtrMethods);
     }
 
     public static void CallAddAll<TKeyColl, TKey, TValue>(KeyedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
@@ -51,26 +63,27 @@ public static class KeyedCollectionGenericAddAllInvoker
         callBaseToString(typeMolder, keyColl, valueFormatString, null);
     }
 
-    public static void CallAddAllEnumerate<TKeyColl, TKey, TValue>(KeyedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null)
+    public static void CallAddAllEnumerate<TKeyColl, TKey, TValue>(KeyedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null
+      , string? keyFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKeyColl : IEnumerator<KeyValuePair<TKey, TValue>>
     {
         var keyedCollType = keyColl.GetType();
-        var callBaseToString = (Func<KeyedCollectionMold, TKeyColl, string?, string?, KeyedCollectionMold>)
+        var callBaseToString = (Func<KeyedCollectionMold, TKeyColl, string?, string?, FormatFlags, KeyedCollectionMold>)
             KeyedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
-        callBaseToString(typeMolder, keyColl, valueFormatString, null);
+        callBaseToString(typeMolder, keyColl, valueFormatString, keyFormatString, formatFlags);
     }
 
     public static void CallAddAll<TKeyColl>(KeyedCollectionMold typeMolder, TKeyColl keyColl, string? valueFormatString = null
-        , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
+      , string? keyFormatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var keyedCollType = keyColl!.GetType();
         if (keyedCollType.IsKeyedCollection())
         {
-            var callBaseToString = (Func<KeyedCollectionMold, TKeyColl, string?, string?, KeyedCollectionMold>)
+            var callBaseToString = (Func<KeyedCollectionMold, TKeyColl, string?, string?, FormatFlags, KeyedCollectionMold>)
                 KeyedCollAddAllInvokers.GetOrAdd(keyedCollType, CreateInvokeMethod);
 
-            callBaseToString(typeMolder, keyColl, valueFormatString, null);
+            callBaseToString(typeMolder, keyColl, valueFormatString, keyFormatString, formatFlags);
         }
     }
 
@@ -82,7 +95,7 @@ public static class KeyedCollectionGenericAddAllInvoker
 
     private static readonly ConcurrentDictionary<Type, TypeCallCount> NoOpCalls = new();
 
-    private static KeyedCollectionMold NoOpNotASupportedKeyedCollection<T>(KeyedCollectionMold toReturn, T _ , string? _1, string? _2)
+    private static KeyedCollectionMold NoOpNotASupportedKeyedCollection<T>(KeyedCollectionMold toReturn, T _, string? _1, string? _2)
     {
         var callCount = NoOpCalls.GetOrAdd(typeof(T), new TypeCallCount(typeof(T)));
         callCount.CallCount++;
@@ -158,21 +171,24 @@ public static class KeyedCollectionGenericAddAllInvoker
         return foundMatch;
     }
 
-    private static MethodInfo GetEnumerableAddAllEnumerateMethodInfo(MethodInfo[] allPubMethods)
+    private static MethodInfo GetEnumerableAddAllEnumerateMethodInfo(MethodInfo[] allPubEnumtrMethods)
     {
         MethodInfo? foundMatch = null;
-        for (var i = 0; i < allPubMethods.Length; i++)
+        for (var i = 0; i < allPubEnumtrMethods.Length; i++)
         {
-            var mi = allPubMethods[i];
+            var mi = allPubEnumtrMethods[i];
             if (mi.Name != AddAllEnumerateMethodName) continue;
             var genericParams = mi.GetGenericArguments();
-            if (genericParams.Length != 2) continue;
+            if (genericParams.Length != 1) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 3) continue;
-            var methParam1Type = methodParams[0].ParameterType;
-            if (!methParam1Type.IsGenericType || methParam1Type.GetGenericTypeDefinition() != EnumerableTypeDef) continue;
-            if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams.Length != 5) continue;
+            var keyCollectionMoldType = methodParams[0].ParameterType;
+            if (keyCollectionMoldType != KeyValueCollectionBuilderType) continue;
+            var enumblType = methodParams[1].ParameterType;
+            if (!enumblType.IsGenericType || keyCollectionMoldType.GetGenericTypeDefinition() != EnumerableTypeDef) continue;
             if (methodParams[2].ParameterType != StringType) continue;
+            if (methodParams[3].ParameterType != StringType) continue;
+            if (methodParams[4].ParameterType != FormatFlagsType) continue;
 
             foundMatch = mi;
             break;
@@ -181,21 +197,24 @@ public static class KeyedCollectionGenericAddAllInvoker
         return foundMatch;
     }
 
-    private static MethodInfo GetEnumeratorAddAllEnumerateMethodInfo(MethodInfo[] allPubMethods)
+    private static MethodInfo GetEnumeratorAddAllEnumerateMethodInfo(MethodInfo[] allPubEnumtrMethods)
     {
         MethodInfo? foundMatch = null;
-        for (var i = 0; i < allPubMethods.Length; i++)
+        for (var i = 0; i < allPubEnumtrMethods.Length; i++)
         {
-            var mi = allPubMethods[i];
-            if (mi.Name != AddAllEnumerateMethodName) continue;
+            var mi = allPubEnumtrMethods[i];
+            if (mi.Name != AddAllIterateMethodName) continue;
             var genericParams = mi.GetGenericArguments();
-            if (genericParams.Length != 2) continue;
+            if (genericParams.Length != 1) continue;
             var methodParams = mi.GetParameters();
-            if (methodParams.Length != 3) continue;
-            var methParam1Type = methodParams[0].ParameterType;
-            if (!methParam1Type.IsGenericType || methParam1Type.GetGenericTypeDefinition() != EnumeratorTypeDef) continue;
-            if (methodParams[1].ParameterType != StringType) continue;
+            if (methodParams.Length != 5) continue;
+            var keyedCollType = methodParams[0].ParameterType;
+            if (keyedCollType != KeyValueCollectionBuilderType) continue;
+            var enumtrType = methodParams[1].ParameterType;
+            if (!enumtrType.IsGenericType || enumtrType.GetGenericTypeDefinition() != EnumeratorTypeDef) continue;
             if (methodParams[2].ParameterType != StringType) continue;
+            if (methodParams[3].ParameterType != StringType) continue;
+            if (methodParams[4].ParameterType != FormatFlagsType) continue;
 
             foundMatch = mi;
             break;
@@ -261,9 +280,9 @@ public static class KeyedCollectionGenericAddAllInvoker
                 KeyedCollAddAllInvokers.TryAdd(keyedCollType, genericKeyValueEnumerableInvoker);
                 return genericKeyValueEnumerableInvoker;
             }
-            var methodToCall = KeyValueCollectionEnumerableAddAllEnumerate.MakeGenericMethod(keyType, valueType);
-            var invokerFunc = Func5TypesType.MakeGenericType
-                (KeyValueCollectionBuilderType, keyValueEnumerableType, StringType, StringType, KeyValueCollectionBuilderType);
+            var methodToCall = KeyValueCollectionAddAllEnumerate.MakeGenericMethod(keyType, valueType);
+            var invokerFunc = Func6TypesType.MakeGenericType
+                (KeyValueCollectionBuilderType, keyValueEnumerableType, StringType, StringType, FormatFlagsType, KeyValueCollectionBuilderType);
             var invoker = GetAddAllInvoker(KeyValueCollectionBuilderType, keyValueEnumerableType, methodToCall, invokerFunc);
             KeyedCollAddAllInvokers.TryAdd(keyValueEnumerableType, invoker);
             KeyedCollAddAllInvokers.TryAdd(keyedCollType, invoker);
@@ -278,9 +297,9 @@ public static class KeyedCollectionGenericAddAllInvoker
                 KeyedCollAddAllInvokers.TryAdd(keyedCollType, genericKeyValueEnumeratorInvoker);
                 return genericKeyValueEnumeratorInvoker;
             }
-            var methodToCall = KeyValueCollectionEnumeratorAddAllEnumerate.MakeGenericMethod(keyType, valueType);
-            var invokerFunc = Func5TypesType.MakeGenericType
-                (KeyValueCollectionBuilderType, keyValueEnumeratorType, StringType, StringType, KeyValueCollectionBuilderType);
+            var methodToCall = KeyValueCollectionAddAllIterate.MakeGenericMethod(keyType, valueType);
+            var invokerFunc = Func6TypesType.MakeGenericType
+                (KeyValueCollectionBuilderType, keyValueEnumeratorType, StringType, StringType, FormatFlagsType, KeyValueCollectionBuilderType);
             var invoker = GetAddAllInvoker(KeyValueCollectionBuilderType, keyValueEnumeratorType, methodToCall, invokerFunc);
             KeyedCollAddAllInvokers.TryAdd(keyValueEnumeratorType, invoker);
             KeyedCollAddAllInvokers.TryAdd(keyedCollType, invoker);

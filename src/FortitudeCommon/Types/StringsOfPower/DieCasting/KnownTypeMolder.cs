@@ -14,7 +14,7 @@ public interface ITypeBuilderComponentSource<out T> : ITypeBuilderComponentSourc
 {
     IMoldWriteState<T> KnownTypeMoldState { get; }
 
-    bool AppendGraphFields<T>(T instance, VisitResult visitResult, IStyledTypeFormatting usingFormatter
+    bool AppendGraphFields<TValue>(TValue instance, VisitResult visitResult, IStyledTypeFormatting usingFormatter
       , WrittenAsFlags writeMethod, TypeMoldFlags moldWrittenFlags, FormatFlags formatFlags = DefaultCallerTypeFlags);
 }
 

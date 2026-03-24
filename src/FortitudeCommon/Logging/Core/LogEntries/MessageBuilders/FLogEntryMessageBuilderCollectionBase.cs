@@ -255,23 +255,23 @@ public abstract partial class FLogEntryMessageBuilder
     }
 
     protected ITheOneString? AppendValueCollectionEnumerate<TCloaked, TRevealBase>
-        (ITheOneString? toAppendTo, IEnumerable<TCloaked?>? value, PalantírReveal<TRevealBase> palantírReveal)
-        where TCloaked : TRevealBase
+        (ITheOneString? toAppendTo, IEnumerable<TCloaked>? value, PalantírReveal<TRevealBase> palantírReveal)
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .RevealAllEnumerate<IEnumerable<TCloaked?>?, TCloaked, TRevealBase>(value, palantírReveal).Complete();
+                  .RevealAllEnumerate<IEnumerable<TCloaked>?, TCloaked, TRevealBase>(value, palantírReveal).Complete();
         return toAppendTo;
     }
 
     protected static ITheOneString? AppendValueCollectionEnumerate<TCloaked, TRevealBase>
-        ((IEnumerable<TCloaked?>?, PalantírReveal<TRevealBase>) valueTuple, ITheOneString? appender)
-        where TCloaked : TRevealBase
+        ((IEnumerable<TCloaked>?, PalantírReveal<TRevealBase>) valueTuple, ITheOneString? appender)
+        where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
         var (value, structStyler) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .RevealAllEnumerate<IEnumerable<TCloaked?>?, TCloaked, TRevealBase>(value, structStyler).Complete();
+                .RevealAllEnumerate<IEnumerable<TCloaked>?, TCloaked, TRevealBase>(value, structStyler).Complete();
         return appender;
     }
 

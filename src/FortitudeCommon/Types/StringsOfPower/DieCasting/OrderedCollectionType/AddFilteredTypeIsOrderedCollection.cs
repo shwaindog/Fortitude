@@ -393,7 +393,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl value, OrderedCollectionPredicate<bool> filterPredicate
+    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool>?
@@ -447,7 +447,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerateNullable<TEnumbl>(TEnumbl value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TOCMold AddFilteredEnumerateNullable<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool?>?
@@ -501,7 +501,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr value, OrderedCollectionPredicate<bool> filterPredicate
+    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<bool>?
@@ -560,11 +560,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredIterateNullable<TEnumtr>(TEnumtr value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TOCMold AddFilteredIterateNullable<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<bool?>?
@@ -622,6 +623,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
@@ -1009,7 +1011,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(TEnumbl value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+    public TOCMold AddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(TEnumbl? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TFmt?>?
@@ -1119,10 +1121,10 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredIterate<TEnumtr, TFmt, TFmtBase>(TEnumtr value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+    public TOCMold AddFilteredIterate<TEnumtr, TFmt, TFmtBase>(TEnumtr? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TFmt>?
+        where TEnumtr : IEnumerator<TFmt?>?
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt?>);
@@ -1178,12 +1180,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredIterateNullable<TEnumtr, TFmtStruct>(
-        TEnumtr value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
+    public TOCMold AddFilteredIterateNullable<TEnumtr, TFmtStruct>(TEnumtr? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TFmtStruct?>?
@@ -1242,6 +1244,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
@@ -1298,7 +1301,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     public TOCMold RevealFiltered<TCloakedStruct>(TCloakedStruct?[]? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(TCloakedStruct?[]);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -1394,7 +1398,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     public TOCMold RevealFiltered<TCloakedStruct>(Span<TCloakedStruct?> value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TCloakedStruct : struct
     {
         var actualType = typeof(Span<TCloakedStruct?>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -1536,7 +1541,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(IReadOnlyList<TCloaked?>? value
+    public TOCMold RevealFiltered<TCloaked, TCloakedFilterBase, TCloakedRevealBase>(IReadOnlyList<TCloaked>? value
       , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1589,7 +1594,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TCloakedStruct?>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -1633,7 +1639,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(TEnumbl value
+    public TOCMold RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(TEnumbl? value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1689,7 +1695,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFilteredEnumerateNullable<TEnumbl, TCloakedStruct>(TEnumbl value
+    public TOCMold RevealFilteredEnumerateNullable<TEnumbl, TCloakedStruct>(TEnumbl? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1744,7 +1750,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFilteredIterate<TEnumtr, TCloaked, TCloakedFilterBase, TCloakedRevealBase>(TEnumtr value
+    public TOCMold RevealFilteredIterate<TEnumtr, TCloaked, TCloakedFilterBase, TCloakedRevealBase>(TEnumtr? value
       , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1804,11 +1810,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFilteredIterateNullable<TEnumtr, TCloakedStruct>(TEnumtr value
+    public TOCMold RevealFilteredIterateNullable<TEnumtr, TCloakedStruct>(TEnumtr? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1867,6 +1874,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
@@ -2201,8 +2209,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
     public TOCMold RevealFiltered<TBearerStruct>(IReadOnlyList<TBearerStruct?>? value, OrderedCollectionPredicate<TBearerStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<TBearerStruct?>);
@@ -2247,10 +2254,9 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(TEnumbl value
+    public TOCMold RevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(TEnumbl? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TBearer?>?
         where TBearer : IStringBearer?, TBearerBase?
     {
@@ -2302,10 +2308,9 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(TEnumbl value
+    public TOCMold RevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(TEnumbl? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer
     {
@@ -2357,10 +2362,9 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(TEnumtr value
+    public TOCMold RevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(TEnumtr? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TBearer?>?
         where TBearer : IStringBearer?, TBearerBase?
     {
@@ -2416,14 +2420,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold RevealFilteredIterateNullable<TEnumtr, TBearerStruct>(TEnumtr value
+    public TOCMold RevealFilteredIterateNullable<TEnumtr, TBearerStruct>(TEnumtr? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer
     {
@@ -2479,13 +2483,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
     public TOCMold AddFiltered(string?[]? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(string?[]);
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
@@ -2530,8 +2534,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
     public TOCMold AddFiltered(Span<string> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<string>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -2577,8 +2580,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
     public TOCMold AddFilteredNullable(Span<string?> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(Span<string?>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -2624,8 +2626,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
     public TOCMold AddFiltered(ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<string>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -2671,8 +2672,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
     public TOCMold AddFilteredNullable(ReadOnlySpan<string?> value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = typeof(ReadOnlySpan<string?>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -2718,8 +2718,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
     public TOCMold AddFiltered(IReadOnlyList<string?>? value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<string?>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -2764,9 +2763,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl value, OrderedCollectionPredicate<string> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<string> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<string?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<string?>);
@@ -2819,7 +2817,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
 
-    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr value, OrderedCollectionPredicate<string> filterPredicate
+    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<string?>?
@@ -2877,6 +2875,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
@@ -3074,7 +3073,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(TEnumbl value
+    public TOCMold AddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(TEnumbl? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -3131,7 +3130,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
 
-    public TOCMold AddFilteredCharSeqIterate<TEnumtr, TCharSeq, TCharSeqBase>(TEnumtr value
+    public TOCMold AddFilteredCharSeqIterate<TEnumtr, TCharSeq, TCharSeqBase>(TEnumtr? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -3191,6 +3190,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
@@ -3479,7 +3479,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<StringBuilder?>?
@@ -3534,7 +3534,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
 
-    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<StringBuilder?>?
@@ -3592,6 +3592,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
@@ -3646,7 +3647,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
 
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(Span<TAny> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase?
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TAny : TAnyBase?
     {
         var actualType = typeof(Span<TAny>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -3693,7 +3695,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
 
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(ReadOnlySpan<TAny> value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase?
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TAny : TAnyBase?
     {
         var actualType = typeof(ReadOnlySpan<TAny>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
@@ -3786,10 +3789,10 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(TEnumbl value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+    public TOCMold AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(TEnumbl? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TAny>?
+        where TEnumbl : IEnumerable<TAny?>?
         where TAny : TAnyBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TAny?>);
@@ -3841,7 +3844,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredMatchIterate<TEnumtr, TAny, TAnyBase>(TEnumtr value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+    public TOCMold AddFilteredMatchIterate<TEnumtr, TAny, TAnyBase>(TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TAny?>?
@@ -3900,6 +3903,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
@@ -4192,7 +4196,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
     [CallsObjectToString]
-    public TOCMold AddFilteredObjectEnumerate<TEnumbl>(TEnumbl value, OrderedCollectionPredicate<object> filterPredicate
+    public TOCMold AddFilteredObjectEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<object?>?
@@ -4247,7 +4251,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
     [CallsObjectToString]
-    public TOCMold AddFilteredObjectIterate<TEnumtr>(TEnumtr value, OrderedCollectionPredicate<object> filterPredicate
+    public TOCMold AddFilteredObjectIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<object?>?
@@ -4305,6 +4309,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
             if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
             collectionItems = count;
         }
+        value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }

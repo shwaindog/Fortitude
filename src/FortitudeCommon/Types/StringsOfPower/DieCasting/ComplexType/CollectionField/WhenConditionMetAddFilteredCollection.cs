@@ -37,7 +37,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenConditionMetAddFiltered<TFmt, TFmtBase>(
         bool condition
-      , ReadOnlySpan<char> fieldName, Span<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+      , ReadOnlySpan<char> fieldName
+      , Span<TFmt> value
+      , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?, TFmtBase? =>
@@ -73,7 +75,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenConditionMetRevealFiltered<TCloakedStruct>(
         bool condition
-      , ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
+      , ReadOnlySpan<char> fieldName
+      , Span<TCloakedStruct?> value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -261,7 +264,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TCloakedStruct : struct =>
         condition
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TCloakedStruct?>), fieldName, formatFlags);
@@ -272,7 +276,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , ReadOnlySpan<TBearer> value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TFilterBase? =>
+      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+        where TBearer : IStringBearer?, TFilterBase? =>
         condition
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TBearer>), fieldName, formatFlags);
@@ -347,7 +352,8 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenConditionMetAddFilteredMatch<TAny, TAnyBase>(
         bool condition
-      , ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
+      , ReadOnlySpan<char> fieldName
+      , ReadOnlySpan<TAny> value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -401,14 +407,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFiltered<TFmt, TFmtBase>(
         bool condition
       , string fieldName
-      , TFmt?[]? value
+      , TFmt[]? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase =>
+        where TFmt : ISpanFormattable?, TFmtBase? =>
         condition
             ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.WasSkipped(typeof(TFmt?[]), fieldName, formatFlags);
+            : stb.WasSkipped(typeof(TFmt[]), fieldName, formatFlags);
 
     public TExt WhenConditionMetAddFiltered<TFmtStruct>(
         bool condition
@@ -425,7 +431,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFiltered<TCloaked, TFilterBase, TRevealBase>(
         bool condition
       , string fieldName
-      , TCloaked?[]? value
+      , TCloaked[]? value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -433,7 +439,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull =>
         condition
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
-            : stb.WasSkipped(typeof(TCloaked?[]), fieldName, formatFlags);
+            : stb.WasSkipped(typeof(TCloaked[]), fieldName, formatFlags);
 
     public TExt WhenConditionMetRevealFiltered<TCloakedStruct>(
         bool condition
@@ -451,14 +457,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFiltered<TBearer, TBearerBase>(
         bool condition
       , string fieldName
-      , TBearer?[]? value
+      , TBearer[]? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer, TBearerBase =>
+        where TBearer : IStringBearer?, TBearerBase? =>
         condition
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags)
-            : stb.WasSkipped(typeof(TBearer?[]), fieldName, formatFlags);
+            : stb.WasSkipped(typeof(TBearer[]), fieldName, formatFlags);
 
     public TExt WhenConditionMetRevealFiltered<TBearerStruct>(
         bool condition
@@ -509,11 +515,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredMatch<TAny, TAnyBase>(
         bool condition
       , string fieldName
-      , TAny?[]? value
+      , TAny[]? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TAny : TAnyBase =>
+        where TAny : TAnyBase? =>
         condition
             ? AlwaysAddFilteredMatch(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TAny[]), fieldName, formatFlags);
@@ -553,11 +559,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFiltered<TFmt, TFmtBase>(
         bool condition
       , string fieldName
-      , IReadOnlyList<TFmt?>? value
+      , IReadOnlyList<TFmt>? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase =>
+        where TFmt : ISpanFormattable?, TFmtBase? =>
         condition
             ? AlwaysAddFiltered(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TFmt>), fieldName, formatFlags);
@@ -586,7 +592,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull =>
         condition
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
-            : stb.WasSkipped(typeof(IReadOnlyList<TCloaked?>), fieldName, formatFlags);
+            : stb.WasSkipped(typeof(IReadOnlyList<TCloaked>), fieldName, formatFlags);
 
     public TExt WhenConditionMetRevealFiltered<TCloakedStruct>(
         bool condition
@@ -608,7 +614,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer, TBearerBase =>
+        where TBearer : IStringBearer?, TBearerBase? =>
         condition
             ? AlwaysRevealFiltered(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TBearer?>), fieldName, formatFlags);
@@ -643,7 +649,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TCharSeq : ICharSequence, TCharSeqBase =>
+        where TCharSeq : ICharSequence?, TCharSeqBase? =>
         !stb.SkipFields && condition
             ? AlwaysAddFilteredCharSeq(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TCharSeq?>), fieldName, formatFlags);
@@ -662,7 +668,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredMatch<TAny, TAnyBase>(
         bool condition
       , string fieldName
-      , IReadOnlyList<TAny>? value
+      , IReadOnlyList<TAny?>? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -684,7 +690,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredEnumerate<TEnumbl>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -696,7 +702,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredEnumerateNullable<TEnumbl>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -708,7 +714,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -721,7 +727,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -734,7 +740,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
@@ -750,7 +756,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TCloakedStruct>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null
@@ -764,7 +770,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -777,7 +783,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -790,7 +796,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredStringEnumerate<TEnumbl>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -802,11 +808,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCharSeq>?
+        where TEnumbl : IEnumerable<TCharSeq?>?
         where TCharSeq : ICharSequence?, TCharSeqBase? =>
         !stb.SkipFields && condition
             ? AlwaysAddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(fieldName, value, filterPredicate, formatString, formatFlags)
@@ -815,7 +821,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredStringBuilderEnumerate<TEnumbl>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -827,7 +833,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -841,7 +847,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredObjectEnumerate<TEnumbl>(
         bool condition
       , string fieldName
-      , TEnumbl value
+      , TEnumbl? value
       , OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -851,7 +857,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredIterate<TEnumtr>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -875,7 +881,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredIterate<TEnumtr, TFmt, TFmtBase>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -888,7 +894,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredIterateNullable<TEnumtr, TFmtStruct>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -901,7 +907,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFilteredIterate<TEnumtr, TCloaked, TFilterBase, TRevealBase>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
@@ -917,7 +923,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFilteredIterateNullable<TEnumtr, TCloakedStruct>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null
@@ -931,7 +937,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -944,7 +950,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetRevealFilteredIterateNullable<TEnumtr, TBearerStruct>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -957,7 +963,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredStringIterate<TEnumtr>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -969,7 +975,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredCharSeqIterate<TEnumtr, TCharSeq, TCharSeqBase>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -982,7 +988,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredStringBuilderIterate<TEnumtr>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -994,7 +1000,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredMatchIterate<TEnumtr, TAny, TAnyBase>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1008,7 +1014,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenConditionMetAddFilteredObjectIterate<TEnumtr>(
         bool condition
       , string fieldName
-      , TEnumtr value
+      , TEnumtr? value
       , OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)

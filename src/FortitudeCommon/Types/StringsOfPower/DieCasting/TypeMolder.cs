@@ -238,7 +238,7 @@ public interface IMigratableTypeBuilderComponentSource
     IMigratableMoldWriteState MigratableMoldState { get; }
 }
 
-public static class StyledTypeBuilderExtensions
+public static class TypeMolderExtensions
 {
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtContentInvokers           = new();
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtCollectionElementInvokers = new();
@@ -1210,12 +1210,12 @@ public static class StyledTypeBuilderExtensions
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
-                    mdc.Master.SetCallerFormatFlags(formatFlags);
-                    mdc.Master.SetCallerFormatString(formatString);
+                    mdc.Master.WithNextCallFormatFlags(formatFlags);
+                    mdc.Master.WithNextCallValueFormatString(formatString);
                     if (type.IsGenericType && type.IsKeyedCollection())
                     {
                         var keyedCollectionBuilder = mdc.Master.StartKeyedCollectionType(value);
-                        KeyedCollectionGenericAddAllInvoker.CallAddAll<TValue>(keyedCollectionBuilder, value, formatString, formatFlags);
+                        KeyedCollectionGenericAddAllInvoker.CallAddAll<TValue>(keyedCollectionBuilder, value, formatString, null, formatFlags);
                         var mapCollectionStateExtractResult = keyedCollectionBuilder.Complete();
                         return mapCollectionStateExtractResult;
                     }
@@ -1431,12 +1431,12 @@ public static class StyledTypeBuilderExtensions
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
-                    mdc.Master.SetCallerFormatFlags(formatFlags);
-                    mdc.Master.SetCallerFormatString(formatString);
+                    mdc.Master.WithNextCallFormatFlags(formatFlags);
+                    mdc.Master.WithNextCallValueFormatString(formatString);
                     if (type.IsGenericType && type.IsKeyedCollection())
                     {
                         var keyedCollectionBuilder = mdc.Master.StartKeyedCollectionType(value);
-                        KeyedCollectionGenericAddAllInvoker.CallAddAll<TValue>(keyedCollectionBuilder, value, formatString, formatFlags);
+                        KeyedCollectionGenericAddAllInvoker.CallAddAll<TValue>(keyedCollectionBuilder, value, formatString, null, formatFlags);
                         var mapCollectionStateExtractResult = keyedCollectionBuilder.Complete();
                         return mapCollectionStateExtractResult;
                     }
@@ -1740,7 +1740,7 @@ public static class StyledTypeBuilderExtensions
     // Invokes DynamicReceiveAppendValue without boxing to ISpanFormattable if the type receive already supports ISpanFormattable
     private static SpanFmtStructContentHandler<T> CreateSpanFormattableContentInvoker<T>()
     {
-        var genTypeDefMeth = typeof(StyledTypeBuilderExtensions)
+        var genTypeDefMeth = typeof(TypeMolderExtensions)
                              .GetMethods().First(mi => mi.Name.Contains(nameof(DynamicReceiveAppendValue)));
 
         var generified = genTypeDefMeth.MakeGenericMethod(typeof(T));
@@ -1755,7 +1755,7 @@ public static class StyledTypeBuilderExtensions
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicStructAppend", typeof(AppendSummary),
                  [typeof(IMoldWriteState), typeof(T), typeof(string), typeof(FormatFlags)]
-               , typeof(StyledTypeBuilderExtensions).Module, false);
+               , typeof(TypeMolderExtensions).Module, false);
         var ilGenerator = helperMethod.GetILGenerator();
         ilGenerator.Emit(OpCodes.Ldarg_0);
         ilGenerator.Emit(OpCodes.Ldarg_1);
@@ -1773,7 +1773,7 @@ public static class StyledTypeBuilderExtensions
     // Invokes DynamicReceiveAppendFormattedCollectionItem without boxing to ISpanFormattable if the type receive already supports ISpanFormattable
     private static SpanFmtStructCollectionElementHandler<T> CreateSpanFormattableCollectionElementInvoker<T>()
     {
-        var genTypeDefMeth = typeof(StyledTypeBuilderExtensions)
+        var genTypeDefMeth = typeof(TypeMolderExtensions)
                              .GetMethods().First(mi => mi.Name.Contains(nameof(DynamicReceiveAppendFormattedCollectionItem)));
 
         var generified = genTypeDefMeth.MakeGenericMethod(typeof(T));
@@ -1788,7 +1788,7 @@ public static class StyledTypeBuilderExtensions
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicStructAppend", typeof(AppendSummary),
                  [typeof(IMoldWriteState), typeof(TFmt), typeof(int), typeof(string), typeof(FormatFlags)]
-               , typeof(StyledTypeBuilderExtensions).Module, true);
+               , typeof(TypeMolderExtensions).Module, true);
         var ilGenerator = helperMethod.GetILGenerator();
         ilGenerator.Emit(OpCodes.Ldarg_0);
         ilGenerator.Emit(OpCodes.Ldarg_1);
