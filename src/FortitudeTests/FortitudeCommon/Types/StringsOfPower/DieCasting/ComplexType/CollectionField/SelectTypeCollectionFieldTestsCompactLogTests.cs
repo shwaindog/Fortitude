@@ -96,12 +96,12 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
     public void FilteredCompactLogStringBearerList(IOrderedListExpect formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(EnumCollectionsTestData.AllEnumCollectionsExpectations[1], ScaffoldingRegistry.AllScaffoldingTypes[144]
-                                           , StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[0],
+                                             ScaffoldingRegistry.AllScaffoldingTypes[84], StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

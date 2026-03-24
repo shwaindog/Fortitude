@@ -22,10 +22,11 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags )
     {
         Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName
-                                       , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
+                                       , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
     }
 
 
@@ -51,11 +52,24 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
 
     public TExt AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
-        var msf              = MoldStateField;
-        var markPreBodyStart = msf.Sb.Length;
+        var msf                = MoldStateField;
+        var visitResult        = msf.MoldGraphVisit;
+        var visitIndex         = visitResult.VisitId.VisitIndex;
+        var markPreBodyStart   = msf.Sb.Length;
+        var preBaseMoldState = msf.SnapshotWriteState;
+        
         if (msf.SkipBody) return msf.Mold;
-        msf.Master.AddBaseFieldsStart();
+        msf.Master.AddBaseFieldsStart(msf);
         TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
+        // to avoid cicular references reusing this visit
+        msf.MoldGraphVisit        = msf.MoldGraphVisit.IncrementUsedCount();
+        msf.SnapshotWriteState    = preBaseMoldState;
+        
+        var master           = msf.Master;
+        var reg              = master.ActiveGraphRegistry;
+        var restoreMoldState = reg[visitIndex];
+        reg[visitIndex] = restoreMoldState.UpdateMoldWriteState(msf);
+        
         if (msf.Sb.Length > markPreBodyStart && msf.Sf.Gb.LastContentSeparatorPaddingRanges.SeparatorPaddingRange == null)
         {
             msf.Sf.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, FormatFlags.DefaultCallerTypeFlags);

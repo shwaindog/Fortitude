@@ -4,6 +4,7 @@
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
@@ -24,10 +25,11 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName
-                                      , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
+                                      , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
         WrittenAs = WrittenAsFlags.AsMapCollection;
 
         stb = MoldStateField;
@@ -42,17 +44,16 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
         usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, formatFlags);
     }
-
-
+    
     public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
         usingFormatter.FinishKeyedCollectionOpen(MoldStateField);
     }
 
-    public override void AppendClosing()
+    public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount);
+        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount, formatFlags);
     }
 
     protected override void InheritedStateReset()

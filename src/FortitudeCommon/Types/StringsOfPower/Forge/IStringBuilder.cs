@@ -22,6 +22,8 @@ public interface IStringBuilder : ICharSequence, IMutableStringBuilder<IStringBu
     int CurrentLineIndentEndColumn { get; }
     int CurrentLineCharWidth { get; }
 
+    int GetLineStartIndex(int atOffset);
+    
     IStringBuilder CopyFrom(string source);
 
     new IStringBuilder Clone();
@@ -326,8 +328,8 @@ public static class IStringBuilderExtensions
         Span<char> replace = stackalloc char[indentChars.Length + newLineFormat.Length];
         replace.OverWriteAt(0, newLineFormat);
         replace.Append(indentChars);
-        var countOccurrences      = mutate.SubSequenceOccurrenceCount(startIndex, length, newLineFormat);
-        var requiredIncreaseSize = countOccurrences * Math.Max(0, replace.Length - newLineFormat.Length);
+        var countOccurrences     = mutate.CountOccurenceOf(newLineFormat, startIndex, startIndex + length);
+        var requiredIncreaseSize = countOccurrences * indentChars.Length;
         mutate.EnsureCapacity(requiredIncreaseSize);
         mutate.Replace(newLineFormat, replace, startIndex, length);
         return length + requiredIncreaseSize;
@@ -338,40 +340,6 @@ public static class IStringBuilderExtensions
         mutate.ShiftLeftAt(mutate.CurrentLineStartIndex + charsToRemove, charsToRemove);
         mutate.Length -= charsToRemove;
         return charsToRemove;
-    }
-
-    public static int SubSequenceOccurrenceCount(this IStringBuilder searchArea, int startIndex, int length, ReadOnlySpan<char> find)
-    {
-        var cappedFrom = Math.Clamp(startIndex, 0, searchArea.Length);
-        var cappedTo   = Math.Clamp(startIndex + length, cappedFrom, searchArea.Length);
-        var findLength = find.Length;
-        if (findLength == 0) return -1;
-        int lastCharIndex = cappedTo - findLength;
-        int foundCount    = 0;
-        for (var i = cappedFrom; i < lastCharIndex; i++)
-        {
-            var checkChar = searchArea[i];
-            if (checkChar == find[0])
-            {
-                var allSame = true;
-                for (int j = 1; j < findLength && i + j < lastCharIndex; j++)
-                {
-                    checkChar = searchArea[i+j];
-                    var matchChar = find[j];
-                    if (checkChar != matchChar)
-                    {
-                        allSame = false;
-                        break;
-                    }
-                }
-                if (allSame)
-                {
-                    foundCount++;
-                    i = i + findLength;
-                }
-            }
-        }
-        return foundCount;
     }
     
     public static bool IsBrcBounded(this IStringBuilder input)

@@ -15,10 +15,11 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-                                         , remainingGraphDepth, moldGraphVisit, writeMethodType
+                                         , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext
                                          , createFormatFlags | FormatFlags.AsCollection);
 
         return this;

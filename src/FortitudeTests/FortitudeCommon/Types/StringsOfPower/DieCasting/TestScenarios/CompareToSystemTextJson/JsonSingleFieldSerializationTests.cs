@@ -79,6 +79,7 @@ public class JsonSingleFieldSerializationTests
         {
             Style                          = StringStyle.Json | StringStyle.Compact
           , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
+          , CharBufferWritesAsCharCollection  = true
           , WriteKeyValuePairsAsCollection = true
         });
         singlePropertyFieldClass.RevealState(styledStringBuilder);
@@ -156,9 +157,10 @@ public class JsonSingleFieldSerializationTests
         var theOneString = new TheOneString();
         theOneString.ClearAndReinitialize(new StyleOptions
         {
-            Style                          = StringStyle.Json | StringStyle.Compact
-          , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
-          , WriteKeyValuePairsAsCollection = true
+            Style                            = StringStyle.Json | StringStyle.Compact
+          , JsonEncodingTransferType         = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
+          , CharBufferWritesAsCharCollection = true
+          , WriteKeyValuePairsAsCollection   = true
         });
         singlePropertyFieldClass.RevealState(theOneString);
         
@@ -201,9 +203,10 @@ public class JsonSingleFieldSerializationTests
         var styledStringBuilder = new TheOneString();
         styledStringBuilder.ClearAndReinitialize(new StyleOptions
         {
-            Style = StringStyle.Json | StringStyle.Pretty
-          , JsonEncodingTransferType       = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
-          , WriteKeyValuePairsAsCollection = true
+            Style                            = StringStyle.Json | StringStyle.Pretty
+          , JsonEncodingTransferType         = JsonEncodingTransferType.UniCdEscCtrlCharsDblQtAndNonAscii
+          , CharBufferWritesAsCharCollection = true
+          , WriteKeyValuePairsAsCollection   = true
         });
         singlePropertyFieldClass.RevealState(styledStringBuilder);
         var oneStringify = styledStringBuilder.WriteBuffer.ToString();
@@ -223,9 +226,10 @@ public class JsonSingleFieldSerializationTests
         var theOneString = new TheOneString();
         theOneString.ClearAndReinitialize(new StyleOptions
         {
-            Style                          = StringStyle.Json | StringStyle.Pretty
-          , JsonEncodingTransferType       = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
-          , WriteKeyValuePairsAsCollection = true
+            Style                            = StringStyle.Json | StringStyle.Pretty
+          , JsonEncodingTransferType         = JsonEncodingTransferType.BkSlEscCtrlCharsDblQtAndBkSlOnly
+          , CharBufferWritesAsCharCollection = true
+          , WriteKeyValuePairsAsCollection   = true
         });
         singlePropertyFieldClass.RevealState(theOneString);
         

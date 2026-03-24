@@ -120,19 +120,18 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         }
     }
 
-    public int CurrentLineIndentEndColumn
+    public int CurrentLineIndentEndColumn => GetLineStartIndex(Length - 1);
+    
+
+    public int GetLineStartIndex(int atOffset)
     {
-        get
+        var cappedAt = Math.Clamp(atOffset, 0, Length - 1);
+        for (var i = cappedAt; i >= 0; i--)
         {
-            var columnCount = 0;
-            for (var i = 0; i < ca.Length - CurrentLineStartIndex; i++)
-            {
-                var checkChar = ca[i];
-                if (!checkChar.IsWhiteSpace()) return columnCount;
-                columnCount++;
-            }
-            return -1;
+            var checkChar = ca[i];
+            if (checkChar is '\n' or '\r') return Math.Clamp(i + 1, 0, cappedAt);
         }
+        return cappedAt;
     }
 
     public int CurrentLineCharWidth
@@ -1720,6 +1719,13 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         return this;
     }
 
+    public int CountOccurenceOf(ReadOnlySpan<char> pattern, int fromIndexIncl = 0, int toIndexExcl = Int32.MaxValue)
+    {
+        var cappedFrom   = Math.Clamp(fromIndexIncl, 0, Length);
+        var cappedLength = Math.Clamp(toIndexExcl - cappedFrom, 0, Length - cappedFrom);
+        return this.SubSequenceOccurrenceCount(cappedFrom, cappedLength, pattern );
+    }
+
     public CharArrayStringBuilder ToUpper()
     {
         ca.ToUpper();
@@ -2155,6 +2161,8 @@ public class CharArrayStringBuilder : ReusableObject<CharArrayStringBuilder>, IS
         for (var i = 0; i < len; i++) hash = (31 * hash) ^ ca[i];
         return hash;
     }
+    
+    private string DebugViewToString => ToString();
 
     public override string ToString() => ca.ToString();
 

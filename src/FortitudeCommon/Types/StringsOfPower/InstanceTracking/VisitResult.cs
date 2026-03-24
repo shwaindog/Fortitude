@@ -11,8 +11,8 @@ public record struct VisitResult
   , int FirstVisitIndex = -1
   , int FirstInstanceMatchVisitIndex = -1  
   , int LastNodeVisitIndex = -1
-  , int LastRevisitCount = -1
-  , bool IsBaseOfInitial = false )
+  , int LastRevisitCount = -1  
+  , int ReusedCount = 0 )
 {
 
     
@@ -22,7 +22,9 @@ public record struct VisitResult
 
     public bool NoRegistrationRequired => VisitId.RegistryId == VisitId.NoVisitCheckRequiredRegistryId || VisitId.VisitIndex < 0;
 
-    public bool IsARevisit { get; set; } = InstanceId > 0 && !IsBaseOfInitial && FirstInstanceMatchVisitIndex >= 0;
+    public bool IsARevisit { get; set; } = InstanceId > 0 && LastRevisitCount > 0 && FirstInstanceMatchVisitIndex >= 0;
+    
+    public bool IsBaseOfInitial => ReusedCount > 0;
 
     public static readonly VisitResult VisitCheckNotRequired = new (VisitId.NoVisitRequiredId, VisitId.NoVisitRequiredId);
     
@@ -31,15 +33,30 @@ public record struct VisitResult
     public override string ToString() => 
         $"VisitResult {{{nameof(VisitId)}: {VisitId.ToString()}, {nameof(RequesterVisitId)}: {RequesterVisitId.ToString()}," +
         $"{nameof(InstanceId)}: {InstanceId}, {nameof(FirstInstanceMatchVisitIndex)}: {FirstInstanceMatchVisitIndex} " +
-        $"{nameof(IsBaseOfInitial)}: {IsBaseOfInitial}}}";
+        $"{nameof(ReusedCount)}: {ReusedCount}}}";
 
     public VisitResult WithIsARevisitSetTo(bool countAsRevisit)
     {
         return this with { IsARevisit = countAsRevisit };
     }
     
-    public VisitResult WitCurrentVisitIndexSetTo(VisitId updatedVisitId)
+    public VisitResult WitCurrentVisitIdSetTo(VisitId updatedVisitId)
     {
         return this with { VisitId = updatedVisitId };
+    }
+    
+    public VisitResult WitRequesterVisitIdSetTo(VisitId updateRequesterVisitId)
+    {
+        return this with { RequesterVisitId = updateRequesterVisitId };
+    }
+    
+    public VisitResult WitReusedCount(int setReusedCount)
+    {
+        return this with { ReusedCount = setReusedCount };
+    }
+    
+    public VisitResult IncrementUsedCount()
+    {
+        return this with { ReusedCount = ReusedCount + 1 };
     }
 }

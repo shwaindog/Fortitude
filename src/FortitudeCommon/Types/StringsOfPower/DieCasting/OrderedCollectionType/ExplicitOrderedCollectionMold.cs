@@ -22,10 +22,11 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags )
     {
         InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-                                         , remainingGraphDepth, moldGraphVisit, writeMethodType, createFormatFlags);
+                                         , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
 
         return this;
     }
@@ -322,10 +323,25 @@ public class ExplicitOrderedCollectionMold<TElement> : OrderedCollectionMold<Exp
         // usingFormatter.AppendOpenCollection(State, TypeOfElement, true, formatFlags);
     }
     
-    public override void AppendClosing()
+    public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        State.StyleFormatter.AppendCloseCollection(State, ResultCount, TypeOfElement, TotalCount, "", State.CreateMoldFormatFlags);
-        base.AppendClosing();
+        if (State.WroteInnerTypeClose)
+        {
+            State.StyleFormatter.Gb.Complete(formatFlags);
+        }
+        else
+        {
+            State.StyleFormatter.AppendCloseCollection(State, ResultCount, TypeOfElement, TotalCount, "", State.CreateMoldFormatFlags);
+            State.StyleFormatter.Gb.Complete(formatFlags);
+        }
+        base.AppendClosing(formatFlags);
+    }
+    
+    public override AppendSummary Complete(FormatFlags formatFlags = DefaultCallerTypeFlags)
+    {
+        if (State == null) { throw new NullReferenceException("Expected MoldState to be set"); }
+        AppendClosing(State.CreateMoldFormatFlags);
+        return RunShutdown();
     }
 
     public AppendSummary AppendCollectionComplete() => Complete();

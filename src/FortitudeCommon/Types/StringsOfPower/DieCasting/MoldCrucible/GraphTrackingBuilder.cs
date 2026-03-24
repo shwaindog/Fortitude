@@ -127,6 +127,12 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
 
     public int IndentSize => StyleOptions?.IndentSize ?? overWriteIndentSize;
 
+    public IEncodingTransfer ContentEncoder
+    {
+        get => formatter.ContentEncoder;
+        set => formatter.ContentEncoder = value;
+    }
+
     public IEncodingTransfer GraphEncoder
     {
         get => formatter.LayoutEncoder;
@@ -401,9 +407,14 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
 
     public ContentSeparatorRanges Complete(FormatFlags formatFlags)
     {
-        currentSectionRanges.FromStartPaddingEnd = IsInMarkOverwriteMode ? overWriteIndex : sb.Length;
+        if (currentSectionRanges.HasContent || currentSectionRanges.HasSeparator || currentSectionRanges.HasPadding)
+        {
+            currentSectionRanges.FromStartPaddingEnd = IsInMarkOverwriteMode ? overWriteIndex : sb.Length;
 
-        return SnapshotLastAppendSequence(formatFlags);
+            return SnapshotLastAppendSequence(formatFlags);
+        }
+        ResetCurrent(FormatFlags.DefaultCallerTypeFlags);
+        return ContentSeparatorRanges.None;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -519,14 +530,20 @@ public class GraphTrackingBuilder : ReusableObject<GraphTrackingBuilder>
     public override GraphTrackingBuilder CopyFrom(GraphTrackingBuilder source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         SetHistory(source);
-        formatter          = source.formatter;
-        AllowEmptyContent  = source.AllowEmptyContent;
-        sb                 = source.Sb;
 
-        overWriteIndex       = source.overWriteIndex;
-        overWriteEndIndex    = source.overWriteEndIndex;
-        overWriteIndentLevel = source.overWriteIndentLevel;
-        overWriteIndentSize  = source.overWriteIndentSize;
+        if (copyMergeFlags == CopyMergeFlags.FullReplace)
+        {
+
+            overWriteIndex       = source.overWriteIndex;
+            overWriteEndIndex    = source.overWriteEndIndex;
+            overWriteIndentLevel = source.overWriteIndentLevel;
+            overWriteIndentSize  = source.overWriteIndentSize;
+            
+            
+            formatter            = source.formatter;
+            AllowEmptyContent    = source.AllowEmptyContent;
+            sb                   = source.Sb;
+        }
 
         return this;
     }

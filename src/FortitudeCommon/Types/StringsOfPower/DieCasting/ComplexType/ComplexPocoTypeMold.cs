@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
@@ -24,24 +23,13 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName, remainingGraphDepth
-                                      , moldGraphVisit, writeMethodType, createFormatFlags);
-        WrittenAs = WrittenAsFlags.AsComplex | WrittenAsFlags.AsObject;
+                                      , moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
+        WrittenAs = writeMethodType;
         return this;
-    }
-
-    public override bool IsComplexType => true;
-
-    public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    {
-        usingFormatter.StartComplexTypeOpening(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags | State.CreateMoldFormatFlags);
-    }
-    
-    public override void AppendClosing()
-    {
-        State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod);
     }
 
     public virtual void StartContent()

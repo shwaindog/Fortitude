@@ -414,14 +414,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
-                         FirstSpanFormattableField:
-                         {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField: {
-                         $ref: 1
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -430,13 +424,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -530,13 +519,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
-                         FirstSpanFormattableField: {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField: {
-                         $ref: 1
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -545,13 +529,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -647,13 +626,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
-                         FirstSpanFormattableField: {
-                         $id: 1,
-                         $values: "127.0.0.1"
-                         },
-                         SecondSpanFormattableField: {
-                         $ref: 1
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) "127.0.0.1",
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -662,13 +636,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: "127.0.0.1"
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) "127.0.0.1",
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -764,13 +733,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
-                         FirstSpanFormattableField: {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField: {
-                         $ref: 1
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -779,13 +743,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -879,14 +838,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
-                         FirstSpanFormattableField: {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField: {
-                         $ref: 1,
-                         $values: 127.0.0.1
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) 127.0.0.1
                          }
                         """.RemoveLineEndings()
                     }
@@ -895,14 +848,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableFirstAsSimpleCloakedValueContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1,
-                            $values: 127.0.0.1
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) 127.0.0.1
                         }
                         """.Dos2Unix()
                     }
@@ -1002,14 +949,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
-                         FirstSpanFormattableField: {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField: {
-                         $ref: 1,
-                         $values: 127.0.0.1
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) 127.0.0.1
                          }
                         """.RemoveLineEndings()
                     }
@@ -1018,14 +959,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableSecondAsSimpleCloakedValueContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1,
-                            $values: 127.0.0.1
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) 127.0.0.1
                         }
                         """.Dos2Unix()
                     }
@@ -1127,14 +1062,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
-                         FirstSpanFormattableField: {
-                         $id: 1,
-                         $values: "127.0.0.1"
-                         },
-                         SecondSpanFormattableField: {
-                         $ref: 1,
-                         $values: 127.0.0.1
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) "127.0.0.1",
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) 127.0.0.1
                          }
                         """.RemoveLineEndings()
                     }
@@ -1143,14 +1072,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableFirstAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: "127.0.0.1"
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1,
-                            $values: 127.0.0.1
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) "127.0.0.1",
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) 127.0.0.1
                         }
                         """.Dos2Unix()
                     }
@@ -1252,14 +1175,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
-                         FirstSpanFormattableField: {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField: {
-                         $ref: 1,
-                         $values: "127.0.0.1"
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) "127.0.0.1"
                          }
                         """.RemoveLineEndings()
                     }
@@ -1268,14 +1185,8 @@ public class SpanFormattableUnitSimpleContentAndFieldRevisitTests : CommonStyleE
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableSecondAsSimpleCloakedStringContent<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1,
-                            $values: "127.0.0.1"
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) "127.0.0.1"
                         }
                         """.Dos2Unix()
                     }

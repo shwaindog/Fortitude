@@ -70,11 +70,20 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceArrayStructUnionRevisit {
                          firstPreField: null,
                          firstArray: (CharSeqOrArrayStructUnion[]) [
-                         (CharSeqOrArrayStructUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrArrayStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrArrayStructUnion) [],
-                         (CharSeqOrArrayStructUnion) { $id: 2, $values: [ null, new CharSequence 1, new CharSequence 2, new CharSequence 3 ] },
-                         (CharSeqOrArrayStructUnion) [ singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ],
-                         (CharSeqOrArrayStructUnion) { $ref: 2 }
+                         (CharSeqOrArrayStructUnion) (ICharSequence[]($id: 2)) [
+                         null,
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrArrayStructUnion) [
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrArrayStructUnion) (ICharSequence[]($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -86,31 +95,20 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceArrayStructUnionRevisit {
                           firstPreField: null,
                           firstArray: (CharSeqOrArrayStructUnion[]) [
-                            (CharSeqOrArrayStructUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrArrayStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrArrayStructUnion) [],
-                            (CharSeqOrArrayStructUnion) {
-                              $id: 2,
-                              $values: [
-                                null,
-                                new CharSequence 1,
-                                new CharSequence 2,
-                                new CharSequence 3
-                              ]
-                            },
+                            (CharSeqOrArrayStructUnion) (ICharSequence[]($id: 2)) [
+                              null,
+                              new CharSequence 1,
+                              new CharSequence 2,
+                              new CharSequence 3
+                            ],
                             (CharSeqOrArrayStructUnion) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
-                            (CharSeqOrArrayStructUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrArrayStructUnion) (ICharSequence[]($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -251,26 +249,22 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceArrayPostFieldStructUnionRevisit {
                          firstArray: (CharSeqOrArrayStructUnion[]) [
-                         (CharSeqOrArrayStructUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrArrayStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrArrayStructUnion) [],
-                         (CharSeqOrArrayStructUnion) { $id: 4, $values: [
-                         { $id: 2, $values: singleton CharSequence 1 },
-                         { $ref: 1, $values: singleton CharSequence 2 },
-                         { $id: 3, $values: singleton CharSequence 3 },
+                         (CharSeqOrArrayStructUnion) (ICharSequence[]($id: 4)) [
+                         (CharArrayStringBuilder($id: 2)) singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         (CharArrayStringBuilder($id: 3)) singleton CharSequence 3,
                          null
-                         ]
-                         },
+                         ],
                          (CharSeqOrArrayStructUnion) [
-                         { $ref: 2, $values: singleton CharSequence 1 },
-                         { $ref: 1, $values: singleton CharSequence 2 },
-                         { $ref: 3, $values: singleton CharSequence 3 }
+                         (CharArrayStringBuilder($ref: 2)) singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         (CharArrayStringBuilder($ref: 3)) singleton CharSequence 3
                          ],
-                         (CharSeqOrArrayStructUnion) { $ref: 4 }
+                         (CharSeqOrArrayStructUnion) (ICharSequence[]($ref: 4))
                          ],
-                         firstPostField: {
-                         $ref: 1,
-                         $values: "singleton CharSequence 2"
-                         }
+                         firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -280,51 +274,22 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceArrayPostFieldStructUnionRevisit {
                           firstArray: (CharSeqOrArrayStructUnion[]) [
-                            (CharSeqOrArrayStructUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrArrayStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrArrayStructUnion) [],
-                            (CharSeqOrArrayStructUnion) {
-                              $id: 4,
-                              $values: [
-                                {
-                                  $id: 2,
-                                  $values: singleton CharSequence 1
-                                },
-                                {
-                                  $ref: 1,
-                                  $values: singleton CharSequence 2
-                                },
-                                {
-                                  $id: 3,
-                                  $values: singleton CharSequence 3
-                                },
-                                null
-                              ]
-                            },
-                            (CharSeqOrArrayStructUnion) [
-                              {
-                                $ref: 2,
-                                $values: singleton CharSequence 1
-                              },
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
-                              {
-                                $ref: 3,
-                                $values: singleton CharSequence 3
-                              }
+                            (CharSeqOrArrayStructUnion) (ICharSequence[]($id: 4)) [
+                              (CharArrayStringBuilder($id: 2)) singleton CharSequence 1,
+                              (MutableString($ref: 1)) singleton CharSequence 2,
+                              (CharArrayStringBuilder($id: 3)) singleton CharSequence 3,
+                              null
                             ],
-                            (CharSeqOrArrayStructUnion) {
-                              $ref: 4
-                            }
+                            (CharSeqOrArrayStructUnion) [
+                              (CharArrayStringBuilder($ref: 2)) singleton CharSequence 1,
+                              (MutableString($ref: 1)) singleton CharSequence 2,
+                              (CharArrayStringBuilder($ref: 3)) singleton CharSequence 3
+                            ],
+                            (CharSeqOrArrayStructUnion) (ICharSequence[]($ref: 4))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "singleton CharSequence 2"
-                          }
+                          firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                         }
                         """.Dos2Unix()
                     }
@@ -502,11 +467,20 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceArrayClassUnionRevisit {
                          firstPreField: null,
                          firstArray: (CharSeqOrArrayClassUnion[]) [
-                         (CharSeqOrArrayClassUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrArrayClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrArrayClassUnion) null,
-                         (CharSeqOrArrayClassUnion($id: 2)) [ new CharSequence 1, null, new CharSequence 2, new CharSequence 3 ],
-                         (CharSeqOrArrayClassUnion) [ singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ],
-                         (CharSeqOrArrayClassUnion) { $ref: 2 }
+                         (CharSeqOrArrayClassUnion($id: 2)) [
+                         new CharSequence 1,
+                         null,
+                         new CharSequence 2,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrArrayClassUnion) [
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrArrayClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -518,10 +492,7 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceArrayClassUnionRevisit {
                           firstPreField: null,
                           firstArray: (CharSeqOrArrayClassUnion[]) [
-                            (CharSeqOrArrayClassUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrArrayClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrArrayClassUnion) null,
                             (CharSeqOrArrayClassUnion($id: 2)) [
                               new CharSequence 1,
@@ -531,15 +502,10 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (CharSeqOrArrayClassUnion) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
-                            (CharSeqOrArrayClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrArrayClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -680,13 +646,23 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceArrayPostFieldClassUnionRevisit {
                          firstArray: (CharSeqOrArrayClassUnion[]) [
-                         (CharSeqOrArrayClassUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrArrayClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrArrayClassUnion) [],
-                         (CharSeqOrArrayClassUnion($id: 2)) [ singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, null, singleton CharSequence 3 ],
-                         (CharSeqOrArrayClassUnion) [ new CharSequence 1, new CharSequence 2, new CharSequence 3, null ],
-                         (CharSeqOrArrayClassUnion) { $ref: 2 }
+                         (CharSeqOrArrayClassUnion($id: 2)) [
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         null,
+                         singleton CharSequence 3
                          ],
-                         firstPostField: { $ref: 1, $values: "singleton CharSequence 2" }
+                         (CharSeqOrArrayClassUnion) [
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         new CharSequence 3,
+                         null
+                         ],
+                         (CharSeqOrArrayClassUnion($ref: 2))
+                         ],
+                         firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -696,17 +672,11 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceArrayPostFieldClassUnionRevisit {
                           firstArray: (CharSeqOrArrayClassUnion[]) [
-                            (CharSeqOrArrayClassUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrArrayClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrArrayClassUnion) [],
                             (CharSeqOrArrayClassUnion($id: 2)) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               null,
                               singleton CharSequence 3
                             ],
@@ -716,14 +686,9 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                               new CharSequence 3,
                               null
                             ],
-                            (CharSeqOrArrayClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrArrayClassUnion($ref: 2))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "singleton CharSequence 2"
-                          }
+                          firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                         }
                         """.Dos2Unix()
                     }
@@ -870,13 +835,22 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldCharSequenceSpanClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "singleton CharSequence 2" },
+                         firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                          firstSpan: (Span<CharSeqOrSpanClassUnion>) [
-                         (CharSeqOrSpanClassUnion) { $ref: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrSpanClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                          (CharSeqOrSpanClassUnion) [],
-                         (CharSeqOrSpanClassUnion($id: 2)) [ null, new CharSequence 1, new CharSequence 2, new CharSequence 3 ],
-                         (CharSeqOrSpanClassUnion) [ singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ],
-                         (CharSeqOrSpanClassUnion) { $ref: 2 }
+                         (CharSeqOrSpanClassUnion($id: 2)) [
+                         null,
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrSpanClassUnion) [
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrSpanClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -886,15 +860,9 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldCharSequenceSpanClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "singleton CharSequence 2"
-                          },
+                          firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                           firstSpan: (Span<CharSeqOrSpanClassUnion>) [
-                            (CharSeqOrSpanClassUnion) {
-                              $ref: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrSpanClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                             (CharSeqOrSpanClassUnion) [],
                             (CharSeqOrSpanClassUnion($id: 2)) [
                               null,
@@ -904,15 +872,10 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (CharSeqOrSpanClassUnion) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
-                            (CharSeqOrSpanClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrSpanClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -1059,11 +1022,21 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceSpanPostFieldClassUnionRevisit {
                          firstSpan: (Span<CharSeqOrSpanClassUnion>) [
-                         (CharSeqOrSpanClassUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrSpanClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrSpanClassUnion) null,
-                         (CharSeqOrSpanClassUnion($id: 2)) [ singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3, null ],
-                         (CharSeqOrSpanClassUnion) [ new CharSequence 1, null, new CharSequence 2, new CharSequence 3 ],
-                         (CharSeqOrSpanClassUnion) { $ref: 2 }
+                         (CharSeqOrSpanClassUnion($id: 2)) [
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3,
+                         null
+                         ],
+                         (CharSeqOrSpanClassUnion) [
+                         new CharSequence 1,
+                         null,
+                         new CharSequence 2,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrSpanClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -1075,17 +1048,11 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceSpanPostFieldClassUnionRevisit {
                           firstSpan: (Span<CharSeqOrSpanClassUnion>) [
-                            (CharSeqOrSpanClassUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrSpanClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrSpanClassUnion) null,
                             (CharSeqOrSpanClassUnion($id: 2)) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3,
                               null
                             ],
@@ -1095,9 +1062,7 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                               new CharSequence 2,
                               new CharSequence 3
                             ],
-                            (CharSeqOrSpanClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrSpanClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -1240,13 +1205,24 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldCharSequenceReadOnlySpanClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "singleton CharSequence 2" },
+                         firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                          firstReadOnlySpan: (ReadOnlySpan<CharSeqOrReadOnlySpanClassUnion>) [
-                         (CharSeqOrReadOnlySpanClassUnion) { $ref: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrReadOnlySpanClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                          (CharSeqOrReadOnlySpanClassUnion) null,
-                         (CharSeqOrReadOnlySpanClassUnion($id: 2)) [ new CharSequence 1, null, new CharSequence 2, null, new CharSequence 3 ],
-                         (CharSeqOrReadOnlySpanClassUnion) [ null, singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ],
-                         (CharSeqOrReadOnlySpanClassUnion) { $ref: 2 }
+                         (CharSeqOrReadOnlySpanClassUnion($id: 2)) [
+                         new CharSequence 1,
+                         null,
+                         new CharSequence 2,
+                         null,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrReadOnlySpanClassUnion) [
+                         null,
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrReadOnlySpanClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1256,15 +1232,9 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldCharSequenceReadOnlySpanClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "singleton CharSequence 2"
-                          },
+                          firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                           firstReadOnlySpan: (ReadOnlySpan<CharSeqOrReadOnlySpanClassUnion>) [
-                            (CharSeqOrReadOnlySpanClassUnion) {
-                              $ref: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrReadOnlySpanClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                             (CharSeqOrReadOnlySpanClassUnion) null,
                             (CharSeqOrReadOnlySpanClassUnion($id: 2)) [
                               new CharSequence 1,
@@ -1276,15 +1246,10 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                             (CharSeqOrReadOnlySpanClassUnion) [
                               null,
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
-                            (CharSeqOrReadOnlySpanClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrReadOnlySpanClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -1435,11 +1400,21 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceReadOnlySpanPostFieldClassUnionRevisit {
                          firstReadOnlySpan: (ReadOnlySpan<CharSeqOrReadOnlySpanClassUnion>) [
-                         (CharSeqOrReadOnlySpanClassUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrReadOnlySpanClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrReadOnlySpanClassUnion) [],
-                         (CharSeqOrReadOnlySpanClassUnion($id: 2)) [ null, singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ],
-                         (CharSeqOrReadOnlySpanClassUnion) [ new CharSequence 1, null, new CharSequence 2, new CharSequence 3 ],
-                         (CharSeqOrReadOnlySpanClassUnion) { $ref: 2 }
+                         (CharSeqOrReadOnlySpanClassUnion($id: 2)) [
+                         null,
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrReadOnlySpanClassUnion) [
+                         new CharSequence 1,
+                         null,
+                         new CharSequence 2,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrReadOnlySpanClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -1451,18 +1426,12 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceReadOnlySpanPostFieldClassUnionRevisit {
                           firstReadOnlySpan: (ReadOnlySpan<CharSeqOrReadOnlySpanClassUnion>) [
-                            (CharSeqOrReadOnlySpanClassUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrReadOnlySpanClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrReadOnlySpanClassUnion) [],
                             (CharSeqOrReadOnlySpanClassUnion($id: 2)) [
                               null,
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
                             (CharSeqOrReadOnlySpanClassUnion) [
@@ -1471,9 +1440,7 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                               new CharSequence 2,
                               new CharSequence 3
                             ],
-                            (CharSeqOrReadOnlySpanClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrReadOnlySpanClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -1618,11 +1585,20 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceListStructUnionRevisit {
                          firstPreField: null,
                          firstList: (List<CharSeqOrListStructUnion>) [
-                         (CharSeqOrListStructUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrListStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrListStructUnion) null,
-                         (CharSeqOrListStructUnion) { $id: 2, $values: [ new CharSequence 1, new CharSequence 2, new CharSequence 3, null ] },
-                         (CharSeqOrListStructUnion) [ singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ],
-                         (CharSeqOrListStructUnion) { $ref: 2 }
+                         (CharSeqOrListStructUnion) (List<ICharSequence>($id: 2)) [
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         new CharSequence 3,
+                         null
+                         ],
+                         (CharSeqOrListStructUnion) [
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrListStructUnion) (List<ICharSequence>($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1634,31 +1610,20 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceListStructUnionRevisit {
                           firstPreField: null,
                           firstList: (List<CharSeqOrListStructUnion>) [
-                            (CharSeqOrListStructUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrListStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrListStructUnion) null,
-                            (CharSeqOrListStructUnion) {
-                              $id: 2,
-                              $values: [
-                                new CharSequence 1,
-                                new CharSequence 2,
-                                new CharSequence 3,
-                                null
-                              ]
-                            },
+                            (CharSeqOrListStructUnion) (List<ICharSequence>($id: 2)) [
+                              new CharSequence 1,
+                              new CharSequence 2,
+                              new CharSequence 3,
+                              null
+                            ],
                             (CharSeqOrListStructUnion) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
-                            (CharSeqOrListStructUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrListStructUnion) (List<ICharSequence>($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -1799,13 +1764,18 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceListPostFieldStructUnionRevisit {
                          firstList: (List<CharSeqOrListStructUnion>) [
-                         (CharSeqOrListStructUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrListStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrListStructUnion) [],
-                         (CharSeqOrListStructUnion) { $id: 2, $values: [ singleton CharSequence 1, null, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ] },
-                         (CharSeqOrListStructUnion) [ new CharSequence 1, new CharSequence 2, null, new CharSequence 3 ],
-                         (CharSeqOrListStructUnion) { $ref: 2 }
+                         (CharSeqOrListStructUnion) (List<ICharSequence>($id: 2)) [
+                         singleton CharSequence 1,
+                         null,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
                          ],
-                         firstPostField: { $ref: 1, $values: "singleton CharSequence 2" }
+                         (CharSeqOrListStructUnion) [ new CharSequence 1, new CharSequence 2, null, new CharSequence 3 ],
+                         (CharSeqOrListStructUnion) (List<ICharSequence>($ref: 2))
+                         ],
+                         firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -1815,37 +1785,23 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceListPostFieldStructUnionRevisit {
                           firstList: (List<CharSeqOrListStructUnion>) [
-                            (CharSeqOrListStructUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrListStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrListStructUnion) [],
-                            (CharSeqOrListStructUnion) {
-                              $id: 2,
-                              $values: [
-                                singleton CharSequence 1,
-                                null,
-                                {
-                                  $ref: 1,
-                                  $values: singleton CharSequence 2
-                                },
-                                singleton CharSequence 3
-                              ]
-                            },
+                            (CharSeqOrListStructUnion) (List<ICharSequence>($id: 2)) [
+                              singleton CharSequence 1,
+                              null,
+                              (MutableString($ref: 1)) singleton CharSequence 2,
+                              singleton CharSequence 3
+                            ],
                             (CharSeqOrListStructUnion) [
                               new CharSequence 1,
                               new CharSequence 2,
                               null,
                               new CharSequence 3
                             ],
-                            (CharSeqOrListStructUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrListStructUnion) (List<ICharSequence>($ref: 2))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "singleton CharSequence 2"
-                          }
+                          firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                         }
                         """.Dos2Unix()
                     }
@@ -1992,13 +1948,23 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldCharSequenceListClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "singleton CharSequence 2" },
+                         firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                          firstList: (List<CharSeqOrListClassUnion>) [
-                         (CharSeqOrListClassUnion) { $ref: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrListClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                          (CharSeqOrListClassUnion) null,
-                         (CharSeqOrListClassUnion($id: 2)) [ new CharSequence 1, new CharSequence 2, null, new CharSequence 3 ],
-                         (CharSeqOrListClassUnion) [ singleton CharSequence 1, null, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ],
-                         (CharSeqOrListClassUnion) { $ref: 2 }
+                         (CharSeqOrListClassUnion($id: 2)) [
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         null,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrListClassUnion) [
+                         singleton CharSequence 1,
+                         null,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrListClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2008,15 +1974,9 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldCharSequenceListClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "singleton CharSequence 2"
-                          },
+                          firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                           firstList: (List<CharSeqOrListClassUnion>) [
-                            (CharSeqOrListClassUnion) {
-                              $ref: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrListClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                             (CharSeqOrListClassUnion) null,
                             (CharSeqOrListClassUnion($id: 2)) [
                               new CharSequence 1,
@@ -2027,15 +1987,10 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                             (CharSeqOrListClassUnion) [
                               singleton CharSequence 1,
                               null,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
-                            (CharSeqOrListClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrListClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -2184,11 +2139,21 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceListPostFieldClassUnionRevisit {
                          firstList: (List<CharSeqOrListClassUnion>) [
-                         (CharSeqOrListClassUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrListClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrListClassUnion) [],
-                         (CharSeqOrListClassUnion($id: 2)) [ null, singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ],
-                         (CharSeqOrListClassUnion) [ new CharSequence 1, new CharSequence 2, new CharSequence 3, null ],
-                         (CharSeqOrListClassUnion) { $ref: 2 }
+                         (CharSeqOrListClassUnion($id: 2)) [
+                         null,
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrListClassUnion) [
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         new CharSequence 3,
+                         null
+                         ],
+                         (CharSeqOrListClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -2200,18 +2165,12 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceListPostFieldClassUnionRevisit {
                           firstList: (List<CharSeqOrListClassUnion>) [
-                            (CharSeqOrListClassUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrListClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrListClassUnion) [],
                             (CharSeqOrListClassUnion($id: 2)) [
                               null,
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
                             (CharSeqOrListClassUnion) [
@@ -2220,9 +2179,7 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                               new CharSequence 3,
                               null
                             ],
-                            (CharSeqOrListClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrListClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -2367,11 +2324,21 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceEnumerableStructUnionRevisit {
                          firstPreField: null,
                          firstEnumerable: (List<CharSeqOrEnumerableStructUnion>) [
-                         (CharSeqOrEnumerableStructUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrEnumerableStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrEnumerableStructUnion) [],
-                         (CharSeqOrEnumerableStructUnion) { $id: 2, $values: [ new CharSequence 1, null, new CharSequence 2, new CharSequence 3 ] },
-                         (CharSeqOrEnumerableStructUnion) [ singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, null, singleton CharSequence 3 ],
-                         (CharSeqOrEnumerableStructUnion) { $ref: 2 }
+                         (CharSeqOrEnumerableStructUnion) (List<ICharSequence>($id: 2)) [
+                         new CharSequence 1,
+                         null,
+                         new CharSequence 2,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrEnumerableStructUnion) [
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         null,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrEnumerableStructUnion) (List<ICharSequence>($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2383,32 +2350,21 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceEnumerableStructUnionRevisit {
                           firstPreField: null,
                           firstEnumerable: (List<CharSeqOrEnumerableStructUnion>) [
-                            (CharSeqOrEnumerableStructUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrEnumerableStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrEnumerableStructUnion) [],
-                            (CharSeqOrEnumerableStructUnion) {
-                              $id: 2,
-                              $values: [
-                                new CharSequence 1,
-                                null,
-                                new CharSequence 2,
-                                new CharSequence 3
-                              ]
-                            },
+                            (CharSeqOrEnumerableStructUnion) (List<ICharSequence>($id: 2)) [
+                              new CharSequence 1,
+                              null,
+                              new CharSequence 2,
+                              new CharSequence 3
+                            ],
                             (CharSeqOrEnumerableStructUnion) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               null,
                               singleton CharSequence 3
                             ],
-                            (CharSeqOrEnumerableStructUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrEnumerableStructUnion) (List<ICharSequence>($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -2551,13 +2507,18 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceEnumerablePostFieldStructUnionRevisit {
                          firstEnumerable: (List<CharSeqOrEnumerableStructUnion>) [
-                         (CharSeqOrEnumerableStructUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrEnumerableStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrEnumerableStructUnion) [],
-                         (CharSeqOrEnumerableStructUnion) { $id: 2, $values: [ singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, null, singleton CharSequence 3 ] },
-                         (CharSeqOrEnumerableStructUnion) [ new CharSequence 1, null, new CharSequence 2, new CharSequence 3 ],
-                         (CharSeqOrEnumerableStructUnion) { $ref: 2 }
+                         (CharSeqOrEnumerableStructUnion) (List<ICharSequence>($id: 2)) [
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         null,
+                         singleton CharSequence 3
                          ],
-                         firstPostField: { $ref: 1, $values: "singleton CharSequence 2" }
+                         (CharSeqOrEnumerableStructUnion) [ new CharSequence 1, null, new CharSequence 2, new CharSequence 3 ],
+                         (CharSeqOrEnumerableStructUnion) (List<ICharSequence>($ref: 2))
+                         ],
+                         firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -2567,37 +2528,23 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceEnumerablePostFieldStructUnionRevisit {
                           firstEnumerable: (List<CharSeqOrEnumerableStructUnion>) [
-                            (CharSeqOrEnumerableStructUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrEnumerableStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrEnumerableStructUnion) [],
-                            (CharSeqOrEnumerableStructUnion) {
-                              $id: 2,
-                              $values: [
-                                singleton CharSequence 1,
-                                {
-                                  $ref: 1,
-                                  $values: singleton CharSequence 2
-                                },
-                                null,
-                                singleton CharSequence 3
-                              ]
-                            },
+                            (CharSeqOrEnumerableStructUnion) (List<ICharSequence>($id: 2)) [
+                              singleton CharSequence 1,
+                              (MutableString($ref: 1)) singleton CharSequence 2,
+                              null,
+                              singleton CharSequence 3
+                            ],
                             (CharSeqOrEnumerableStructUnion) [
                               new CharSequence 1,
                               null,
                               new CharSequence 2,
                               new CharSequence 3
                             ],
-                            (CharSeqOrEnumerableStructUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrEnumerableStructUnion) (List<ICharSequence>($ref: 2))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "singleton CharSequence 2"
-                          }
+                          firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                         }
                         """.Dos2Unix()
                     }
@@ -2744,13 +2691,23 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldCharSequenceEnumerableClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "singleton CharSequence 2" },
+                         firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                          firstEnumerable: (List<CharSeqOrEnumerableClassUnion>) [
-                         (CharSeqOrEnumerableClassUnion) { $ref: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrEnumerableClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                          (CharSeqOrEnumerableClassUnion) null,
-                         (CharSeqOrEnumerableClassUnion($id: 2)) [ null, new CharSequence 1, new CharSequence 2, new CharSequence 3 ],
-                         (CharSeqOrEnumerableClassUnion) [ singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3, null ],
-                         (CharSeqOrEnumerableClassUnion) { $ref: 2 }
+                         (CharSeqOrEnumerableClassUnion($id: 2)) [
+                         null,
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrEnumerableClassUnion) [
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3,
+                         null
+                         ],
+                         (CharSeqOrEnumerableClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2760,15 +2717,9 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldCharSequenceEnumerableClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "singleton CharSequence 2"
-                          },
+                          firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                           firstEnumerable: (List<CharSeqOrEnumerableClassUnion>) [
-                            (CharSeqOrEnumerableClassUnion) {
-                              $ref: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrEnumerableClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                             (CharSeqOrEnumerableClassUnion) null,
                             (CharSeqOrEnumerableClassUnion($id: 2)) [
                               null,
@@ -2778,16 +2729,11 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (CharSeqOrEnumerableClassUnion) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3,
                               null
                             ],
-                            (CharSeqOrEnumerableClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrEnumerableClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -2936,11 +2882,21 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceEnumerablePostFieldClassUnionRevisit {
                          firstEnumerable: (List<CharSeqOrEnumerableClassUnion>) [
-                         (CharSeqOrEnumerableClassUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrEnumerableClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrEnumerableClassUnion) [],
-                         (CharSeqOrEnumerableClassUnion($id: 2)) [ singleton CharSequence 1, null, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3 ],
-                         (CharSeqOrEnumerableClassUnion) [ new CharSequence 1, new CharSequence 2, null, new CharSequence 3 ],
-                         (CharSeqOrEnumerableClassUnion) { $ref: 2 }
+                         (CharSeqOrEnumerableClassUnion($id: 2)) [
+                         singleton CharSequence 1,
+                         null,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
+                         ],
+                         (CharSeqOrEnumerableClassUnion) [
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         null,
+                         new CharSequence 3
+                         ],
+                         (CharSeqOrEnumerableClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -2952,18 +2908,12 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceEnumerablePostFieldClassUnionRevisit {
                           firstEnumerable: (List<CharSeqOrEnumerableClassUnion>) [
-                            (CharSeqOrEnumerableClassUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrEnumerableClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrEnumerableClassUnion) [],
                             (CharSeqOrEnumerableClassUnion($id: 2)) [
                               singleton CharSequence 1,
                               null,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
                             (CharSeqOrEnumerableClassUnion) [
@@ -2972,9 +2922,7 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                               null,
                               new CharSequence 3
                             ],
-                            (CharSeqOrEnumerableClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrEnumerableClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }
@@ -3119,18 +3067,21 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceEnumeratorStructUnionRevisit {
                          firstPreField: null,
                          firstEnumerator: (List<CharSeqOrEnumeratorStructUnion>.Enumerator) [
-                         (CharSeqOrEnumeratorStructUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrEnumeratorStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrEnumeratorStructUnion) null,
                          (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>($id: 2)) [
-                         new CharSequence 1, new CharSequence 2, null, new CharSequence 3
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         null,
+                         new CharSequence 3
                          ],
                          (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>) [
                          singleton CharSequence 1,
                          null,
-                         { $ref: 1, $values: singleton CharSequence 2 },
+                         (MutableString($ref: 1)) singleton CharSequence 2,
                          singleton CharSequence 3
                          ],
-                         (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>) { $ref: 2 }
+                         (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3142,10 +3093,7 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         PreFieldCharSequenceEnumeratorStructUnionRevisit {
                           firstPreField: null,
                           firstEnumerator: (List<CharSeqOrEnumeratorStructUnion>.Enumerator) [
-                            (CharSeqOrEnumeratorStructUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrEnumeratorStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrEnumeratorStructUnion) null,
                             (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>($id: 2)) [
                               new CharSequence 1,
@@ -3156,15 +3104,10 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                             (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>) [
                               singleton CharSequence 1,
                               null,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
-                            (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>) {
-                              $ref: 2
-                            }
+                            (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -3307,18 +3250,23 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceEnumeratorPostFieldStructUnionRevisit {
                          firstEnumerator: (List<CharSeqOrEnumeratorStructUnion>.Enumerator) [
-                         (CharSeqOrEnumeratorStructUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrEnumeratorStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrEnumeratorStructUnion) [],
                          (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>($id: 2)) [
-                         null, singleton CharSequence 1, { $ref: 1, $values: singleton CharSequence 2 }, singleton CharSequence 3
+                         null,
+                         singleton CharSequence 1,
+                         (MutableString($ref: 1)) singleton CharSequence 2,
+                         singleton CharSequence 3
                          ],
-                         (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>) [ new CharSequence 1, new CharSequence 2, new CharSequence 3, null ],
-                         (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>) { $ref: 2 }
+                         (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>) [
+                         new CharSequence 1,
+                         new CharSequence 2,
+                         new CharSequence 3,
+                         null
                          ],
-                         firstPostField: {
-                         $ref: 1,
-                         $values: "singleton CharSequence 2"
-                         }
+                         (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>($ref: 2))
+                         ],
+                         firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                          }
                         """.RemoveLineEndings()
                     }
@@ -3328,18 +3276,12 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceEnumeratorPostFieldStructUnionRevisit {
                           firstEnumerator: (List<CharSeqOrEnumeratorStructUnion>.Enumerator) [
-                            (CharSeqOrEnumeratorStructUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrEnumeratorStructUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrEnumeratorStructUnion) [],
                             (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>($id: 2)) [
                               null,
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               singleton CharSequence 3
                             ],
                             (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>) [
@@ -3348,14 +3290,9 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                               new CharSequence 3,
                               null
                             ],
-                            (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>) {
-                              $ref: 2
-                            }
+                            (CharSeqOrEnumeratorStructUnion) (ReusableWrappingEnumerator<ICharSequence>($ref: 2))
                           ],
-                          firstPostField: {
-                            $ref: 1,
-                            $values: "singleton CharSequence 2"
-                          }
+                          firstPostField: (MutableString($ref: 1)) "singleton CharSequence 2"
                         }
                         """.Dos2Unix()
                     }
@@ -3502,18 +3439,23 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         PreFieldCharSequenceEnumeratorClassUnionRevisit {
-                         firstPreField: { $id: 1, $values: "singleton CharSequence 2" },
+                         firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                          firstEnumerator: (List<CharSeqOrEnumeratorClassUnion>.Enumerator) [
-                         (CharSeqOrEnumeratorClassUnion) { $ref: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrEnumeratorClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                          (CharSeqOrEnumeratorClassUnion) null,
-                         (CharSeqOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<ICharSequence>) [ new CharSequence 1, null, new CharSequence 2, new CharSequence 3 ],
+                         (CharSeqOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<ICharSequence>) [
+                         new CharSequence 1,
+                         null,
+                         new CharSequence 2,
+                         new CharSequence 3
+                         ],
                          (CharSeqOrEnumeratorClassUnion) (ReusableWrappingEnumerator<ICharSequence>) [
                          singleton CharSequence 1,
-                         { $ref: 1, $values: singleton CharSequence 2 },
+                         (MutableString($ref: 1)) singleton CharSequence 2,
                          null,
                          singleton CharSequence 3
                          ],
-                         (CharSeqOrEnumeratorClassUnion) { $ref: 2 }
+                         (CharSeqOrEnumeratorClassUnion($ref: 2))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3523,15 +3465,9 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         PreFieldCharSequenceEnumeratorClassUnionRevisit {
-                          firstPreField: {
-                            $id: 1,
-                            $values: "singleton CharSequence 2"
-                          },
+                          firstPreField: (MutableString($id: 1)) "singleton CharSequence 2",
                           firstEnumerator: (List<CharSeqOrEnumeratorClassUnion>.Enumerator) [
-                            (CharSeqOrEnumeratorClassUnion) {
-                              $ref: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrEnumeratorClassUnion) (MutableString($ref: 1)) singleton CharSequence 2,
                             (CharSeqOrEnumeratorClassUnion) null,
                             (CharSeqOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<ICharSequence>) [
                               new CharSequence 1,
@@ -3541,16 +3477,11 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                             ],
                             (CharSeqOrEnumeratorClassUnion) (ReusableWrappingEnumerator<ICharSequence>) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               null,
                               singleton CharSequence 3
                             ],
-                            (CharSeqOrEnumeratorClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrEnumeratorClassUnion($ref: 2))
                           ]
                         }
                         """.Dos2Unix()
@@ -3699,18 +3630,21 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceEnumeratorPostFieldClassUnionRevisit {
                          firstEnumerator: (List<CharSeqOrEnumeratorClassUnion>.Enumerator) [
-                         (CharSeqOrEnumeratorClassUnion) { $id: 1, $values: singleton CharSequence 2 },
+                         (CharSeqOrEnumeratorClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                          (CharSeqOrEnumeratorClassUnion) [],
                          (CharSeqOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<ICharSequence>) [
                          singleton CharSequence 1,
-                         { $ref: 1, $values: singleton CharSequence 2 },
+                         (MutableString($ref: 1)) singleton CharSequence 2,
                          null,
                          singleton CharSequence 3
                          ],
                          (CharSeqOrEnumeratorClassUnion) (ReusableWrappingEnumerator<ICharSequence>) [
-                         new CharSequence 1, null, new CharSequence 2, new CharSequence 3
+                         new CharSequence 1,
+                         null,
+                         new CharSequence 2,
+                         new CharSequence 3
                          ],
-                         (CharSeqOrEnumeratorClassUnion) { $ref: 2 }
+                         (CharSeqOrEnumeratorClassUnion($ref: 2))
                          ],
                          firstPostField: null
                          }
@@ -3722,17 +3656,11 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                       , """
                         CharSequenceEnumeratorPostFieldClassUnionRevisit {
                           firstEnumerator: (List<CharSeqOrEnumeratorClassUnion>.Enumerator) [
-                            (CharSeqOrEnumeratorClassUnion) {
-                              $id: 1,
-                              $values: singleton CharSequence 2
-                            },
+                            (CharSeqOrEnumeratorClassUnion) (MutableString($id: 1)) singleton CharSequence 2,
                             (CharSeqOrEnumeratorClassUnion) [],
                             (CharSeqOrEnumeratorClassUnion($id: 2)) (ReusableWrappingEnumerator<ICharSequence>) [
                               singleton CharSequence 1,
-                              {
-                                $ref: 1,
-                                $values: singleton CharSequence 2
-                              },
+                              (MutableString($ref: 1)) singleton CharSequence 2,
                               null,
                               singleton CharSequence 3
                             ],
@@ -3742,9 +3670,7 @@ public class CharSequenceCollectionRevisitTests : CommonStyleExpectationTestBase
                               new CharSequence 2,
                               new CharSequence 3
                             ],
-                            (CharSeqOrEnumeratorClassUnion) {
-                              $ref: 2
-                            }
+                            (CharSeqOrEnumeratorClassUnion($ref: 2))
                           ],
                           firstPostField: null
                         }

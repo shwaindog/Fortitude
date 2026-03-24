@@ -719,7 +719,7 @@ public static class CharSpanExtensions
         do
         {
             indexOfFind = searchReplaceSpan.IndexOf(find, nextFromIndex);
-            if (indexOfFind > fromIndex + searchPopLength) break;
+            if (indexOfFind >= fromIndex + searchPopLength) break;
             if (indexOfFind >= 0)
             {
                 searchPopLength -= fromToDeltaSize;

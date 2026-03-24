@@ -2,6 +2,7 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
+using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
@@ -20,18 +21,19 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags)
     {
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-           , remainingGraphDepth, moldGraphVisit, writeMethodType
+           , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext
            , createFormatFlags | FormatFlags.AsCollection);
 
         return this;
     }
 
-    public virtual bool IsSimple => false;
-    public override bool IsComplexType => true;
+    public virtual bool IsSimple => !IsComplexType;
+    public override bool IsComplexType => State.CurrentWriteMethod.SupportsMultipleFields() && State.Style.IsLog();
 
     protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {
@@ -78,13 +80,25 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
 
     public ComplexOrderedCollectionMold AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
-        var msf = MoldStateField;
+        var msf         = MoldStateField;
+        
+        var visitResult      = msf.MoldGraphVisit;
+        var visitIndex       = visitResult.VisitId.VisitIndex;
+        var preBaseMoldState = msf.SnapshotWriteState;
         
         var markPreBodyStart = msf.Sb.Length;
         if (msf.SkipBody) return msf.Mold;
 
-        MoldStateField.Master.AddBaseFieldsStart();
+        MoldStateField.Master.AddBaseFieldsStart(msf);
         TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
+        
+        // to avoid cicular references reusing this visit
+        msf.MoldGraphVisit     = msf.MoldGraphVisit.IncrementUsedCount();
+        msf.SnapshotWriteState = preBaseMoldState;
+        var master           = msf.Master;
+        var reg              = master.ActiveGraphRegistry;
+        var restoreMoldState = reg[visitIndex];
+        reg[visitIndex] = restoreMoldState.UpdateMoldWriteState(msf);
         
         if (msf.Sb.Length > markPreBodyStart && msf.Sf.Gb.LastContentSeparatorPaddingRanges.SeparatorPaddingRange == null)
         {

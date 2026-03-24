@@ -501,13 +501,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArrayFields {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharArrayField: (char[]($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -516,13 +511,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArrayFields {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharArrayField: (char[]($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -618,13 +608,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArraysFirstAsSimpleCloakedValueContent {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharArrayField: (char[]($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -633,13 +618,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArraysFirstAsSimpleCloakedValueContent {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharArrayField: (char[]($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -733,13 +713,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArraysSecondAsSimpleCloakedValueContent {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharArrayField: (char[]($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -748,13 +723,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArraysSecondAsSimpleCloakedValueContent {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharArrayField: (char[]($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -849,13 +819,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArraysFirstAsSimpleCloakedStringContent {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharArrayField: (char[]($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -864,13 +829,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArraysFirstAsSimpleCloakedStringContent {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharArrayField: (char[]($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -967,13 +927,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArraysSecondAsSimpleCloakedStringContent {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharArrayField: (char[]($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -982,13 +937,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArraysSecondAsSimpleCloakedStringContent {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharArrayField: (char[]($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -1081,14 +1031,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArrayFields {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharArrayField: (char[]($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                          }
                         """.RemoveLineEndings()
                     }
@@ -1097,14 +1041,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArrayFields {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharArrayField: (char[]($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                         }
                         """.Dos2Unix()
                     }
@@ -1204,14 +1142,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArraysFirstAsSimpleCloakedValueContent {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharArrayField: (char[]($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                          }
                         """.RemoveLineEndings()
                     }
@@ -1220,14 +1152,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArraysFirstAsSimpleCloakedValueContent {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharArrayField: (char[]($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                         }
                         """.Dos2Unix()
                     }
@@ -1327,14 +1253,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArraysSecondAsSimpleCloakedValueContent {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharArrayField: (char[]($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                          }
                         """.RemoveLineEndings()
                     }
@@ -1343,14 +1263,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArraysSecondAsSimpleCloakedValueContent {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharArrayField: (char[]($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                         }
                         """.Dos2Unix()
                     }
@@ -1451,14 +1365,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArraysFirstAsSimpleCloakedStringContent {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                         SecondCharArrayField: (char[]($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                          }
                         """.RemoveLineEndings()
                     }
@@ -1467,14 +1375,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArraysFirstAsSimpleCloakedStringContent {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV.",
+                          SecondCharArrayField: (char[]($ref: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.
                         }
                         """.Dos2Unix()
                     }
@@ -1575,14 +1477,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, CompactLog)
                       , """
                         TwoCharArraysSecondAsSimpleCloakedStringContent {
-                         FirstCharArrayField: {
-                         $id: 1,
-                         $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                         },
-                         SecondCharArrayField: {
-                         $ref: 1,
-                         $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                         }
+                         FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                         SecondCharArrayField: (char[]($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                          }
                         """.RemoveLineEndings()
                     }
@@ -1591,14 +1487,8 @@ public class CharArrayUnitSimpleContentAndFieldRevisitTests : CommonStyleExpecta
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoCharArraysSecondAsSimpleCloakedStringContent {
-                          FirstCharArrayField: {
-                            $id: 1,
-                            $values: You may resume writing you're résumé, or see "Vee" with help with your CV.
-                          },
-                          SecondCharArrayField: {
-                            $ref: 1,
-                            $values: "You may resume writing you're résumé, or see "Vee" with help with your CV."
-                          }
+                          FirstCharArrayField: (char[]($id: 1)) You may resume writing you're résumé, or see "Vee" with help with your CV.,
+                          SecondCharArrayField: (char[]($ref: 1)) "You may resume writing you're résumé, or see "Vee" with help with your CV."
                         }
                         """.Dos2Unix()
                     }

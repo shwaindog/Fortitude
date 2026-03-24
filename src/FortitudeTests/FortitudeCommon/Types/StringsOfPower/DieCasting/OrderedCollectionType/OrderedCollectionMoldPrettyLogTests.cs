@@ -102,7 +102,7 @@ public class OrderedCollectionMoldPrettyLogTests : OrderedCollectionMoldTests
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[1], ScaffoldingRegistry.AllScaffoldingTypes[1049]);
+        ExecuteIndividualScaffoldExpectation(StringBearerCollectionsTestData.AllStringBearerCollectionExpectations[15], ScaffoldingRegistry.AllScaffoldingTypes[1046], StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

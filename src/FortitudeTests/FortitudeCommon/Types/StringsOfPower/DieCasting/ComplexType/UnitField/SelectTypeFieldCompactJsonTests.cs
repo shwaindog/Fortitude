@@ -89,8 +89,8 @@ public class SelectTypeFieldCompactJsonTests : SelectTypeFieldTests
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CharArrayTestData.AllCharArrayExpectations[4], ScaffoldingRegistry.AllScaffoldingTypes[845]
-                                           , StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(CharSequenceTestData.AllCharSequenceExpectations[25], ScaffoldingRegistry.AllScaffoldingTypes[843]
+                                           , StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

@@ -5,6 +5,8 @@ using System.Diagnostics;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
+using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
@@ -13,7 +15,7 @@ public interface ITypeBuilderComponentSource<out T> : ITypeBuilderComponentSourc
     IMoldWriteState<T> KnownTypeMoldState { get; }
 
     bool AppendGraphFields<T>(T instance, VisitResult visitResult, IStyledTypeFormatting usingFormatter
-      , WrittenAsFlags writeMethod, FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
+      , WrittenAsFlags writeMethod, TypeMoldFlags moldWrittenFlags, FormatFlags formatFlags = DefaultCallerTypeFlags);
 }
 
 public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
@@ -27,6 +29,7 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags);
 
     void Free();
@@ -52,10 +55,11 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags)
     {
         InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName, remainingGraphDepth
-                                  , moldGraphVisit, createFormatFlags);
+                                  , moldGraphVisit, callerContext, createFormatFlags);
 
         SourceBuilderComponentAccess(writeMethodType);
     }
@@ -71,7 +75,23 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         [DebuggerStepThrough] get => MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
     }
 
-    public override bool IsComplexType => State.CurrentWriteMethod.SupportsMultipleFields();
+    public override bool IsComplexType => State.CreateWriteMethod.SupportsMultipleFields();
+
+    public FormatFlags CallerFormatFlags => State.CallerFormatFlags;
+    
+    public string? CallerFormatString => State.CallerFormatString;
+    
+    public override WrittenAsFlags WrittenAs
+    {
+        get => State.CurrentWriteMethod;
+        
+        protected set
+        {
+            State.CurrentWriteMethod = value;
+            base.WrittenAs = value;
+        }
+    }
+
 
     IMoldWriteState ITypeBuilderComponentSource.MoldState =>
         MoldStateField ?? throw new NullReferenceException("Expected MoldState to be set");
@@ -83,8 +103,6 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     {
         if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
         StartTypeOpening(MoldStateField.StyleFormatter, formatFlags);
-        MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
-                          , MoldStateField.CurrentWriteMethod, formatFlags);
     }
 
     public override void FinishTypeOpening(FormatFlags formatFlags)
@@ -95,33 +113,79 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     public virtual void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
+        var mws = State;
         if (IsComplexType)
         {
-            usingFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
+            usingFormatter.StartComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags);
+            if (mws.Style.IsLog() && mws.StartedTypeName)
+            {
+                MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, usingFormatter
+                                  , MoldStateField.CreateWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
+            }
         }
-        else { usingFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags); }
+        else { 
+            usingFormatter.StartSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags);
+            if (mws.Style.IsLog() && mws.StartedTypeName)
+            {
+                MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, usingFormatter
+                                  , MoldStateField.CreateWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
+            }
+        }
     }
 
     public virtual void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
+        var mws = State;
         if (IsComplexType)
         {
-            usingFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags);
+            usingFormatter.FinishComplexTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags);
+            if (mws.Style.IsNotLog())
+            {
+                MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, usingFormatter
+                                  , MoldStateField.CreateWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
+            }
         }
-        else { usingFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CurrentWriteMethod, formatFlags); }
+        else
+        {
+            usingFormatter.FinishSimpleTypeOpening(MoldStateField.InstanceOrType, MoldStateField, MoldStateField.CreateWriteMethod, formatFlags);
+            if (mws.Style.IsNotLog())
+            {
+                MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, usingFormatter
+                                  , MoldStateField.CreateWriteMethod, MoldStateField.MoldWrittenFlags, formatFlags);
+            }
+        }
     }
 
-    public virtual void AppendClosing()
+    public virtual void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        State.Sf.Gb.RemoveLastSeparatorAndPadding();
+        var mws = State;
+        if (mws.CurrentWriteMethod.SupportsMultipleFields())
+        {
+            State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
+        }
+        else
+        {
+            State.Sf.Gb.RemoveLastSeparatorAndPadding();
+        }
     }
 
     protected TMold Me => (TMold)(TypeMolder)this;
 
-    public override AppendSummary Complete()
+    protected virtual AppendSummary RunShutdown()
+    {
+        var currentAppenderIndex = State.Master.WriteBuffer.Length;
+        var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
+        var result               = BuildMoldStringRange(typeWriteRange);
+        PortableState.CompleteResult = result;
+        var tos           = State.Master;
+        tos.TypeComplete(State); // calls DecrementRef count
+        return result;
+    }
+
+    public override AppendSummary Complete(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (State == null) { throw new NullReferenceException("Expected MoldState to be set"); }
-        if (PortableState.CreateFormatFlags.DoesNotHaveSuppressClosing()) { AppendClosing(); }
+        if (State.CreateMoldFormatFlags.DoesNotHaveSuppressClosing()) { AppendClosing(formatFlags); }
         else
         {
             var gb            = State.Sf.Gb;
@@ -129,42 +193,23 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
             if (!hasUncommited && !gb.LastContentSeparatorPaddingRanges.HasNonZeroLengthContent) { gb.RemoveLastSeparatorAndPadding(); }
             else if (hasUncommited) { gb.Complete(State.CreateMoldFormatFlags); }
         }
-        var currentAppenderIndex = State.Master.WriteBuffer.Length;
-        var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
-        var result               = BuildMoldStringRange(typeWriteRange);
-        PortableState.CompleteResult = result;
-        var tos           = State.Master;
-        var verifyRemoved = MoldVisit;
-        // if (verifyRemoved.VisitId.RegistryId >= -1
-        //  && (tos.ActiveGraphRegistry.RegistryId != verifyRemoved.VisitId.RegistryId
-        //   || verifyRemoved.VisitId.VisitIndex >= tos.ActiveGraphRegistry.Count)) { Debugger.Break(); }
-        tos.TypeComplete(State); // calls DecrementRef count
-        //MoldStateField = null!;
-
-        // if (verifyRemoved.VisitId.RegistryId >= -1 && verifyRemoved.VisitId.VisitIndex >= 0
-        //                                            && tos.ActiveGraphRegistry.Count > verifyRemoved.VisitId.VisitIndex
-        //                                            && tos.ActiveGraphRegistry[verifyRemoved.VisitId.VisitIndex].MoldState != null)
-        // {
-        //     Debugger.Break();
-        // }
-        return result;
+        return RunShutdown();
     }
 
     protected bool MyAppendGraphFields<T>(T instance, VisitResult visitResult, IStyledTypeFormatting usingFormatter
-      , WrittenAsFlags writeMethod, FormatFlags formatFlags) =>
+      , WrittenAsFlags writeMethod, TypeMoldFlags moldWrittenFlags, FormatFlags formatFlags) =>
         ((ITypeBuilderComponentSource<TMold>)this)
-        .AppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, MoldStateField.StyleFormatter
-                         , MoldStateField.CurrentWriteMethod, MoldStateField.CreateMoldFormatFlags);
+        .AppendGraphFields(instance, visitResult, usingFormatter, writeMethod, moldWrittenFlags, formatFlags);
 
     bool ITypeBuilderComponentSource<TMold>.AppendGraphFields<T>(T instance, VisitResult visitResult, IStyledTypeFormatting usingFormatter
-      , WrittenAsFlags writeMethod, FormatFlags formatFlags)
+      , WrittenAsFlags writeMethod, TypeMoldFlags moldWrittenFlags, FormatFlags formatFlags)
     {
         var msf = MoldStateField;
         if (visitResult.IsARevisit)
         {
             var charsWritten =
                 usingFormatter
-                    .AppendExistingReferenceId(msf, visitResult.InstanceId, writeMethod, formatFlags);
+                    .AppendExistingReferenceId(msf, visitResult.InstanceId, TypeBeingBuilt, writeMethod, moldWrittenFlags, formatFlags);
             msf.WroteRefId = charsWritten > 0;
         }
         if (MoldStateField.RemainingGraphDepth <= 0)

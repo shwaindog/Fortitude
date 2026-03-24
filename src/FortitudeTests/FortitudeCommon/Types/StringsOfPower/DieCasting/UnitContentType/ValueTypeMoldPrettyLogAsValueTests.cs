@@ -96,7 +96,7 @@ public class ContentTypeMoldPrettyLogAsValueTests : ContentTypeMoldAsValueTests
     public void PrettyLogNullStringBearerAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
@@ -109,7 +109,7 @@ public class ContentTypeMoldPrettyLogAsValueTests : ContentTypeMoldAsValueTests
     {
         var prettyLogTemplate = 
             condition.HasComplexTypeFlag() && className.IsStringBearerOrNullableCached() 
-                ? "({0}) {{{1}{2}{3}{1}}}"
+                ? "{0} {{{1}{2}{3}{1}}}"
                 : "({0}) {3}" ;
 
         var maybeNewLine = "";

@@ -21,7 +21,11 @@ public interface IMoldWriteState : IRecyclableObject, ITransferState
     ISecretStringOfPower Master { get; }
 
     FormatFlags CallerFormatFlags { get; }
-    FormatFlags CreateMoldFormatFlags { get; }
+    string? CallerFormatString { get; }
+    CallerContext Caller { get; }
+
+    FormatFlags CurrentFormatFlags { get; set; }
+    FormatFlags CreateMoldFormatFlags { get; set; }
 
     int InstanceReferenceId { get; }
     int CloseDepthDecrementBy { get; }
@@ -30,7 +34,10 @@ public interface IMoldWriteState : IRecyclableObject, ITransferState
 
     ushort IndentLevel { get; }
 
+    WrittenAsFlags CreateWriteMethod { get; set; }
     WrittenAsFlags CurrentWriteMethod { get; set; }
+
+    TypeMoldFlags MoldWrittenFlags { get; set; }
 
     bool SupportsMultipleFields { get; }
 
@@ -39,11 +46,10 @@ public interface IMoldWriteState : IRecyclableObject, ITransferState
     // bool WriteAsAttribute { get; set; }
     // bool WriteAsContent { get; set; }
     bool WroteRefId { get; set; }
-    bool WroteOuterTypeName { get; set; }
-    bool WroteInnerTypeName { get; set; }
-    // bool WroteCollectionName { get; set; }
-    bool WroteOuterTypeOpen { get; set; }
-    bool WroteOuterTypeClose { get; set; }
+    bool WroteTypeName { get; set; }
+    bool StartedTypeName { get; set; }
+    bool WroteTypeOpen { get; set; }
+    bool WroteTypeClose { get; set; }
     bool InnerSameAsOuterType { get; set; }
     bool WroteInnerTypeOpen { get; set; }
     bool WroteInnerTypeClose { get; set; }
@@ -80,7 +86,9 @@ public interface IMoldWriteState : IRecyclableObject, ITransferState
 
     IStringBuilder Sb { get; }
 
-    VisitResult MoldGraphVisit { get; }
+    VisitResult MoldGraphVisit { get; set; }
+    
+    public MoldSnapWriteState SnapshotWriteState { get; set; }
 
     int VisitNumber { get; }
 
@@ -107,12 +115,24 @@ public interface IMoldWriteState<out T> : IMigratableMoldWriteState where T : Ty
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
 }
 
+public record struct MoldSnapWriteState
+(
+    int RemainingGraphDepth
+  , FormatFlags CurrentFormatFlags
+  , WrittenAsFlags CurrentWriteMethod
+  , TypeMoldFlags MoldWrittenFlags
+)
+{
+    public MoldSnapWriteState RemoveWrittenFlags(TypeMoldFlags flagsToRemove) => 
+        this with { MoldWrittenFlags = MoldWrittenFlags & ~(flagsToRemove) };
+};
+
 public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
     where TExt : TypeMolder
 {
-    private TypeMoldFlags moldFlags = IsEmptyFlag;
     TypeMolder IMoldWriteState.Mold => Mold;
 
+    private TypeMoldFlags unregisteredVisitFlags = None;
     public TExt Mold { get; private set; } = null!;
 
     private TypeMolder.MoldPortableState typeBuilderState = null!;
@@ -126,15 +146,15 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
 
         var typeOfTExt = typeof(TExt);
         var hasAnyStyleFields = typeOfTExt == typeof(ComplexPocoTypeMold)
-                         || typeOfTExt == typeof(KeyedCollectionMold)
-                         || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
+                             || typeOfTExt == typeof(KeyedCollectionMold)
+                             || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
 
-        var fmtFlags             = typeBuilderPortableState.CreateFormatFlags;
-        var hasBeenVisitedBefore = MoldGraphVisit.IsARevisit;
-        SkipBody   = hasBeenVisitedBefore && fmtFlags.DoesNotHaveIsFieldNameFlag();
-        SkipFields = hasBeenVisitedBefore || (!Style.IsLog() && !hasAnyStyleFields);
+        var fmtFlags       = typeBuilderPortableState.CreateFormatFlags;
+        var shouldSuppress = MoldGraphVisit.IsARevisit && !writeMethod.HasShowSuppressedContents();
+        SkipBody   = shouldSuppress && fmtFlags.DoesNotHaveIsFieldNameFlag();
+        SkipFields = shouldSuppress || (!Style.IsLog() && !hasAnyStyleFields);
 
-        InitialWriteMethod = writeMethod;
+        CreateWriteMethod  = writeMethod;
         CurrentWriteMethod = writeMethod;
         return this;
     }
@@ -174,17 +194,35 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
         [DebuggerStepThrough] get => typeBuilderState.TypeVisitedAs;
     }
 
-    public FormatFlags CallerFormatFlags => Master.CallerContext.FormatFlags;
+    public FormatFlags CallerFormatFlags => typeBuilderState.CallerContext.FormatFlags;
+    public CallerContext Caller => typeBuilderState.CallerContext;
+
+    public string? CallerFormatString => typeBuilderState.CallerContext.FormatString;
+
     public FormatFlags CreateMoldFormatFlags
     {
         [DebuggerStepThrough] get => typeBuilderState.CreateFormatFlags;
+        set => typeBuilderState.CreateFormatFlags = value;
+    }
+
+    public FormatFlags CurrentFormatFlags
+    {
+        [DebuggerStepThrough]
+        get
+        {
+            if (Master.ActiveGraphRegistry.HasRegistered(MoldGraphVisit.VisitId))
+            {
+                return Master.ActiveGraphRegistry[VisitNumber].CurrentFormatFlags;
+            }
+            return typeBuilderState.CreateFormatFlags;
+        }
         set
         {
-            if (typeBuilderState.CreateFormatFlags == value) return;
-            var oldValues = typeBuilderState.CreateFormatFlags;
-            typeBuilderState.CreateFormatFlags = value;
-            Master.UpdateVisitRemoveFormatFlags(MoldGraphVisit.VisitId, oldValues);
-            Master.UpdateVisitAddFormatFlags(MoldGraphVisit.VisitId, value);
+            if (Master.ActiveGraphRegistry.HasRegistered(MoldGraphVisit.VisitId))
+            {
+                var stateUpdate = Master.ActiveGraphRegistry[VisitNumber];
+                Master.ActiveGraphRegistry[VisitNumber] = stateUpdate.UpdateVisitReplaceFormatFlags(value);
+            }
         }
     }
 
@@ -194,24 +232,28 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
 
     public ushort IndentLevel => (ushort)typeBuilderState.Master.IndentLevel;
 
-    public WrittenAsFlags InitialWriteMethod { get; private set; }
+    public WrittenAsFlags CreateWriteMethod { get; set; }
 
     public WrittenAsFlags CurrentWriteMethod
     {
-        get => typeBuilderState.WrittenAsFlags;
+        get
+        {
+            if (Master.ActiveGraphRegistry.HasRegistered(MoldGraphVisit.VisitId)) { return Master.ActiveGraphRegistry[VisitNumber].WrittenAs; }
+            return typeBuilderState.WrittenAsFlags;
+        }
         set
         {
-            if (typeBuilderState.WrittenAsFlags == value) return;
-            if (value.HasAsSimpleFlag() && value.HasAsComplexFlag())
+            if (Master.ActiveGraphRegistry.HasRegistered(MoldGraphVisit.VisitId))
             {
-                value &= ~(typeBuilderState.WrittenAsFlags & (WrittenAsFlags.AsSimple | WrittenAsFlags.AsComplex));
+                Master.ActiveGraphRegistry[VisitNumber] =
+                    Master.ActiveGraphRegistry[VisitNumber].UpdateVisitWriteType(value);
             }
             typeBuilderState.WrittenAsFlags = value;
-            Master.UpdateVisitWriteMethod(MoldGraphVisit.VisitId, value);
+            if (!WroteTypeOpen && !WroteTypeName) { CreateWriteMethod = value; }
         }
     }
 
-    public bool SupportsMultipleFields => CurrentWriteMethod.SupportsMultipleFields();
+    public bool SupportsMultipleFields => CreateWriteMethod.SupportsMultipleFields();
 
     public int CloseDepthDecrementBy { get; private set; } = 1;
 
@@ -219,64 +261,87 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
 
     public bool IsEmpty
     {
-        get => moldFlags.HasIsEmptyFlag();
-        set => moldFlags = moldFlags.SetTo(IsEmptyFlag, value);
+        get => MoldWrittenFlags.HasIsEmptyFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(IsEmptyFlag, value);
     }
 
     public bool WroteRefId
     {
-        get => moldFlags.HasWroteRefIdFlag();
-        set => moldFlags = moldFlags.SetTo(WroteRefIdFlag, value);
+        get => MoldWrittenFlags.HasWroteRefIdFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(WroteRefIdFlag, value);
     }
 
     public bool WasDepthClipped
     {
-        get => moldFlags.HasWasDepthClippedFlag();
-        set => moldFlags = moldFlags.SetTo(WasDepthClippedFlag, value);
+        get => MoldWrittenFlags.HasWasDepthClippedFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(WasDepthClippedFlag, value);
     }
 
-    public bool WroteOuterTypeName
+    public bool WroteTypeName
     {
-        get => moldFlags.HasWroteOuterTypeNameFlag();
-        set => moldFlags = moldFlags.SetTo(WroteOuterTypeNameFlag, value);
+        get => MoldWrittenFlags.HasWroteTypeNameFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(WroteTypeNameFlag, value);
     }
 
-    public bool WroteOuterTypeOpen
+    public bool WroteTypeOpen
     {
-        get => moldFlags.HasWroteOuterTypeOpenFlag();
-        set => moldFlags = moldFlags.SetTo(WroteOuterTypeOpenFlag, value);
+        get => MoldWrittenFlags.HasWroteOuterTypeOpenFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(WroteTypeOpenFlag, value);
     }
 
-    public bool WroteOuterTypeClose
+    public bool WroteTypeClose
     {
-        get => moldFlags.HasWroteOuterTypeCloseFlag();
-        set => moldFlags = moldFlags.SetTo(WroteOuterTypeCloseFlag, value);
+        get => MoldWrittenFlags.HasWroteTypeCloseFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(WroteTypeCloseFlag, value);
     }
 
     public bool InnerSameAsOuterType
     {
-        get => moldFlags.HasInnerSameAsOuterTypeFlag();
-        set => moldFlags = moldFlags.SetTo(InnerSameAsOuterTypeFlag, value);
+        get => MoldWrittenFlags.HasInnerSameAsOuterTypeFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(InnerSameAsOuterTypeFlag, value);
     }
 
-    public bool WroteInnerTypeName
+    public bool StartedTypeName
     {
-        get => moldFlags.HasWroteCInnerTypeNameFlag();
-        set => moldFlags = moldFlags.SetTo(WroteCInnerTypeNameFlag, value);
+        get => MoldWrittenFlags.HasStartedTypeNameFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(StartedTypeNameFlag, value);
     }
 
     public bool WroteInnerTypeOpen
     {
-        get => moldFlags.HasWroteInnerTypeOpenFlag();
-        set => moldFlags = moldFlags.SetTo(WroteInnerTypeOpenFlag, value);
+        get => MoldWrittenFlags.HasWroteInnerTypeOpenFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(WroteInnerTypeOpenFlag, value);
     }
 
     public bool WroteInnerTypeClose
     {
-        get => moldFlags.HasWroteInnerTypeCloseFlag();
-        set => moldFlags = moldFlags.SetTo(WroteInnerTypeCloseFlag, value);
+        get => MoldWrittenFlags.HasWroteInnerTypeCloseFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(WroteInnerTypeCloseFlag, value);
     }
 
+    public TypeMoldFlags MoldWrittenFlags
+    {
+        get
+        {
+            if (Master.ActiveGraphRegistry.HasRegistered(MoldGraphVisit.VisitId))
+            {
+                var shared = Master.ActiveGraphRegistry[VisitNumber].WrittenFlags;
+                var result = shared | unregisteredVisitFlags;
+                unregisteredVisitFlags = shared;
+                return result;
+            }
+            return unregisteredVisitFlags;
+        }
+        set
+        {
+            unregisteredVisitFlags = value;
+            if (Master.ActiveGraphRegistry.HasRegistered(MoldGraphVisit.VisitId))
+            {
+                Master.ActiveGraphRegistry[VisitNumber] =
+                    Master.ActiveGraphRegistry[VisitNumber].UpdateMoldWrittenFlags(unregisteredVisitFlags);
+            }
+        }
+    }
 
     public char IndentChar => Settings.IndentChar;
 
@@ -284,20 +349,23 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
     {
         [DebuggerStepThrough] get => typeBuilderState.Master.CurrentStyledTypeFormatter;
     }
-    public IStyledTypeFormatting Sf => StyleFormatter;
+    public IStyledTypeFormatting Sf
+    {
+        [DebuggerStepThrough] get =>  StyleFormatter;
+    }
 
     public bool IsComplete => Mold.IsComplete;
 
     public bool SkipBody
     {
-        get => moldFlags.HasSkipBodyFlag();
-        set => moldFlags ^= !value && SkipBody || value && !SkipBody ? SkipBodyFlag : None;
+        get => MoldWrittenFlags.HasSkipBodyFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(SkipBodyFlag, value);
     }
 
     public bool SkipFields
     {
-        get => moldFlags.HasSkipFieldsFlag();
-        set => moldFlags ^= !value && SkipFields || value && !SkipFields ? SkipFieldsFlag : None;
+        get => MoldWrittenFlags.HasSkipFieldsFlag();
+        set => MoldWrittenFlags = MoldWrittenFlags.SetTo(SkipFieldsFlag, value);
     }
 
     public virtual bool HasSkipBody(Type actualType, ReadOnlySpan<char> fieldName
@@ -359,6 +427,18 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
         }
     }
 
+    public MoldSnapWriteState SnapshotWriteState
+    {
+        get => new(RemainingGraphDepth, CurrentFormatFlags, CurrentWriteMethod, MoldWrittenFlags);
+        set
+        {
+            RemainingGraphDepth = value.RemainingGraphDepth;
+            CurrentFormatFlags  = value.CurrentFormatFlags;
+            CurrentWriteMethod  = value.CurrentWriteMethod;
+            MoldWrittenFlags    = value.MoldWrittenFlags;
+        }
+    }
+
     public void SetUntrackedVisit()
     {
         typeBuilderState.MoldGraphVisit = VisitResult.VisitNotChecked;
@@ -385,31 +465,24 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
     public virtual IMoldWriteState CopyFrom(IMoldWriteState? source, CopyMergeFlags copyMergeFlags = CopyMergeFlags.Default)
     {
         if (source == null) return this;
-        CreateMoldFormatFlags      = source.CreateMoldFormatFlags;
-        CurrentWriteMethod         = source.CurrentWriteMethod;
-        MoldGraphVisit             = source.MoldGraphVisit;
-        RemainingGraphDepth        = source.RemainingGraphDepth;
-        SkipBody                   = source.SkipBody;
-        SkipFields                 = source.SkipFields;
-        IsEmpty                    = source.IsEmpty;
-        WroteRefId                 = source.WroteRefId;
-        WasDepthClipped            = source.WasDepthClipped;
-        WroteOuterTypeName         = source.WroteOuterTypeName;
-        WroteOuterTypeOpen         = source.WroteOuterTypeOpen;
-        WroteOuterTypeClose        = source.WroteOuterTypeClose;
-        WroteInnerTypeOpen         = source.WroteInnerTypeOpen;
-        WroteInnerTypeClose        = source.WroteInnerTypeClose;
+        CurrentFormatFlags    = source.CurrentFormatFlags;
+        CreateMoldFormatFlags = source.CreateMoldFormatFlags;
+        CurrentWriteMethod    = source.CurrentWriteMethod;
+        CreateWriteMethod     = source.CreateWriteMethod;
+        MoldGraphVisit        = source.MoldGraphVisit;
+        RemainingGraphDepth   = source.RemainingGraphDepth;
+        MoldWrittenFlags      = source.MoldWrittenFlags;
 
         return this;
     }
 
     public override void StateReset()
     {
-        InitialWriteMethod = WrittenAsFlags.Empty;
-        moldFlags          = None;
-        Mold               = null!;
-        typeBuilderState   = null!;
-        RemainingGraphDepth = int.MaxValue;
+        CreateWriteMethod      = WrittenAsFlags.Empty;
+        unregisteredVisitFlags = None;
+        Mold                   = null!;
+        typeBuilderState       = null!;
+        RemainingGraphDepth    = int.MaxValue;
 
         CloseDepthDecrementBy = 1;
 

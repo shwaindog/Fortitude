@@ -27,4 +27,14 @@ public record struct FormattingState
           , LayoutEncoder = layoutEncoder
         };
     }
+    
+    public FormattingState UpdateFormatter(IStyledTypeFormatting newFormatter)
+    {
+        return this with
+        {
+            ContentEncoder = newFormatter.ContentEncoder
+          , LayoutEncoder = newFormatter.LayoutEncoder
+          , Formatter = newFormatter
+        };
+    }
 };

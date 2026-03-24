@@ -24,10 +24,11 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
+      , CallerContext callerContext  
       , FormatFlags createFormatFlags )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName, remainingGraphDepth
-                                      , moldGraphVisit, writeMethodType, createFormatFlags);
+                                      , moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
 
         stb = MoldStateField;
 
@@ -49,10 +50,10 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         usingFormatter.FinishKeyedCollectionOpen(MoldStateField);
     }
 
-    public override void AppendClosing()
+    public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, elementCount);
+        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, elementCount, formatFlags);
     }
 
     protected override void InheritedStateReset()

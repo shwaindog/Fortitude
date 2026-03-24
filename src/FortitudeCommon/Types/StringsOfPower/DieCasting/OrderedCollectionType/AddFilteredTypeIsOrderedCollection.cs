@@ -8,6 +8,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification.CollectionItemResult;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -53,7 +54,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -99,7 +100,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -146,7 +147,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -193,7 +194,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -240,7 +241,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -287,7 +288,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -334,7 +335,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -381,7 +382,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -434,7 +435,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -488,7 +489,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -550,7 +551,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -612,7 +613,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -662,7 +663,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -709,7 +710,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -757,7 +758,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -805,7 +806,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -853,7 +854,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -901,7 +902,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -949,7 +950,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -997,7 +998,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1051,7 +1052,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1106,7 +1107,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1168,7 +1169,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1232,7 +1233,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1283,7 +1284,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1330,7 +1331,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1379,7 +1380,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1426,7 +1427,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1476,7 +1477,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1524,7 +1525,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1573,7 +1574,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1621,7 +1622,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1676,7 +1677,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1731,7 +1732,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1794,7 +1795,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1857,7 +1858,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -1906,7 +1907,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -1953,7 +1954,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2000,7 +2001,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2047,7 +2048,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2094,7 +2095,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2141,7 +2142,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2188,7 +2189,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2235,7 +2236,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
@@ -2289,7 +2290,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2344,7 +2345,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2406,7 +2407,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
@@ -2469,7 +2470,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                         break;
                     }
                 }
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;

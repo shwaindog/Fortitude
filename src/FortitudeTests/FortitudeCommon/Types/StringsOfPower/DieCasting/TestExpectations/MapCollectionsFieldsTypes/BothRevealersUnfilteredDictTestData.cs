@@ -452,12 +452,12 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                           , """
                             {
-                                 First_SpanStruct: First_SpanClass     ,
-                                Second_SpanStruct: Second_SpanClass    ,
-                                 Third_SpanStruct: Third_SpanClass     ,
-                                Fourth_SpanStruct: Fourth_SpanClass    ,
-                                 Fifth_SpanStruct: Fifth_SpanClass     ,
-                                 Sixth_SpanStruct: Sixth_SpanClass      
+                             (MySpanFormattableStruct)     First_SpanStruct: (MySpanFormattableClass) First_SpanClass     ,
+                             (MySpanFormattableStruct)    Second_SpanStruct: (MySpanFormattableClass) Second_SpanClass    ,
+                             (MySpanFormattableStruct)     Third_SpanStruct: (MySpanFormattableClass) Third_SpanClass     ,
+                             (MySpanFormattableStruct)    Fourth_SpanStruct: (MySpanFormattableClass) Fourth_SpanClass    ,
+                             (MySpanFormattableStruct)     Fifth_SpanStruct: (MySpanFormattableClass) Fifth_SpanClass     ,
+                             (MySpanFormattableStruct)     Sixth_SpanStruct: (MySpanFormattableClass) Sixth_SpanClass      
                             }
                             """.RemoveLineEndings()
                         }
@@ -480,12 +480,12 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                                  First_SpanStruct: First_SpanClass     ,
-                                 Second_SpanStruct: Second_SpanClass    ,
-                                  Third_SpanStruct: Third_SpanClass     ,
-                                 Fourth_SpanStruct: Fourth_SpanClass    ,
-                                  Fifth_SpanStruct: Fifth_SpanClass     ,
-                                  Sixth_SpanStruct: Sixth_SpanClass     
+                              (MySpanFormattableStruct)     First_SpanStruct: (MySpanFormattableClass) First_SpanClass     ,
+                              (MySpanFormattableStruct)    Second_SpanStruct: (MySpanFormattableClass) Second_SpanClass    ,
+                              (MySpanFormattableStruct)     Third_SpanStruct: (MySpanFormattableClass) Third_SpanClass     ,
+                              (MySpanFormattableStruct)    Fourth_SpanStruct: (MySpanFormattableClass) Fourth_SpanClass    ,
+                              (MySpanFormattableStruct)     Fifth_SpanStruct: (MySpanFormattableClass) Fifth_SpanClass     ,
+                              (MySpanFormattableStruct)     Sixth_SpanStruct: (MySpanFormattableClass) Sixth_SpanClass     
                             }
                             """.Dos2Unix()
                         }
@@ -514,12 +514,12 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                           , """
                             {
-                             First_SpanStruct    :      First_SpanClass,
-                             null:     Second_SpanClass,
-                             Third_SpanStruct    :      Third_SpanClass,
-                             Fourth_SpanStruct   : null,
-                             null: null 
-                            }
+                             (MySpanFormattableStruct) First_SpanStruct    : (MySpanFormattableClass)      First_SpanClass,
+                             null: (MySpanFormattableClass)     Second_SpanClass,
+                             (MySpanFormattableStruct) Third_SpanStruct    : (MySpanFormattableClass)      Third_SpanClass,
+                             (MySpanFormattableStruct) Fourth_SpanStruct   : null,
+                             null: null
+                             }
                             """.RemoveLineEndings()
                         }
                        ,
@@ -540,10 +540,10 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                              First_SpanStruct    :      First_SpanClass,
-                              null:     Second_SpanClass,
-                              Third_SpanStruct    :      Third_SpanClass,
-                              Fourth_SpanStruct   : null,
+                              (MySpanFormattableStruct) First_SpanStruct    : (MySpanFormattableClass)      First_SpanClass,
+                              null: (MySpanFormattableClass)     Second_SpanClass,
+                              (MySpanFormattableStruct) Third_SpanStruct    : (MySpanFormattableClass)      Third_SpanClass,
+                              (MySpanFormattableStruct) Fourth_SpanStruct   : null,
                               null: null
                             }
                             """.Dos2Unix()
@@ -571,12 +571,12 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                           , """
                             {
-                                  First_SpanClass: First_SpanStruct    ,
-                                 Second_SpanClass: Second_SpanStruct   ,
-                                  Third_SpanClass: Third_SpanStruct    ,
-                                 Fourth_SpanClass: Fourth_SpanStruct   ,
-                                  Fifth_SpanClass: Fifth_SpanStruct     
-                            }
+                             (MySpanFormattableClass)      First_SpanClass: (MySpanFormattableStruct) First_SpanStruct    ,
+                             (MySpanFormattableClass)     Second_SpanClass: (MySpanFormattableStruct) Second_SpanStruct   ,
+                             (MySpanFormattableClass)      Third_SpanClass: (MySpanFormattableStruct) Third_SpanStruct    ,
+                             (MySpanFormattableClass)     Fourth_SpanClass: (MySpanFormattableStruct) Fourth_SpanStruct   ,
+                             (MySpanFormattableClass)      Fifth_SpanClass: (MySpanFormattableStruct) Fifth_SpanStruct    
+                             }
                             """.RemoveLineEndings()
                         }
                        ,
@@ -597,11 +597,11 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                                   First_SpanClass: First_SpanStruct    ,
-                                  Second_SpanClass: Second_SpanStruct   ,
-                                   Third_SpanClass: Third_SpanStruct    ,
-                                  Fourth_SpanClass: Fourth_SpanStruct   ,
-                                   Fifth_SpanClass: Fifth_SpanStruct    
+                              (MySpanFormattableClass)      First_SpanClass: (MySpanFormattableStruct) First_SpanStruct    ,
+                              (MySpanFormattableClass)     Second_SpanClass: (MySpanFormattableStruct) Second_SpanStruct   ,
+                              (MySpanFormattableClass)      Third_SpanClass: (MySpanFormattableStruct) Third_SpanStruct    ,
+                              (MySpanFormattableClass)     Fourth_SpanClass: (MySpanFormattableStruct) Fourth_SpanStruct   ,
+                              (MySpanFormattableClass)      Fifth_SpanClass: (MySpanFormattableStruct) Fifth_SpanStruct    
                             }
                             """.Dos2Unix()
                         }
@@ -629,12 +629,12 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                           , """
                             {
-                             First_SpanClass     :     First_SpanStruct,
-                             null:    Second_SpanStruct,
-                             Third_SpanClass     :     Third_SpanStruct,
-                             Fourth_SpanClass    : null,
-                             null: null 
-                            }
+                             (MySpanFormattableClass) First_SpanClass     : (MySpanFormattableStruct)     First_SpanStruct,
+                             null: (MySpanFormattableStruct)    Second_SpanStruct,
+                             (MySpanFormattableClass) Third_SpanClass     : (MySpanFormattableStruct)     Third_SpanStruct,
+                             (MySpanFormattableClass) Fourth_SpanClass    : null,
+                             null: null
+                             }
                             """.RemoveLineEndings()
                         }
                        ,
@@ -655,10 +655,10 @@ public partial class BothRevealersDictTestData
                             new EK(AcceptsNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                           , """
                             {
-                              First_SpanClass     :     First_SpanStruct,
-                              null:    Second_SpanStruct,
-                              Third_SpanClass     :     Third_SpanStruct,
-                              Fourth_SpanClass    : null,
+                              (MySpanFormattableClass) First_SpanClass     : (MySpanFormattableStruct)     First_SpanStruct,
+                              null: (MySpanFormattableStruct)    Second_SpanStruct,
+                              (MySpanFormattableClass) Third_SpanClass     : (MySpanFormattableStruct)     Third_SpanStruct,
+                              (MySpanFormattableClass) Fourth_SpanClass    : null,
                               null: null
                             }
                             """.Dos2Unix()

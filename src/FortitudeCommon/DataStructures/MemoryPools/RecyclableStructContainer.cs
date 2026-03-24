@@ -54,3 +54,13 @@ public class RecyclableContainer<T> : RecyclableObject, IRecyclableStructContain
 
     public override string ToString() => $"{GetType().CachedCSharpNameWithConstraints()}({StoredValue})";
 }
+
+public static class RecyclableContainerExtensions
+{
+    public static Type IfRecyclableContainerGetType(this Type checkContainerType)
+    {
+        return checkContainerType.IsConcreteOfGeneric(typeof(RecyclableContainer<>)) 
+            ? checkContainerType.GenericTypeArguments[0] 
+            : checkContainerType;
+    }
+}

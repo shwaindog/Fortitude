@@ -130,15 +130,8 @@ public class SpanFormattableUnitFieldRevisitTests : CommonStyleExpectationTestBa
                       , """
                         TwoSpanFormattableFields<IPAddress>
                          {
-                         FirstSpanFormattableField:
-                         {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField:
-                         {
-                         $ref: 1
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                          }
                         """.RemoveLineEndings()
                     }
@@ -147,13 +140,8 @@ public class SpanFormattableUnitFieldRevisitTests : CommonStyleExpectationTestBa
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableFields<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1))
                         }
                         """.Dos2Unix()
                     }
@@ -250,16 +238,8 @@ public class SpanFormattableUnitFieldRevisitTests : CommonStyleExpectationTestBa
                       , """
                         TwoSpanFormattableFields<IPAddress>
                          {
-                         FirstSpanFormattableField:
-                         {
-                         $id: 1,
-                         $values: 127.0.0.1
-                         },
-                         SecondSpanFormattableField:
-                         {
-                         $ref: 1,
-                         $values: 127.0.0.1
-                         }
+                         FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                         SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) 127.0.0.1
                          }
                         """.RemoveLineEndings()
                     }
@@ -268,14 +248,8 @@ public class SpanFormattableUnitFieldRevisitTests : CommonStyleExpectationTestBa
                         new EK(AlwaysWrites | AcceptsStringBearer, PrettyLog)
                       , """
                         TwoSpanFormattableFields<IPAddress> {
-                          FirstSpanFormattableField: {
-                            $id: 1,
-                            $values: 127.0.0.1
-                          },
-                          SecondSpanFormattableField: {
-                            $ref: 1,
-                            $values: 127.0.0.1
-                          }
+                          FirstSpanFormattableField: (IPAddress.ReadOnlyIPAddress($id: 1)) 127.0.0.1,
+                          SecondSpanFormattableField: (IPAddress.ReadOnlyIPAddress($ref: 1)) 127.0.0.1
                         }
                         """.Dos2Unix()
                     }

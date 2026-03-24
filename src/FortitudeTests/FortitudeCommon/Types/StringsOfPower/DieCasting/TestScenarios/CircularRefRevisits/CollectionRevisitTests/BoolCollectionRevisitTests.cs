@@ -90,9 +90,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (BoolOrArrayStructUnion[]) [
                          (BoolOrArrayStructUnion) false,
                          (BoolOrArrayStructUnion) [],
-                         (BoolOrArrayStructUnion) { $id: 1, $values: [ true, false, true ] },
+                         (BoolOrArrayStructUnion) (bool[]($id: 1)) [ true, false, true ],
                          (BoolOrArrayStructUnion) [ false, true, false ],
-                         (BoolOrArrayStructUnion) { $ref: 1 }
+                         (BoolOrArrayStructUnion) (bool[]($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -104,22 +104,17 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstArray: (BoolOrArrayStructUnion[]) [
                              (BoolOrArrayStructUnion) false,
                              (BoolOrArrayStructUnion) [],
-                             (BoolOrArrayStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 true,
-                                 false,
-                                 true
-                               ]
-                             },
+                             (BoolOrArrayStructUnion) (bool[]($id: 1)) [
+                               true,
+                               false,
+                               true
+                             ],
                              (BoolOrArrayStructUnion) [
                                false,
                                true,
                                false
                              ],
-                             (BoolOrArrayStructUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrArrayStructUnion) (bool[]($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -219,9 +214,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (BoolOrArrayStructUnion[]) [
                          (BoolOrArrayStructUnion) false,
                          (BoolOrArrayStructUnion) [],
-                         (BoolOrArrayStructUnion) { $id: 1, $values: [ false, true, false ] },
+                         (BoolOrArrayStructUnion) (bool[]($id: 1)) [ false, true, false ],
                          (BoolOrArrayStructUnion) [ true, false, true ],
-                         (BoolOrArrayStructUnion) { $ref: 1 }
+                         (BoolOrArrayStructUnion) (bool[]($ref: 1))
                          ],
                          firstPostField: true
                          }
@@ -233,22 +228,17 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstArray: (BoolOrArrayStructUnion[]) [
                              (BoolOrArrayStructUnion) false,
                              (BoolOrArrayStructUnion) [],
-                             (BoolOrArrayStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 false,
-                                 true,
-                                 false
-                               ]
-                             },
+                             (BoolOrArrayStructUnion) (bool[]($id: 1)) [
+                               false,
+                               true,
+                               false
+                             ],
                              (BoolOrArrayStructUnion) [
                                true,
                                false,
                                true
                              ],
-                             (BoolOrArrayStructUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrArrayStructUnion) (bool[]($ref: 1))
                            ],
                            firstPostField: true
                          }
@@ -351,9 +341,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (NullableStructBoolOrArrayStructUnion[]) [
                          (NullableStructBoolOrArrayStructUnion) false,
                          (NullableStructBoolOrArrayStructUnion) null,
-                         (NullableStructBoolOrArrayStructUnion) { $id: 1, $values: [ null, true, false, true ] },
+                         (NullableStructBoolOrArrayStructUnion) (bool?[]($id: 1)) [ null, true, false, true ],
                          (NullableStructBoolOrArrayStructUnion) [ false, null, true, false ],
-                         (NullableStructBoolOrArrayStructUnion) { $ref: 1 }
+                         (NullableStructBoolOrArrayStructUnion) (bool?[]($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -365,24 +355,19 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstArray: (NullableStructBoolOrArrayStructUnion[]) [
                              (NullableStructBoolOrArrayStructUnion) false,
                              (NullableStructBoolOrArrayStructUnion) null,
-                             (NullableStructBoolOrArrayStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 null,
-                                 true,
-                                 false,
-                                 true
-                               ]
-                             },
+                             (NullableStructBoolOrArrayStructUnion) (bool?[]($id: 1)) [
+                               null,
+                               true,
+                               false,
+                               true
+                             ],
                              (NullableStructBoolOrArrayStructUnion) [
                                false,
                                null,
                                true,
                                false
                              ],
-                             (NullableStructBoolOrArrayStructUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrArrayStructUnion) (bool?[]($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -486,9 +471,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (NullableStructBoolOrArrayStructUnion[]) [
                          (NullableStructBoolOrArrayStructUnion) false,
                          (NullableStructBoolOrArrayStructUnion) [],
-                         (NullableStructBoolOrArrayStructUnion) { $id: 1, $values: [ false, true, null, false ] },
+                         (NullableStructBoolOrArrayStructUnion) (bool?[]($id: 1)) [ false, true, null, false ],
                          (NullableStructBoolOrArrayStructUnion) [ true, false, true, null ],
-                         (NullableStructBoolOrArrayStructUnion) { $ref: 1 }
+                         (NullableStructBoolOrArrayStructUnion) (bool?[]($ref: 1))
                          ],
                          firstPostField: true
                          }
@@ -500,24 +485,19 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstArray: (NullableStructBoolOrArrayStructUnion[]) [
                              (NullableStructBoolOrArrayStructUnion) false,
                              (NullableStructBoolOrArrayStructUnion) [],
-                             (NullableStructBoolOrArrayStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 false,
-                                 true,
-                                 null,
-                                 false
-                               ]
-                             },
+                             (NullableStructBoolOrArrayStructUnion) (bool?[]($id: 1)) [
+                               false,
+                               true,
+                               null,
+                               false
+                             ],
                              (NullableStructBoolOrArrayStructUnion) [
                                true,
                                false,
                                true,
                                null
                              ],
-                             (NullableStructBoolOrArrayStructUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrArrayStructUnion) (bool?[]($ref: 1))
                            ],
                            firstPostField: true
                          }
@@ -625,7 +605,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrArrayClassUnion) [],
                          (BoolOrArrayClassUnion($id: 1)) [ true, false, true ],
                          (BoolOrArrayClassUnion) [ false, true, false ],
-                         (BoolOrArrayClassUnion) { $ref: 1 }
+                         (BoolOrArrayClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -647,9 +627,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (BoolOrArrayClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrArrayClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -751,7 +729,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrArrayClassUnion) [],
                          (BoolOrArrayClassUnion($id: 1)) [ false, true, false ],
                          (BoolOrArrayClassUnion) [ true, false, true ],
-                         (BoolOrArrayClassUnion) { $ref: 1 }
+                         (BoolOrArrayClassUnion($ref: 1))
                          ],
                          firstPostField: false
                          }
@@ -773,9 +751,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                false,
                                true
                              ],
-                             (BoolOrArrayClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrArrayClassUnion($ref: 1))
                            ],
                            firstPostField: false
                          }
@@ -880,7 +856,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrArrayClassUnion) null,
                          (NullableStructBoolOrArrayClassUnion($id: 1)) [ null, true, false, true ],
                          (NullableStructBoolOrArrayClassUnion) [ false, null, true, false ],
-                         (NullableStructBoolOrArrayClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrArrayClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -904,9 +880,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (NullableStructBoolOrArrayClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrArrayClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -1012,7 +986,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrArrayClassUnion) [],
                          (NullableStructBoolOrArrayClassUnion($id: 1)) [ false, true, null, false ],
                          (NullableStructBoolOrArrayClassUnion) [ true, false, true, null ],
-                         (NullableStructBoolOrArrayClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrArrayClassUnion($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -1036,9 +1010,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                null
                              ],
-                             (NullableStructBoolOrArrayClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrArrayClassUnion($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -1146,7 +1118,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrSpanClassUnion) [],
                          (BoolOrSpanClassUnion($id: 1)) [ true, false, true ],
                          (BoolOrSpanClassUnion) [ false, true, false ],
-                         (BoolOrSpanClassUnion) { $ref: 1 }
+                         (BoolOrSpanClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1168,9 +1140,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (BoolOrSpanClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrSpanClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -1272,7 +1242,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrSpanClassUnion) [],
                          (BoolOrSpanClassUnion($id: 1)) [ false, true, false ],
                          (BoolOrSpanClassUnion) [ true, false, true ],
-                         (BoolOrSpanClassUnion) { $ref: 1 }
+                         (BoolOrSpanClassUnion($ref: 1))
                          ],
                          firstPostField: false
                          }
@@ -1294,9 +1264,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                false,
                                true
                              ],
-                             (BoolOrSpanClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrSpanClassUnion($ref: 1))
                            ],
                            firstPostField: false
                          }
@@ -1401,7 +1369,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrSpanClassUnion) null,
                          (NullableStructBoolOrSpanClassUnion($id: 1)) [ null, true, false, true ],
                          (NullableStructBoolOrSpanClassUnion) [ false, null, true, false ],
-                         (NullableStructBoolOrSpanClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrSpanClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1425,9 +1393,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (NullableStructBoolOrSpanClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrSpanClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -1533,7 +1499,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrSpanClassUnion) [],
                          (NullableStructBoolOrSpanClassUnion($id: 1)) [ false, true, null, false ],
                          (NullableStructBoolOrSpanClassUnion) [ true, false, true, null ],
-                         (NullableStructBoolOrSpanClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrSpanClassUnion($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -1557,9 +1523,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                null
                              ],
-                             (NullableStructBoolOrSpanClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrSpanClassUnion($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -1667,7 +1631,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrReadOnlySpanClassUnion) [],
                          (BoolOrReadOnlySpanClassUnion($id: 1)) [ true, false, true ],
                          (BoolOrReadOnlySpanClassUnion) [ false, true, false ],
-                         (BoolOrReadOnlySpanClassUnion) { $ref: 1 }
+                         (BoolOrReadOnlySpanClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1689,9 +1653,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (BoolOrReadOnlySpanClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrReadOnlySpanClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -1793,7 +1755,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrReadOnlySpanClassUnion) [],
                          (BoolOrReadOnlySpanClassUnion($id: 1)) [ false, true, false ],
                          (BoolOrReadOnlySpanClassUnion) [ true, false, true ],
-                         (BoolOrReadOnlySpanClassUnion) { $ref: 1 }
+                         (BoolOrReadOnlySpanClassUnion($ref: 1))
                          ],
                          firstPostField: false
                          }
@@ -1815,9 +1777,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                false,
                                true
                              ],
-                             (BoolOrReadOnlySpanClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrReadOnlySpanClassUnion($ref: 1))
                            ],
                            firstPostField: false
                          }
@@ -1922,7 +1882,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrReadOnlySpanClassUnion) null,
                          (NullableStructBoolOrReadOnlySpanClassUnion($id: 1)) [ null, true, false, true ],
                          (NullableStructBoolOrReadOnlySpanClassUnion) [ false, null, true, false ],
-                         (NullableStructBoolOrReadOnlySpanClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrReadOnlySpanClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1946,9 +1906,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (NullableStructBoolOrReadOnlySpanClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrReadOnlySpanClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -2054,7 +2012,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrReadOnlySpanClassUnion) [],
                          (NullableStructBoolOrReadOnlySpanClassUnion($id: 1)) [ false, true, null, false ],
                          (NullableStructBoolOrReadOnlySpanClassUnion) [ true, false, true, null ],
-                         (NullableStructBoolOrReadOnlySpanClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrReadOnlySpanClassUnion($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -2078,9 +2036,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                null
                              ],
-                             (NullableStructBoolOrReadOnlySpanClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrReadOnlySpanClassUnion($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -2186,9 +2142,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<BoolOrListStructUnion>) [
                          (BoolOrListStructUnion) false,
                          (BoolOrListStructUnion) [],
-                         (BoolOrListStructUnion) { $id: 1, $values: [ true, false, true ] },
+                         (BoolOrListStructUnion) (List<bool>($id: 1)) [ true, false, true ],
                          (BoolOrListStructUnion) [ false, true, false ],
-                         (BoolOrListStructUnion) { $ref: 1 }
+                         (BoolOrListStructUnion) (List<bool>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2200,22 +2156,17 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstList: (List<BoolOrListStructUnion>) [
                              (BoolOrListStructUnion) false,
                              (BoolOrListStructUnion) [],
-                             (BoolOrListStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 true,
-                                 false,
-                                 true
-                               ]
-                             },
+                             (BoolOrListStructUnion) (List<bool>($id: 1)) [
+                               true,
+                               false,
+                               true
+                             ],
                              (BoolOrListStructUnion) [
                                false,
                                true,
                                false
                              ],
-                             (BoolOrListStructUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrListStructUnion) (List<bool>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -2315,9 +2266,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<BoolOrListStructUnion>) [
                          (BoolOrListStructUnion) false,
                          (BoolOrListStructUnion) [],
-                         (BoolOrListStructUnion) { $id: 1, $values: [ false, true, false ] },
+                         (BoolOrListStructUnion) (List<bool>($id: 1)) [ false, true, false ],
                          (BoolOrListStructUnion) [ true, false, true ],
-                         (BoolOrListStructUnion) { $ref: 1 }
+                         (BoolOrListStructUnion) (List<bool>($ref: 1))
                          ],
                          firstPostField: true
                          }
@@ -2329,22 +2280,17 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstList: (List<BoolOrListStructUnion>) [
                              (BoolOrListStructUnion) false,
                              (BoolOrListStructUnion) [],
-                             (BoolOrListStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 false,
-                                 true,
-                                 false
-                               ]
-                             },
+                             (BoolOrListStructUnion) (List<bool>($id: 1)) [
+                               false,
+                               true,
+                               false
+                             ],
                              (BoolOrListStructUnion) [
                                true,
                                false,
                                true
                              ],
-                             (BoolOrListStructUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrListStructUnion) (List<bool>($ref: 1))
                            ],
                            firstPostField: true
                          }
@@ -2447,9 +2393,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<NullableStructBoolOrListStructUnion>) [
                          (NullableStructBoolOrListStructUnion) false,
                          (NullableStructBoolOrListStructUnion) null,
-                         (NullableStructBoolOrListStructUnion) { $id: 1, $values: [ null, true, false, true ] },
+                         (NullableStructBoolOrListStructUnion) (List<bool?>($id: 1)) [ null, true, false, true ],
                          (NullableStructBoolOrListStructUnion) [ false, null, true, false ],
-                         (NullableStructBoolOrListStructUnion) { $ref: 1 }
+                         (NullableStructBoolOrListStructUnion) (List<bool?>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2461,24 +2407,19 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstList: (List<NullableStructBoolOrListStructUnion>) [
                              (NullableStructBoolOrListStructUnion) false,
                              (NullableStructBoolOrListStructUnion) null,
-                             (NullableStructBoolOrListStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 null,
-                                 true,
-                                 false,
-                                 true
-                               ]
-                             },
+                             (NullableStructBoolOrListStructUnion) (List<bool?>($id: 1)) [
+                               null,
+                               true,
+                               false,
+                               true
+                             ],
                              (NullableStructBoolOrListStructUnion) [
                                false,
                                null,
                                true,
                                false
                              ],
-                             (NullableStructBoolOrListStructUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrListStructUnion) (List<bool?>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -2582,9 +2523,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<NullableStructBoolOrListStructUnion>) [
                          (NullableStructBoolOrListStructUnion) false,
                          (NullableStructBoolOrListStructUnion) [],
-                         (NullableStructBoolOrListStructUnion) { $id: 1, $values: [ false, true, null, false ] },
+                         (NullableStructBoolOrListStructUnion) (List<bool?>($id: 1)) [ false, true, null, false ],
                          (NullableStructBoolOrListStructUnion) [ true, false, true, null ],
-                         (NullableStructBoolOrListStructUnion) { $ref: 1 }
+                         (NullableStructBoolOrListStructUnion) (List<bool?>($ref: 1))
                          ],
                          firstPostField: true
                          }
@@ -2596,24 +2537,19 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstList: (List<NullableStructBoolOrListStructUnion>) [
                              (NullableStructBoolOrListStructUnion) false,
                              (NullableStructBoolOrListStructUnion) [],
-                             (NullableStructBoolOrListStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 false,
-                                 true,
-                                 null,
-                                 false
-                               ]
-                             },
+                             (NullableStructBoolOrListStructUnion) (List<bool?>($id: 1)) [
+                               false,
+                               true,
+                               null,
+                               false
+                             ],
                              (NullableStructBoolOrListStructUnion) [
                                true,
                                false,
                                true,
                                null
                              ],
-                             (NullableStructBoolOrListStructUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrListStructUnion) (List<bool?>($ref: 1))
                            ],
                            firstPostField: true
                          }
@@ -2721,7 +2657,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrListClassUnion) [],
                          (BoolOrListClassUnion($id: 1)) [ true, false, true ],
                          (BoolOrListClassUnion) [ false, true, false ],
-                         (BoolOrListClassUnion) { $ref: 1 }
+                         (BoolOrListClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2743,9 +2679,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (BoolOrListClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrListClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -2847,7 +2781,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrListClassUnion) [],
                          (BoolOrListClassUnion($id: 1)) [ false, true, false ],
                          (BoolOrListClassUnion) [ true, false, true ],
-                         (BoolOrListClassUnion) { $ref: 1 }
+                         (BoolOrListClassUnion($ref: 1))
                          ],
                          firstPostField: false
                          }
@@ -2869,9 +2803,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                false,
                                true
                              ],
-                             (BoolOrListClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrListClassUnion($ref: 1))
                            ],
                            firstPostField: false
                          }
@@ -2976,7 +2908,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrListClassUnion) null,
                          (NullableStructBoolOrListClassUnion($id: 1)) [ null, true, false, true ],
                          (NullableStructBoolOrListClassUnion) [ false, null, true, false ],
-                         (NullableStructBoolOrListClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrListClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3000,9 +2932,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (NullableStructBoolOrListClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrListClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -3108,7 +3038,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrListClassUnion) [],
                          (NullableStructBoolOrListClassUnion($id: 1)) [ false, true, null, false ],
                          (NullableStructBoolOrListClassUnion) [ true, false, true, null ],
-                         (NullableStructBoolOrListClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrListClassUnion($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -3132,9 +3062,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                null
                              ],
-                             (NullableStructBoolOrListClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrListClassUnion($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -3240,9 +3168,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<BoolOrEnumerableStructUnion>) [
                          (BoolOrEnumerableStructUnion) false,
                          (BoolOrEnumerableStructUnion) [],
-                         (BoolOrEnumerableStructUnion) { $id: 1, $values: [ true, false, true ] },
+                         (BoolOrEnumerableStructUnion) (List<bool>($id: 1)) [ true, false, true ],
                          (BoolOrEnumerableStructUnion) [ false, true, false ],
-                         (BoolOrEnumerableStructUnion) { $ref: 1 }
+                         (BoolOrEnumerableStructUnion) (List<bool>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3254,22 +3182,17 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstEnumerable: (List<BoolOrEnumerableStructUnion>) [
                              (BoolOrEnumerableStructUnion) false,
                              (BoolOrEnumerableStructUnion) [],
-                             (BoolOrEnumerableStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 true,
-                                 false,
-                                 true
-                               ]
-                             },
+                             (BoolOrEnumerableStructUnion) (List<bool>($id: 1)) [
+                               true,
+                               false,
+                               true
+                             ],
                              (BoolOrEnumerableStructUnion) [
                                false,
                                true,
                                false
                              ],
-                             (BoolOrEnumerableStructUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrEnumerableStructUnion) (List<bool>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -3369,9 +3292,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<BoolOrEnumerableStructUnion>) [
                          (BoolOrEnumerableStructUnion) false,
                          (BoolOrEnumerableStructUnion) [],
-                         (BoolOrEnumerableStructUnion) { $id: 1, $values: [ false, true, false ] },
+                         (BoolOrEnumerableStructUnion) (List<bool>($id: 1)) [ false, true, false ],
                          (BoolOrEnumerableStructUnion) [ true, false, true ],
-                         (BoolOrEnumerableStructUnion) { $ref: 1 }
+                         (BoolOrEnumerableStructUnion) (List<bool>($ref: 1))
                          ],
                          firstPostField: true
                          }
@@ -3383,22 +3306,17 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstEnumerable: (List<BoolOrEnumerableStructUnion>) [
                              (BoolOrEnumerableStructUnion) false,
                              (BoolOrEnumerableStructUnion) [],
-                             (BoolOrEnumerableStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 false,
-                                 true,
-                                 false
-                               ]
-                             },
+                             (BoolOrEnumerableStructUnion) (List<bool>($id: 1)) [
+                               false,
+                               true,
+                               false
+                             ],
                              (BoolOrEnumerableStructUnion) [
                                true,
                                false,
                                true
                              ],
-                             (BoolOrEnumerableStructUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrEnumerableStructUnion) (List<bool>($ref: 1))
                            ],
                            firstPostField: true
                          }
@@ -3501,9 +3419,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<NullableStructBoolOrEnumerableStructUnion>) [
                          (NullableStructBoolOrEnumerableStructUnion) false,
                          (NullableStructBoolOrEnumerableStructUnion) null,
-                         (NullableStructBoolOrEnumerableStructUnion) { $id: 1, $values: [ null, true, false, true ] },
+                         (NullableStructBoolOrEnumerableStructUnion) (List<bool?>($id: 1)) [ null, true, false, true ],
                          (NullableStructBoolOrEnumerableStructUnion) [ false, null, true, false ],
-                         (NullableStructBoolOrEnumerableStructUnion) { $ref: 1 }
+                         (NullableStructBoolOrEnumerableStructUnion) (List<bool?>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3515,24 +3433,19 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstEnumerable: (List<NullableStructBoolOrEnumerableStructUnion>) [
                              (NullableStructBoolOrEnumerableStructUnion) false,
                              (NullableStructBoolOrEnumerableStructUnion) null,
-                             (NullableStructBoolOrEnumerableStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 null,
-                                 true,
-                                 false,
-                                 true
-                               ]
-                             },
+                             (NullableStructBoolOrEnumerableStructUnion) (List<bool?>($id: 1)) [
+                               null,
+                               true,
+                               false,
+                               true
+                             ],
                              (NullableStructBoolOrEnumerableStructUnion) [
                                false,
                                null,
                                true,
                                false
                              ],
-                             (NullableStructBoolOrEnumerableStructUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrEnumerableStructUnion) (List<bool?>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -3636,9 +3549,9 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<NullableStructBoolOrEnumerableStructUnion>) [
                          (NullableStructBoolOrEnumerableStructUnion) false,
                          (NullableStructBoolOrEnumerableStructUnion) [],
-                         (NullableStructBoolOrEnumerableStructUnion) { $id: 1, $values: [ false, true, null, false ] },
+                         (NullableStructBoolOrEnumerableStructUnion) (List<bool?>($id: 1)) [ false, true, null, false ],
                          (NullableStructBoolOrEnumerableStructUnion) [ true, false, true, null ],
-                         (NullableStructBoolOrEnumerableStructUnion) { $ref: 1 }
+                         (NullableStructBoolOrEnumerableStructUnion) (List<bool?>($ref: 1))
                          ],
                          firstPostField: true
                          }
@@ -3650,24 +3563,19 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstEnumerable: (List<NullableStructBoolOrEnumerableStructUnion>) [
                              (NullableStructBoolOrEnumerableStructUnion) false,
                              (NullableStructBoolOrEnumerableStructUnion) [],
-                             (NullableStructBoolOrEnumerableStructUnion) {
-                               $id: 1,
-                               $values: [
-                                 false,
-                                 true,
-                                 null,
-                                 false
-                               ]
-                             },
+                             (NullableStructBoolOrEnumerableStructUnion) (List<bool?>($id: 1)) [
+                               false,
+                               true,
+                               null,
+                               false
+                             ],
                              (NullableStructBoolOrEnumerableStructUnion) [
                                true,
                                false,
                                true,
                                null
                              ],
-                             (NullableStructBoolOrEnumerableStructUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrEnumerableStructUnion) (List<bool?>($ref: 1))
                            ],
                            firstPostField: true
                          }
@@ -3775,7 +3683,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrEnumerableClassUnion) [],
                          (BoolOrEnumerableClassUnion($id: 1)) [ true, false, true ],
                          (BoolOrEnumerableClassUnion) [ false, true, false ],
-                         (BoolOrEnumerableClassUnion) { $ref: 1 }
+                         (BoolOrEnumerableClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3797,9 +3705,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (BoolOrEnumerableClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrEnumerableClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -3901,7 +3807,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrEnumerableClassUnion) [],
                          (BoolOrEnumerableClassUnion($id: 1)) [ false, true, false ],
                          (BoolOrEnumerableClassUnion) [ true, false, true ],
-                         (BoolOrEnumerableClassUnion) { $ref: 1 }
+                         (BoolOrEnumerableClassUnion($ref: 1))
                          ],
                          firstPostField: false
                          }
@@ -3923,9 +3829,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                false,
                                true
                              ],
-                             (BoolOrEnumerableClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrEnumerableClassUnion($ref: 1))
                            ],
                            firstPostField: false
                          }
@@ -4029,7 +3933,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrEnumerableClassUnion) null,
                          (NullableStructBoolOrEnumerableClassUnion($id: 1)) [ null, true, false, true ],
                          (NullableStructBoolOrEnumerableClassUnion) [ false, null, true, false ],
-                         (NullableStructBoolOrEnumerableClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrEnumerableClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -4053,9 +3957,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (NullableStructBoolOrEnumerableClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrEnumerableClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -4161,7 +4063,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrEnumerableClassUnion) [],
                          (NullableStructBoolOrEnumerableClassUnion($id: 1)) [ false, true, null, false ],
                          (NullableStructBoolOrEnumerableClassUnion) [ true, false, true, null ],
-                         (NullableStructBoolOrEnumerableClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrEnumerableClassUnion($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -4185,9 +4087,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                null
                              ],
-                             (NullableStructBoolOrEnumerableClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrEnumerableClassUnion($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -4296,7 +4196,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrEnumeratorStructUnion) [],
                          (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>($id: 1)) [ true, false, true ],
                          (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>) [ false, true, false ],
-                         (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>) { $ref: 1 }
+                         (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -4318,9 +4218,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>) {
-                               $ref: 1
-                             }
+                             (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -4422,7 +4320,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrEnumeratorStructUnion) [],
                          (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>($id: 1)) [ false, true, false ],
                          (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>) [ true, false, true ],
-                         (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>) { $ref: 1 }
+                         (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>($ref: 1))
                          ],
                          firstPostField: true
                          }
@@ -4444,9 +4342,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                false,
                                true
                              ],
-                             (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>) {
-                               $ref: 1
-                             }
+                             (BoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool>($ref: 1))
                            ],
                            firstPostField: true
                          }
@@ -4551,7 +4447,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrEnumeratorStructUnion) null,
                          (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>($id: 1)) [ null, true, false, true ],
                          (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>) [ false, null, true, false ],
-                         (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>) { $ref: 1 }
+                         (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -4575,9 +4471,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -4683,7 +4577,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrEnumeratorStructUnion) [],
                          (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>($id: 1)) [ false, true, null, false ],
                          (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>) [ true, false, true, null ],
-                         (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>) { $ref: 1 }
+                         (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>($ref: 1))
                          ],
                          firstPostField: true
                          }
@@ -4707,9 +4601,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                null
                              ],
-                             (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrEnumeratorStructUnion) (ReusableWrappingEnumerator<bool?>($ref: 1))
                            ],
                            firstPostField: true
                          }
@@ -4817,7 +4709,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrEnumeratorClassUnion) [],
                          (BoolOrEnumeratorClassUnion($id: 1)) (ReusableWrappingEnumerator<bool>) [ true, false, true ],
                          (BoolOrEnumeratorClassUnion) (ReusableWrappingEnumerator<bool>) [ false, true, false ],
-                         (BoolOrEnumeratorClassUnion) { $ref: 1 }
+                         (BoolOrEnumeratorClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -4839,9 +4731,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (BoolOrEnumeratorClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrEnumeratorClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -4943,7 +4833,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (BoolOrEnumeratorClassUnion) [],
                          (BoolOrEnumeratorClassUnion($id: 1)) (ReusableWrappingEnumerator<bool>) [ false, true, false ],
                          (BoolOrEnumeratorClassUnion) (ReusableWrappingEnumerator<bool>) [ true, false, true ],
-                         (BoolOrEnumeratorClassUnion) { $ref: 1 }
+                         (BoolOrEnumeratorClassUnion($ref: 1))
                          ],
                          firstPostField: false
                          }
@@ -4965,9 +4855,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                false,
                                true
                              ],
-                             (BoolOrEnumeratorClassUnion) {
-                               $ref: 1
-                             }
+                             (BoolOrEnumeratorClassUnion($ref: 1))
                            ],
                            firstPostField: false
                          }
@@ -5071,7 +4959,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrEnumeratorClassUnion) null,
                          (NullableStructBoolOrEnumeratorClassUnion($id: 1)) (ReusableWrappingEnumerator<bool?>) [ null, true, false, true ],
                          (NullableStructBoolOrEnumeratorClassUnion) (ReusableWrappingEnumerator<bool?>) [ false, null, true, false ],
-                         (NullableStructBoolOrEnumeratorClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrEnumeratorClassUnion($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -5095,9 +4983,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                false
                              ],
-                             (NullableStructBoolOrEnumeratorClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrEnumeratorClassUnion($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -5203,7 +5089,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructBoolOrEnumeratorClassUnion) [],
                          (NullableStructBoolOrEnumeratorClassUnion($id: 1)) (ReusableWrappingEnumerator<bool?>) [ false, true, null, false ],
                          (NullableStructBoolOrEnumeratorClassUnion) (ReusableWrappingEnumerator<bool?>) [ true, false, true, null ],
-                         (NullableStructBoolOrEnumeratorClassUnion) { $ref: 1 }
+                         (NullableStructBoolOrEnumeratorClassUnion($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -5227,9 +5113,7 @@ public class BoolCollectionRevisitTests : CommonStyleExpectationTestBase
                                true,
                                null
                              ],
-                             (NullableStructBoolOrEnumeratorClassUnion) {
-                               $ref: 1
-                             }
+                             (NullableStructBoolOrEnumeratorClassUnion($ref: 1))
                            ],
                            firstPostField: null
                          }

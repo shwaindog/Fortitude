@@ -6,6 +6,7 @@ using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 #pragma warning disable CS0618 // Type or member is obsolete
 
@@ -36,7 +37,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -70,7 +71,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -104,7 +105,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -137,7 +138,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -170,7 +171,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -203,7 +204,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -236,7 +237,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -269,7 +270,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -303,7 +304,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     any       = true;
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             collectionItems = itemCount;
@@ -338,7 +339,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     any       = true;
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             collectionItems = itemCount;
@@ -375,7 +376,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value!.Current;
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 hasValue = value.MoveNext();
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -414,7 +415,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value!.Current;
 
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 hasValue = value.MoveNext();
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -449,7 +450,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -483,7 +484,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -517,7 +518,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -550,7 +551,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -583,7 +584,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -616,7 +617,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -649,7 +650,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -682,7 +683,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -717,7 +718,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     any       = true;
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             collectionItems = itemCount;
@@ -753,7 +754,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     any       = true;
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             collectionItems = itemCount;
@@ -791,7 +792,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value!.Current;
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 hasValue = value.MoveNext();
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -830,7 +831,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value!.Current;
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | AsCollection);
+                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 hasValue = value.MoveNext();
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -865,7 +866,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -898,7 +899,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -931,7 +932,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -963,7 +964,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -996,7 +997,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1028,7 +1029,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1061,7 +1062,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1093,7 +1094,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1127,7 +1128,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     any       = true;
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             collectionItems = itemCount;
@@ -1161,7 +1162,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     any       = true;
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             collectionItems = itemCount;
@@ -1198,7 +1199,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value!.Current;
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 hasValue = value.MoveNext();
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1235,7 +1236,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value!.Current;
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags);
+                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
                 hasValue = value.MoveNext();
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1270,7 +1271,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1301,7 +1302,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1332,7 +1333,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1363,7 +1364,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1394,7 +1395,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1426,7 +1427,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1457,7 +1458,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1489,7 +1490,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value[i];
 
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, i);
             }
         }
@@ -1522,7 +1523,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     any       = true;
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             collectionItems = itemCount;
@@ -1556,7 +1557,7 @@ public partial class OrderedCollectionMold<TOCMold>
                     any       = true;
                     if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
             collectionItems = itemCount;
@@ -1593,7 +1594,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value!.Current;
 
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 hasValue = value.MoveNext();
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }
@@ -1631,7 +1632,7 @@ public partial class OrderedCollectionMold<TOCMold>
                 }
                 var item = value!.Current;
 
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags);
+                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 hasValue = value.MoveNext();
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
             }

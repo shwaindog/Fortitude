@@ -101,17 +101,17 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     }
     public int MaxCapacity => sb.MaxCapacity;
 
-    public int CurrentLineStartIndex
+    public int CurrentLineStartIndex => GetLineStartIndex(sb.Length - 1);
+
+    public int GetLineStartIndex(int atOffset)
     {
-        get
+        var cappedAt = Math.Clamp(atOffset, 0, Length - 1);
+        for (var i = cappedAt; i >= 0; i--)
         {
-            for (var i = sb.Length - 1; i >= 0; i--)
-            {
-                var checkChar = sb[i];
-                if (checkChar is '\n' or '\r') return Math.Clamp(i + 1, 0, sb.Length - 1);
-            }
-            return sb.Length;
+            var checkChar = sb[i];
+            if (checkChar is '\n' or '\r') return Math.Clamp(i + 1, 0, cappedAt);
         }
+        return cappedAt;
     }
 
     public int CurrentLineIndentEndColumn
@@ -2079,6 +2079,13 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return this;
     }
 
+    public int CountOccurenceOf(ReadOnlySpan<char> pattern, int fromIndexIncl = 0, int toIndexExcl = Int32.MaxValue)
+    {
+        var cappedFrom   = Math.Clamp(fromIndexIncl, 0, Length);
+        var cappedLength = Math.Clamp(toIndexExcl - cappedFrom, 0, Length - cappedFrom);
+        return this.SubSequenceOccurrenceCount(cappedFrom, cappedLength, pattern );
+    }
+
     public MutableString ToUpper()
     {
         if (IsFrozen) return ShouldThrow();
@@ -2130,16 +2137,21 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
     {
         if (IsFrozen) return ShouldThrow();
         if (IsFrozen) { return ShouldThrow(); }
+        var cappedLen            = Math.Clamp(Length - startIndex, 0, Length);
+        var resultSubString = cappedLen.SourceMutableString();
+        resultSubString.Append(sb, startIndex, cappedLen);
         sb.Remove(0, startIndex);
-        return this;
+        return resultSubString;
     }
 
     public MutableString Substring(int startIndex, int length)
     {
         if (IsFrozen) return ShouldThrow();
-        sb.Remove(0, startIndex);
-        sb.Remove(length, Length - length);
-        return this;
+        var cappedLen = Math.Clamp(length, 0, Length);
+        
+        var resultSubString = cappedLen.SourceMutableString();
+        resultSubString.Append(sb, startIndex, cappedLen);
+        return resultSubString;
     }
 
     public IMutableString SourceThawed => IsFrozen ? Clone() : this;
@@ -2262,6 +2274,8 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         return hash;
     }
 
+    private string DebugViewToString => ToString(); 
+
     public override string ToString() => sb.ToString();
 
     public string ToString(int startIndex, int length) => sb.ToString(startIndex, length);
@@ -2360,6 +2374,13 @@ public sealed class MutableString : ReusableObject<IMutableString>, IMutableStri
         public int LastIndexOf(ICharSequence subStr, int fromThisPos) => ms.LastIndexOf(subStr, fromThisPos);
 
         public int LastIndexOf(string subStr) => ms.LastIndexOf(subStr);
+
+        public int CountOccurenceOf(ReadOnlySpan<char> pattern, int fromIndexIncl = 0, int toIndexExcl = Int32.MaxValue)
+        {
+            var cappedFrom   = Math.Clamp(fromIndexIncl, 0, Length);
+            var cappedLength = Math.Clamp(toIndexExcl - cappedFrom, 0, Length - cappedFrom);
+            return this.SubSequenceOccurrenceCount(cappedFrom, cappedLength, pattern );
+        }
 
         public int Length => ms.Length;
 

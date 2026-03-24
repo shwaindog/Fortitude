@@ -90,9 +90,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (SpanFormattableOrArrayStructUnion<double, double>[]) [
                          (SpanFormattableOrArrayStructUnion<double, double>) 3.141592653589793,
                          (SpanFormattableOrArrayStructUnion<double, double>) [],
-                         (SpanFormattableOrArrayStructUnion<double, double>) { $id: 1, $values: [ 1, 2, 3 ] },
+                         (SpanFormattableOrArrayStructUnion<double, double>) (double[]($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrArrayStructUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrArrayStructUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrArrayStructUnion<double, double>) (double[]($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -104,22 +104,17 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstArray: (SpanFormattableOrArrayStructUnion<double, double>[]) [
                              (SpanFormattableOrArrayStructUnion<double, double>) 3.141592653589793,
                              (SpanFormattableOrArrayStructUnion<double, double>) [],
-                             (SpanFormattableOrArrayStructUnion<double, double>) {
-                               $id: 1,
-                               $values: [
-                                 1,
-                                 2,
-                                 3
-                               ]
-                             },
+                             (SpanFormattableOrArrayStructUnion<double, double>) (double[]($id: 1)) [
+                               1,
+                               2,
+                               3
+                             ],
                              (SpanFormattableOrArrayStructUnion<double, double>) [
                                4,
                                5,
                                6
                              ],
-                             (SpanFormattableOrArrayStructUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrArrayStructUnion<double, double>) (double[]($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -219,9 +214,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (SpanFormattableOrArrayStructUnion<double, double>[]) [
                          (SpanFormattableOrArrayStructUnion<double, double>) 2.718281828459045,
                          (SpanFormattableOrArrayStructUnion<double, double>) [],
-                         (SpanFormattableOrArrayStructUnion<double, double>) { $id: 1, $values: [ 1, 2, 3 ] },
+                         (SpanFormattableOrArrayStructUnion<double, double>) (double[]($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrArrayStructUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrArrayStructUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrArrayStructUnion<double, double>) (double[]($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -233,22 +228,17 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstArray: (SpanFormattableOrArrayStructUnion<double, double>[]) [
                              (SpanFormattableOrArrayStructUnion<double, double>) 2.718281828459045,
                              (SpanFormattableOrArrayStructUnion<double, double>) [],
-                             (SpanFormattableOrArrayStructUnion<double, double>) {
-                               $id: 1,
-                               $values: [
-                                 1,
-                                 2,
-                                 3
-                               ]
-                             },
+                             (SpanFormattableOrArrayStructUnion<double, double>) (double[]($id: 1)) [
+                               1,
+                               2,
+                               3
+                             ],
                              (SpanFormattableOrArrayStructUnion<double, double>) [
                                4,
                                5,
                                6
                              ],
-                             (SpanFormattableOrArrayStructUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrArrayStructUnion<double, double>) (double[]($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -351,9 +341,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (NullableStructSpanFormattableOrArrayStructUnion<double>[]) [
                          (NullableStructSpanFormattableOrArrayStructUnion<double>) 3.141592653589793,
                          (NullableStructSpanFormattableOrArrayStructUnion<double>) null,
-                         (NullableStructSpanFormattableOrArrayStructUnion<double>) { $id: 1, $values: [ null, 1, 2, 3 ] },
+                         (NullableStructSpanFormattableOrArrayStructUnion<double>) (double?[]($id: 1)) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrArrayStructUnion<double>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrArrayStructUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrArrayStructUnion<double>) (double?[]($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -365,24 +355,19 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstArray: (NullableStructSpanFormattableOrArrayStructUnion<double>[]) [
                              (NullableStructSpanFormattableOrArrayStructUnion<double>) 3.141592653589793,
                              (NullableStructSpanFormattableOrArrayStructUnion<double>) null,
-                             (NullableStructSpanFormattableOrArrayStructUnion<double>) {
-                               $id: 1,
-                               $values: [
-                                 null,
-                                 1,
-                                 2,
-                                 3
-                               ]
-                             },
+                             (NullableStructSpanFormattableOrArrayStructUnion<double>) (double?[]($id: 1)) [
+                               null,
+                               1,
+                               2,
+                               3
+                             ],
                              (NullableStructSpanFormattableOrArrayStructUnion<double>) [
                                4,
                                null,
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrArrayStructUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrArrayStructUnion<double>) (double?[]($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -486,9 +471,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstArray: (NullableStructSpanFormattableOrArrayStructUnion<double>[]) [
                          (NullableStructSpanFormattableOrArrayStructUnion<double>) 2.718281828459045,
                          (NullableStructSpanFormattableOrArrayStructUnion<double>) [],
-                         (NullableStructSpanFormattableOrArrayStructUnion<double>) { $id: 1, $values: [ 1, 2, null, 3 ] },
+                         (NullableStructSpanFormattableOrArrayStructUnion<double>) (double?[]($id: 1)) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrArrayStructUnion<double>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrArrayStructUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrArrayStructUnion<double>) (double?[]($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -500,24 +485,19 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstArray: (NullableStructSpanFormattableOrArrayStructUnion<double>[]) [
                              (NullableStructSpanFormattableOrArrayStructUnion<double>) 2.718281828459045,
                              (NullableStructSpanFormattableOrArrayStructUnion<double>) [],
-                             (NullableStructSpanFormattableOrArrayStructUnion<double>) {
-                               $id: 1,
-                               $values: [
-                                 1,
-                                 2,
-                                 null,
-                                 3
-                               ]
-                             },
+                             (NullableStructSpanFormattableOrArrayStructUnion<double>) (double?[]($id: 1)) [
+                               1,
+                               2,
+                               null,
+                               3
+                             ],
                              (NullableStructSpanFormattableOrArrayStructUnion<double>) [
                                4,
                                5,
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrArrayStructUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrArrayStructUnion<double>) (double?[]($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -625,7 +605,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrArrayClassUnion<double, double>) [],
                          (SpanFormattableOrArrayClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrArrayClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrArrayClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrArrayClassUnion<double, double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -647,9 +627,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrArrayClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrArrayClassUnion<double, double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -751,7 +729,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrArrayClassUnion<double, double>) [],
                          (SpanFormattableOrArrayClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrArrayClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrArrayClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrArrayClassUnion<double, double>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -773,9 +751,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrArrayClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrArrayClassUnion<double, double>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -880,7 +856,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrArrayClassUnion<double>) null,
                          (NullableStructSpanFormattableOrArrayClassUnion<double>($id: 1)) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrArrayClassUnion<double>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrArrayClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrArrayClassUnion<double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -904,9 +880,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrArrayClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrArrayClassUnion<double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -1012,7 +986,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrArrayClassUnion<double>) [],
                          (NullableStructSpanFormattableOrArrayClassUnion<double>($id: 1)) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrArrayClassUnion<double>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrArrayClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrArrayClassUnion<double>($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -1036,9 +1010,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrArrayClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrArrayClassUnion<double>($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -1146,7 +1118,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrSpanClassUnion<double, double>) [],
                          (SpanFormattableOrSpanClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrSpanClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrSpanClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrSpanClassUnion<double, double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1168,9 +1140,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrSpanClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrSpanClassUnion<double, double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -1272,7 +1242,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrSpanClassUnion<double, double>) [],
                          (SpanFormattableOrSpanClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrSpanClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrSpanClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrSpanClassUnion<double, double>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -1294,9 +1264,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrSpanClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrSpanClassUnion<double, double>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -1401,7 +1369,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrSpanClassUnion<double>) null,
                          (NullableStructSpanFormattableOrSpanClassUnion<double>($id: 1)) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrSpanClassUnion<double>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrSpanClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrSpanClassUnion<double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1425,9 +1393,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrSpanClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrSpanClassUnion<double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -1533,7 +1499,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrSpanClassUnion<double>) [],
                          (NullableStructSpanFormattableOrSpanClassUnion<double>($id: 1)) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrSpanClassUnion<double>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrSpanClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrSpanClassUnion<double>($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -1557,9 +1523,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrSpanClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrSpanClassUnion<double>($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -1667,7 +1631,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrReadOnlySpanClassUnion<double, double>) [],
                          (SpanFormattableOrReadOnlySpanClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrReadOnlySpanClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrReadOnlySpanClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrReadOnlySpanClassUnion<double, double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1689,9 +1653,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrReadOnlySpanClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrReadOnlySpanClassUnion<double, double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -1793,7 +1755,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrReadOnlySpanClassUnion<double, double>) [],
                          (SpanFormattableOrReadOnlySpanClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrReadOnlySpanClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrReadOnlySpanClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrReadOnlySpanClassUnion<double, double>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -1815,9 +1777,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrReadOnlySpanClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrReadOnlySpanClassUnion<double, double>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -1922,7 +1882,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>) null,
                          (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>($id: 1)) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -1946,9 +1906,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -2054,7 +2012,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>) [],
                          (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>($id: 1)) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -2078,9 +2036,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -2186,9 +2142,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<SpanFormattableOrListStructUnion<double, double>>) [
                          (SpanFormattableOrListStructUnion<double, double>) 3.141592653589793,
                          (SpanFormattableOrListStructUnion<double, double>) [],
-                         (SpanFormattableOrListStructUnion<double, double>) { $id: 1, $values: [ 1, 2, 3 ] },
+                         (SpanFormattableOrListStructUnion<double, double>) (List<double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrListStructUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrListStructUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrListStructUnion<double, double>) (List<double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2200,22 +2156,17 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstList: (List<SpanFormattableOrListStructUnion<double, double>>) [
                              (SpanFormattableOrListStructUnion<double, double>) 3.141592653589793,
                              (SpanFormattableOrListStructUnion<double, double>) [],
-                             (SpanFormattableOrListStructUnion<double, double>) {
-                               $id: 1,
-                               $values: [
-                                 1,
-                                 2,
-                                 3
-                               ]
-                             },
+                             (SpanFormattableOrListStructUnion<double, double>) (List<double>($id: 1)) [
+                               1,
+                               2,
+                               3
+                             ],
                              (SpanFormattableOrListStructUnion<double, double>) [
                                4,
                                5,
                                6
                              ],
-                             (SpanFormattableOrListStructUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrListStructUnion<double, double>) (List<double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -2315,9 +2266,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<SpanFormattableOrListStructUnion<double, double>>) [
                          (SpanFormattableOrListStructUnion<double, double>) 2.718281828459045,
                          (SpanFormattableOrListStructUnion<double, double>) [],
-                         (SpanFormattableOrListStructUnion<double, double>) { $id: 1, $values: [ 1, 2, 3 ] },
+                         (SpanFormattableOrListStructUnion<double, double>) (List<double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrListStructUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrListStructUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrListStructUnion<double, double>) (List<double>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -2329,22 +2280,17 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstList: (List<SpanFormattableOrListStructUnion<double, double>>) [
                              (SpanFormattableOrListStructUnion<double, double>) 2.718281828459045,
                              (SpanFormattableOrListStructUnion<double, double>) [],
-                             (SpanFormattableOrListStructUnion<double, double>) {
-                               $id: 1,
-                               $values: [
-                                 1,
-                                 2,
-                                 3
-                               ]
-                             },
+                             (SpanFormattableOrListStructUnion<double, double>) (List<double>($id: 1)) [
+                               1,
+                               2,
+                               3
+                             ],
                              (SpanFormattableOrListStructUnion<double, double>) [
                                4,
                                5,
                                6
                              ],
-                             (SpanFormattableOrListStructUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrListStructUnion<double, double>) (List<double>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -2447,9 +2393,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<NullableStructSpanFormattableOrListStructUnion<double>>) [
                          (NullableStructSpanFormattableOrListStructUnion<double>) 3.141592653589793,
                          (NullableStructSpanFormattableOrListStructUnion<double>) null,
-                         (NullableStructSpanFormattableOrListStructUnion<double>) { $id: 1, $values: [ null, 1, 2, 3 ] },
+                         (NullableStructSpanFormattableOrListStructUnion<double>) (List<double?>($id: 1)) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrListStructUnion<double>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrListStructUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrListStructUnion<double>) (List<double?>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2461,24 +2407,19 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstList: (List<NullableStructSpanFormattableOrListStructUnion<double>>) [
                              (NullableStructSpanFormattableOrListStructUnion<double>) 3.141592653589793,
                              (NullableStructSpanFormattableOrListStructUnion<double>) null,
-                             (NullableStructSpanFormattableOrListStructUnion<double>) {
-                               $id: 1,
-                               $values: [
-                                 null,
-                                 1,
-                                 2,
-                                 3
-                               ]
-                             },
+                             (NullableStructSpanFormattableOrListStructUnion<double>) (List<double?>($id: 1)) [
+                               null,
+                               1,
+                               2,
+                               3
+                             ],
                              (NullableStructSpanFormattableOrListStructUnion<double>) [
                                4,
                                null,
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrListStructUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrListStructUnion<double>) (List<double?>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -2582,9 +2523,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstList: (List<NullableStructSpanFormattableOrListStructUnion<double>>) [
                          (NullableStructSpanFormattableOrListStructUnion<double>) 2.718281828459045,
                          (NullableStructSpanFormattableOrListStructUnion<double>) [],
-                         (NullableStructSpanFormattableOrListStructUnion<double>) { $id: 1, $values: [ 1, 2, null, 3 ] },
+                         (NullableStructSpanFormattableOrListStructUnion<double>) (List<double?>($id: 1)) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrListStructUnion<double>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrListStructUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrListStructUnion<double>) (List<double?>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -2596,24 +2537,19 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstList: (List<NullableStructSpanFormattableOrListStructUnion<double>>) [
                              (NullableStructSpanFormattableOrListStructUnion<double>) 2.718281828459045,
                              (NullableStructSpanFormattableOrListStructUnion<double>) [],
-                             (NullableStructSpanFormattableOrListStructUnion<double>) {
-                               $id: 1,
-                               $values: [
-                                 1,
-                                 2,
-                                 null,
-                                 3
-                               ]
-                             },
+                             (NullableStructSpanFormattableOrListStructUnion<double>) (List<double?>($id: 1)) [
+                               1,
+                               2,
+                               null,
+                               3
+                             ],
                              (NullableStructSpanFormattableOrListStructUnion<double>) [
                                4,
                                5,
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrListStructUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrListStructUnion<double>) (List<double?>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -2721,7 +2657,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrListClassUnion<double, double>) [],
                          (SpanFormattableOrListClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrListClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrListClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrListClassUnion<double, double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -2743,9 +2679,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrListClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrListClassUnion<double, double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -2847,7 +2781,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrListClassUnion<double, double>) [],
                          (SpanFormattableOrListClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrListClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrListClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrListClassUnion<double, double>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -2869,9 +2803,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrListClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrListClassUnion<double, double>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -2976,7 +2908,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrListClassUnion<double>) null,
                          (NullableStructSpanFormattableOrListClassUnion<double>($id: 1)) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrListClassUnion<double>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrListClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrListClassUnion<double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3000,9 +2932,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrListClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrListClassUnion<double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -3108,7 +3038,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrListClassUnion<double>) [],
                          (NullableStructSpanFormattableOrListClassUnion<double>($id: 1)) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrListClassUnion<double>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrListClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrListClassUnion<double>($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -3132,9 +3062,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrListClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrListClassUnion<double>($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -3240,9 +3168,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<SpanFormattableOrEnumerableStructUnion<double, double>>) [
                          (SpanFormattableOrEnumerableStructUnion<double, double>) 3.141592653589793,
                          (SpanFormattableOrEnumerableStructUnion<double, double>) [],
-                         (SpanFormattableOrEnumerableStructUnion<double, double>) { $id: 1, $values: [ 1, 2, 3 ] },
+                         (SpanFormattableOrEnumerableStructUnion<double, double>) (List<double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrEnumerableStructUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrEnumerableStructUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrEnumerableStructUnion<double, double>) (List<double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3254,22 +3182,17 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstEnumerable: (List<SpanFormattableOrEnumerableStructUnion<double, double>>) [
                              (SpanFormattableOrEnumerableStructUnion<double, double>) 3.141592653589793,
                              (SpanFormattableOrEnumerableStructUnion<double, double>) [],
-                             (SpanFormattableOrEnumerableStructUnion<double, double>) {
-                               $id: 1,
-                               $values: [
-                                 1,
-                                 2,
-                                 3
-                               ]
-                             },
+                             (SpanFormattableOrEnumerableStructUnion<double, double>) (List<double>($id: 1)) [
+                               1,
+                               2,
+                               3
+                             ],
                              (SpanFormattableOrEnumerableStructUnion<double, double>) [
                                4,
                                5,
                                6
                              ],
-                             (SpanFormattableOrEnumerableStructUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrEnumerableStructUnion<double, double>) (List<double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -3369,9 +3292,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<SpanFormattableOrEnumerableStructUnion<double, double>>) [
                          (SpanFormattableOrEnumerableStructUnion<double, double>) 2.718281828459045,
                          (SpanFormattableOrEnumerableStructUnion<double, double>) [],
-                         (SpanFormattableOrEnumerableStructUnion<double, double>) { $id: 1, $values: [ 1, 2, 3 ] },
+                         (SpanFormattableOrEnumerableStructUnion<double, double>) (List<double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrEnumerableStructUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrEnumerableStructUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrEnumerableStructUnion<double, double>) (List<double>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -3383,22 +3306,17 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstEnumerable: (List<SpanFormattableOrEnumerableStructUnion<double, double>>) [
                              (SpanFormattableOrEnumerableStructUnion<double, double>) 2.718281828459045,
                              (SpanFormattableOrEnumerableStructUnion<double, double>) [],
-                             (SpanFormattableOrEnumerableStructUnion<double, double>) {
-                               $id: 1,
-                               $values: [
-                                 1,
-                                 2,
-                                 3
-                               ]
-                             },
+                             (SpanFormattableOrEnumerableStructUnion<double, double>) (List<double>($id: 1)) [
+                               1,
+                               2,
+                               3
+                             ],
                              (SpanFormattableOrEnumerableStructUnion<double, double>) [
                                4,
                                5,
                                6
                              ],
-                             (SpanFormattableOrEnumerableStructUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrEnumerableStructUnion<double, double>) (List<double>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -3501,9 +3419,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<NullableStructSpanFormattableOrEnumerableStructUnion<double>>) [
                          (NullableStructSpanFormattableOrEnumerableStructUnion<double>) 3.141592653589793,
                          (NullableStructSpanFormattableOrEnumerableStructUnion<double>) null,
-                         (NullableStructSpanFormattableOrEnumerableStructUnion<double>) { $id: 1, $values: [ null, 1, 2, 3 ] },
+                         (NullableStructSpanFormattableOrEnumerableStructUnion<double>) (List<double?>($id: 1)) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrEnumerableStructUnion<double>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrEnumerableStructUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrEnumerableStructUnion<double>) (List<double?>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3515,24 +3433,19 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstEnumerable: (List<NullableStructSpanFormattableOrEnumerableStructUnion<double>>) [
                              (NullableStructSpanFormattableOrEnumerableStructUnion<double>) 3.141592653589793,
                              (NullableStructSpanFormattableOrEnumerableStructUnion<double>) null,
-                             (NullableStructSpanFormattableOrEnumerableStructUnion<double>) {
-                               $id: 1,
-                               $values: [
-                                 null,
-                                 1,
-                                 2,
-                                 3
-                               ]
-                             },
+                             (NullableStructSpanFormattableOrEnumerableStructUnion<double>) (List<double?>($id: 1)) [
+                               null,
+                               1,
+                               2,
+                               3
+                             ],
                              (NullableStructSpanFormattableOrEnumerableStructUnion<double>) [
                                4,
                                null,
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrEnumerableStructUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrEnumerableStructUnion<double>) (List<double?>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -3636,9 +3549,9 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          firstEnumerable: (List<NullableStructSpanFormattableOrEnumerableStructUnion<double>>) [
                          (NullableStructSpanFormattableOrEnumerableStructUnion<double>) 2.718281828459045,
                          (NullableStructSpanFormattableOrEnumerableStructUnion<double>) [],
-                         (NullableStructSpanFormattableOrEnumerableStructUnion<double>) { $id: 1, $values: [ 1, 2, null, 3 ] },
+                         (NullableStructSpanFormattableOrEnumerableStructUnion<double>) (List<double?>($id: 1)) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrEnumerableStructUnion<double>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrEnumerableStructUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrEnumerableStructUnion<double>) (List<double?>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -3650,24 +3563,19 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                            firstEnumerable: (List<NullableStructSpanFormattableOrEnumerableStructUnion<double>>) [
                              (NullableStructSpanFormattableOrEnumerableStructUnion<double>) 2.718281828459045,
                              (NullableStructSpanFormattableOrEnumerableStructUnion<double>) [],
-                             (NullableStructSpanFormattableOrEnumerableStructUnion<double>) {
-                               $id: 1,
-                               $values: [
-                                 1,
-                                 2,
-                                 null,
-                                 3
-                               ]
-                             },
+                             (NullableStructSpanFormattableOrEnumerableStructUnion<double>) (List<double?>($id: 1)) [
+                               1,
+                               2,
+                               null,
+                               3
+                             ],
                              (NullableStructSpanFormattableOrEnumerableStructUnion<double>) [
                                4,
                                5,
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrEnumerableStructUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrEnumerableStructUnion<double>) (List<double?>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -3775,7 +3683,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrEnumerableClassUnion<double, double>) [],
                          (SpanFormattableOrEnumerableClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrEnumerableClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrEnumerableClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrEnumerableClassUnion<double, double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -3797,9 +3705,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrEnumerableClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrEnumerableClassUnion<double, double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -3901,7 +3807,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrEnumerableClassUnion<double, double>) [],
                          (SpanFormattableOrEnumerableClassUnion<double, double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrEnumerableClassUnion<double, double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrEnumerableClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrEnumerableClassUnion<double, double>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -3923,9 +3829,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrEnumerableClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrEnumerableClassUnion<double, double>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -4029,7 +3933,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrEnumerableClassUnion<double>) null,
                          (NullableStructSpanFormattableOrEnumerableClassUnion<double>($id: 1)) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrEnumerableClassUnion<double>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrEnumerableClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrEnumerableClassUnion<double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -4053,9 +3957,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrEnumerableClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrEnumerableClassUnion<double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -4161,7 +4063,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrEnumerableClassUnion<double>) [],
                          (NullableStructSpanFormattableOrEnumerableClassUnion<double>($id: 1)) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrEnumerableClassUnion<double>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrEnumerableClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrEnumerableClassUnion<double>($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -4185,9 +4087,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrEnumerableClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrEnumerableClassUnion<double>($ref: 1))
                            ],
                            firstPostField: null
                          }
@@ -4296,7 +4196,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrEnumeratorStructUnion<double, double>) [],
                          (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>) { $ref: 1 }
+                         (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -4318,9 +4218,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -4422,7 +4320,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrEnumeratorStructUnion<double, double>) [],
                          (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>($id: 1)) [ 1, 2, 3 ],
                          (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>) { $ref: 1 }
+                         (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -4444,9 +4342,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrEnumeratorStructUnion<double, double>) (ReusableWrappingEnumerator<double>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -4551,7 +4447,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) null,
                          (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>($id: 1)) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -4575,9 +4471,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -4683,7 +4577,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) [],
                          (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>($id: 1)) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -4707,9 +4601,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrEnumeratorStructUnion<double>) (ReusableWrappingEnumerator<double?>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -4817,7 +4709,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrEnumeratorClassUnion<double, double>) [],
                          (SpanFormattableOrEnumeratorClassUnion<double, double>($id: 1)) (ReusableWrappingEnumerator<double>) [ 1, 2, 3 ],
                          (SpanFormattableOrEnumeratorClassUnion<double, double>) (ReusableWrappingEnumerator<double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrEnumeratorClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrEnumeratorClassUnion<double, double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -4839,9 +4731,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrEnumeratorClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrEnumeratorClassUnion<double, double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -4943,7 +4833,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (SpanFormattableOrEnumeratorClassUnion<double, double>) [],
                          (SpanFormattableOrEnumeratorClassUnion<double, double>($id: 1)) (ReusableWrappingEnumerator<double>) [ 1, 2, 3 ],
                          (SpanFormattableOrEnumeratorClassUnion<double, double>) (ReusableWrappingEnumerator<double>) [ 4, 5, 6 ],
-                         (SpanFormattableOrEnumeratorClassUnion<double, double>) { $ref: 1 }
+                         (SpanFormattableOrEnumeratorClassUnion<double, double>($ref: 1))
                          ],
                          firstPostField: 3.141592653589793
                          }
@@ -4965,9 +4855,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (SpanFormattableOrEnumeratorClassUnion<double, double>) {
-                               $ref: 1
-                             }
+                             (SpanFormattableOrEnumeratorClassUnion<double, double>($ref: 1))
                            ],
                            firstPostField: 3.141592653589793
                          }
@@ -5071,7 +4959,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrEnumeratorClassUnion<double>) null,
                          (NullableStructSpanFormattableOrEnumeratorClassUnion<double>($id: 1)) (ReusableWrappingEnumerator<double?>) [ null, 1, 2, 3 ],
                          (NullableStructSpanFormattableOrEnumeratorClassUnion<double>) (ReusableWrappingEnumerator<double?>) [ 4, null, 5, 6 ],
-                         (NullableStructSpanFormattableOrEnumeratorClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrEnumeratorClassUnion<double>($ref: 1))
                          ]
                          }
                         """.RemoveLineEndings()
@@ -5095,9 +4983,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                5,
                                6
                              ],
-                             (NullableStructSpanFormattableOrEnumeratorClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrEnumeratorClassUnion<double>($ref: 1))
                            ]
                          }
                          """.Dos2Unix()
@@ -5203,7 +5089,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                          (NullableStructSpanFormattableOrEnumeratorClassUnion<double>) [],
                          (NullableStructSpanFormattableOrEnumeratorClassUnion<double>($id: 1)) (ReusableWrappingEnumerator<double?>) [ 1, 2, null, 3 ],
                          (NullableStructSpanFormattableOrEnumeratorClassUnion<double>) (ReusableWrappingEnumerator<double?>) [ 4, 5, 6, null ],
-                         (NullableStructSpanFormattableOrEnumeratorClassUnion<double>) { $ref: 1 }
+                         (NullableStructSpanFormattableOrEnumeratorClassUnion<double>($ref: 1))
                          ],
                          firstPostField: null
                          }
@@ -5227,9 +5113,7 @@ public class DoubleCollectionRevisitTests : CommonStyleExpectationTestBase
                                6,
                                null
                              ],
-                             (NullableStructSpanFormattableOrEnumeratorClassUnion<double>) {
-                               $ref: 1
-                             }
+                             (NullableStructSpanFormattableOrEnumeratorClassUnion<double>($ref: 1))
                            ],
                            firstPostField: null
                          }

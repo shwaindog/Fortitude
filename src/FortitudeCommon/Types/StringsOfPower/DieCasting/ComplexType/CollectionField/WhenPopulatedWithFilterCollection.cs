@@ -40,7 +40,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool>(typeof(Span<bool>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool>(typeof(Span<bool>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -83,7 +83,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<bool>(typeof(Span<bool?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<bool>(typeof(Span<bool?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -128,7 +128,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(typeof(Span<TFmt>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(typeof(Span<TFmt>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -173,7 +173,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TFmtStruct>(typeof(Span<TFmtStruct?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TFmtStruct>(typeof(Span<TFmtStruct?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -218,7 +218,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(typeof(Span<TCloaked>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(typeof(Span<TCloaked>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -262,7 +262,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TCloakedStruct>(typeof(Span<TCloakedStruct?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TCloakedStruct>(typeof(Span<TCloakedStruct?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -305,7 +305,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(typeof(Span<TBearer>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(typeof(Span<TBearer>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -348,7 +348,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TBearerStruct>(typeof(Span<TBearerStruct?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TBearerStruct>(typeof(Span<TBearerStruct?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -391,7 +391,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<string>(typeof(Span<string>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<string>(typeof(Span<string>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -434,7 +434,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<string?>(typeof(Span<string?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<string?>(typeof(Span<string?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -478,7 +478,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(typeof(Span<TCharSeq>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(typeof(Span<TCharSeq>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddCharSequenceElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -521,7 +521,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(typeof(Span<StringBuilder>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(typeof(Span<StringBuilder>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -565,7 +565,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?>(typeof(Span<StringBuilder?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?>(typeof(Span<StringBuilder?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -610,7 +610,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TAny>(typeof(Span<TAny>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny>(typeof(Span<TAny>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -666,7 +666,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool>(typeof(ReadOnlySpan<bool>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool>(typeof(ReadOnlySpan<bool>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -709,7 +709,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<bool>(typeof(ReadOnlySpan<bool?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<bool>(typeof(ReadOnlySpan<bool?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -753,7 +753,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(typeof(ReadOnlySpan<TFmt>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(typeof(ReadOnlySpan<TFmt>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -797,7 +797,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TFmtStruct>(typeof(ReadOnlySpan<TFmtStruct?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TFmtStruct>(typeof(ReadOnlySpan<TFmtStruct?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -843,7 +843,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(typeof(ReadOnlySpan<TCloaked>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(typeof(ReadOnlySpan<TCloaked>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -889,7 +889,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TCloakedStruct>(typeof(ReadOnlySpan<TCloakedStruct?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TCloakedStruct>(typeof(ReadOnlySpan<TCloakedStruct?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -932,7 +932,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(typeof(ReadOnlySpan<TBearer>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(typeof(ReadOnlySpan<TBearer>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -977,7 +977,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TBearerStruct>(typeof(ReadOnlySpan<TBearerStruct?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionTypeOfNullable<TBearerStruct>(typeof(ReadOnlySpan<TBearerStruct?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1019,7 +1019,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<string>(typeof(ReadOnlySpan<string>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<string>(typeof(ReadOnlySpan<string>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1062,7 +1062,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<string?>(typeof(ReadOnlySpan<string?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<string?>(typeof(ReadOnlySpan<string?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1105,7 +1105,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(typeof(ReadOnlySpan<TCharSeq>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(typeof(ReadOnlySpan<TCharSeq>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddCharSequenceElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1150,7 +1150,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(typeof(ReadOnlySpan<StringBuilder>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(typeof(ReadOnlySpan<StringBuilder>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1195,7 +1195,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?>(typeof(ReadOnlySpan<StringBuilder?>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?>(typeof(ReadOnlySpan<StringBuilder?>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1239,7 +1239,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TAny>(typeof(ReadOnlySpan<TAny>), formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny>(typeof(ReadOnlySpan<TAny>), formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1296,7 +1296,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool[], bool>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool[], bool>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1338,7 +1338,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool?[], bool?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool?[], bool?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1382,7 +1382,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmt[], TFmt>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmt[], TFmt>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1427,7 +1427,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?[], TFmtStruct?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?[], TFmtStruct?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1472,7 +1472,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloaked[], TCloaked>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloaked[], TCloaked>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1514,7 +1514,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct?[], TCloakedStruct>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct?[], TCloakedStruct>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1556,7 +1556,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearer[], TBearer>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearer[], TBearer>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1598,7 +1598,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearerStruct?[], TBearerStruct>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearerStruct?[], TBearerStruct>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1641,7 +1641,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<string?[], string?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<string?[], string?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1685,7 +1685,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq?[], TCharSeq?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq?[], TCharSeq?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddCharSequenceElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1727,7 +1727,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?[], StringBuilder?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?[], StringBuilder?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1770,7 +1770,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TAny?[], TAny?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny?[], TAny?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1819,7 +1819,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1861,7 +1861,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1906,7 +1906,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1949,7 +1949,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -1993,7 +1993,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2036,7 +2036,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2081,7 +2081,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2125,7 +2125,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearerStruct>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearerStruct>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2167,7 +2167,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<string?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<string?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2210,7 +2210,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddCharSequenceElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2253,7 +2253,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2297,7 +2297,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2349,7 +2349,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2395,7 +2395,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2443,7 +2443,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2491,7 +2491,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2540,7 +2540,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2586,7 +2586,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2633,7 +2633,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2679,7 +2679,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearerStruct>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearerStruct>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2725,7 +2725,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<string>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<string>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2774,7 +2774,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddCharSequenceElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2821,7 +2821,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2869,7 +2869,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2916,7 +2916,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<object>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<object>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -2969,7 +2969,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3023,7 +3023,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<bool?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<bool?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3079,7 +3079,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmt>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3135,7 +3135,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TFmtStruct?>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3191,7 +3191,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloaked>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3245,7 +3245,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCloakedStruct>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, palantírReveal, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3299,7 +3299,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearer>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3352,7 +3352,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TBearerStruct>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TBearerStruct>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
 
                 eocm.AddBearerElementAndGoToNextElement(item, formatString, formatFlags);
@@ -3407,7 +3407,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<string>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<string>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3461,7 +3461,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TCharSeq>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
 
                 eocm.AddCharSequenceElementAndGoToNextElement(item, formatString, formatFlags);
@@ -3516,7 +3516,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<StringBuilder>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
 
                 eocm.AddElementAndGoToNextElement(item, formatString, formatFlags);
@@ -3574,7 +3574,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<TAny>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;
@@ -3630,7 +3630,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 if (eocm == null)
                 {
                     stb.FieldNameJoin(fieldName);
-                    eocm = stb.Master.StartExplicitCollectionType<object>(value, formatFlags);
+                    eocm = stb.Master.StartExplicitCollectionType<object>(value, formatFlags.RemoveEmbeddedContentFlags());
                 }
                 eocm.AddMatchElementAndGoToNextElement(item, formatString, formatFlags);
                 if (filterResult is { KeepProcessing: false }) break;

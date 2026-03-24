@@ -89,8 +89,8 @@ public class SelectTypeFieldPrettyJsonTests : SelectTypeFieldTests
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(UnsignedIntegerTestData.UnsignedIntegerExpectations[2]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[894], StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(CharArrayTestData.AllCharArrayExpectations[22], ScaffoldingRegistry.AllScaffoldingTypes[831]
+                                           , StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
