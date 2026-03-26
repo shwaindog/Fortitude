@@ -240,9 +240,9 @@ public static class TypeExtensions
     {
         if (type.IsReadOnlyDictionaryType())
         {
-            var dictionaryInterface =
+            var dictionaryInterface =  
                 type.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef)!;
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef) ?? type;
             return new KeyValuePair<Type, Type>(dictionaryInterface.GenericTypeArguments[0], dictionaryInterface.GenericTypeArguments[1]);
         }
         if (type.IsIndexedKeyValueOrderedCollection())

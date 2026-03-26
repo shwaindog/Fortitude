@@ -915,7 +915,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         toAppendTo?
             .StartKeyedCollectionType("")
-            .AddAllIterateBothWithNullValueRevealersExplicit<TEnumtr, TKey, TValue, TKRevealBase>(value, valueRevealer, keyRevealer)
+            .AddAllIterateBothWithNullValueRevealers<TEnumtr, TKey, TValue, TKRevealBase>(value, valueRevealer, keyRevealer)
             .Complete();
         return toAppendTo;
     }
@@ -930,7 +930,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, valueFormatString, keyFormatString) = valueTuple;
         appender?.StartKeyedCollectionType("")
-                .AddAllIterateBothWithNullValueRevealersExplicit<TEnumtr, TKey, TValue, TKRevealBase>(value, valueFormatString, keyFormatString)
+                .AddAllIterateBothWithNullValueRevealers<TEnumtr, TKey, TValue, TKRevealBase>(value, valueFormatString, keyFormatString)
                 .Complete();
         return appender;
     }

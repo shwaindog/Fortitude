@@ -2,6 +2,7 @@
 
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
 #pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
@@ -142,7 +143,7 @@ public class KeyedFromEnumeratorKeyValueAddFilteredStringBearer<TKey, TValue, TK
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredIterateExplicit<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue, TKFilterBase, TVFilterBase>
+           .AddFilteredIterate<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue, TKFilterBase, TVFilterBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings
               , KeyValuePredicate
               , ValueFormatString
@@ -327,7 +328,7 @@ public class KeyedFromEnumerableKeyValueRevealerAddFilteredStringBearer<TKey, TV
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateValueRevealer
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString
               , KeyValuePredicate
               , ValueRevealer
@@ -353,7 +354,7 @@ public class KeyedFromEnumerableKeyStructValueRevealerAddFilteredStringBearer<TK
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateNullValueRevealer
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString
               , KeyValuePredicate
               , ValueRevealer
@@ -395,7 +396,7 @@ public class KeyedFromEnumeratorKeyValueRevealerAddFilteredStringBearer<TKey, TV
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredIterate<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+           .AddFilteredIterateValueRevealer<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString
               , KeyValuePredicate
               , ValueRevealer
@@ -436,7 +437,7 @@ public class KeyedFromEnumeratorKeyStructValueRevealerAddFilteredStringBearer<TK
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredIterate<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue, TKFilterBase>
+           .AddFilteredIterateNullValueRevealer<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue, TKFilterBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString
               , KeyValuePredicate
               , ValueRevealer
@@ -735,7 +736,7 @@ public class KeyedFromEnumerableKeyRevealerValueRevealerAddFilteredStringBearer<
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateBothRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
               , KeyValuePredicate
               , ValueRevealer
@@ -762,7 +763,7 @@ public class KeyedFromEnumerableStructKeyRevealerValueRevealerAddFilteredStringB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateBothWithNullKeyRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
               , KeyValuePredicate
               , ValueRevealer
@@ -789,7 +790,7 @@ public class KeyedFromEnumerableKeyRevealerStructValueRevealerAddFilteredStringB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateBothWithNullValueRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
               , KeyValuePredicate
               , ValueRevealer
@@ -815,7 +816,7 @@ public class KeyedFromEnumerableStructKeyRevealerStructValueRevealerAddFilteredS
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateBothNullRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers
               , KeyValuePredicate
               , ValueRevealer
@@ -858,7 +859,7 @@ public class KeyedFromEnumeratorKeyRevealerValueRevealerAddFilteredStringBearer<
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredIterate<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+           .AddFilteredIterateBothRevealers<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
               , KeyValuePredicate
               , ValueRevealer
@@ -900,7 +901,7 @@ public class KeyedFromEnumeratorStructKeyRevealerValueRevealerAddFilteredStringB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredIterate<IEnumerator<KeyValuePair<TKey?, TValue>>, TKey, TValue, TVFilterBase, TVRevealBase>
+           .AddFilteredIterateBothWithNullKeyRevealers<IEnumerator<KeyValuePair<TKey?, TValue>>, TKey, TValue, TVFilterBase, TVRevealBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
               , KeyValuePredicate
               , ValueRevealer
@@ -942,7 +943,7 @@ public class KeyedFromEnumeratorKeyRevealerStructValueRevealerAddFilteredStringB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredIterate<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue, TKFilterBase, TKRevealBase>
+           .AddFilteredIterateBothWithNullValueRevealers<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue, TKFilterBase, TKRevealBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
               , KeyValuePredicate
               , ValueRevealer
@@ -983,7 +984,7 @@ public class KeyedFromEnumeratorStructKeyRevealerStructValueRevealerAddFilteredS
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddFilteredIterate
+           .AddFilteredIterateBothNullRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers
               , KeyValuePredicate
               , ValueRevealer

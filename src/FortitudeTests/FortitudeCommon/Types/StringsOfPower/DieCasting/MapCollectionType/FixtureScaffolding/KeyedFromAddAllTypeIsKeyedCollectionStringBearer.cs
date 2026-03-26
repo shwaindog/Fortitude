@@ -906,7 +906,7 @@ public class KeyedFromEnumeratorKeyRevealerStructValueRevealerAddAllStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllIterateBothWithNullValueRevealersExplicit<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue, TKRevealBase>
+           .AddAllIterateBothWithNullValueRevealers<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue, TKRevealBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers
               , ValueRevealer
               , KeyRevealer
