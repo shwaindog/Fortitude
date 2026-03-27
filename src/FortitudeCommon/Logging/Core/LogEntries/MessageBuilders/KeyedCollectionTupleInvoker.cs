@@ -199,7 +199,7 @@ public abstract partial class FLogEntryMessageBuilder
         for (var i = 0; i < MyNonPubStaticMethods.Length; i++)
         {
             var mi = MyNonPubStaticMethods[i];
-            if (mi.Name != nameof(AppendKeyedCollectionEnumerate) || !mi.IsStatic) continue;
+            if (mi.Name != nameof(AppendKeyedCollectionIterate) || !mi.IsStatic) continue;
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 2) continue;
             var methodParams = mi.GetParameters();
@@ -276,7 +276,7 @@ public abstract partial class FLogEntryMessageBuilder
         for (var i = 0; i < MyNonPubStaticMethods.Length; i++)
         {
             var mi = MyNonPubStaticMethods[i];
-            if (mi.Name != nameof(AppendKeyedCollectionEnumerate) || !mi.IsStatic) continue;
+            if (mi.Name != nameof(AppendKeyedCollectionIterate) || !mi.IsStatic) continue;
             var genericParams = mi.GetGenericArguments();
             if (genericParams.Length != 2) continue;
             var methodParams = mi.GetParameters();

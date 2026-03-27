@@ -33,12 +33,14 @@ public class RecyclableContainer<T> : RecyclableObject, IRecyclableStructContain
         if (obj is null) return false;
         if (obj.GetType() != StoredType)
         {
-            if (!(obj is RecyclableContainer<T> objContainer && objContainer.StoredType == StoredType));
+            if (obj is RecyclableContainer<T> objContainer && (objContainer.StoredType?.Equals(StoredType) ?? false))
             {
-                return false;   
+                return true;   
             }
+            return false;
         }
-        return Equals((T)obj);
+        if (obj is not T tryObj) return false;
+        return Equals(tryObj);
     }
 
     // ReSharper disable once NonReadonlyMemberInGetHashCode

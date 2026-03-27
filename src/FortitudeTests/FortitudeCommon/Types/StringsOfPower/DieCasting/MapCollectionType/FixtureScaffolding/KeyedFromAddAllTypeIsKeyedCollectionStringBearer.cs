@@ -1,8 +1,8 @@
 ﻿#region
 
-using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
 
@@ -133,10 +133,8 @@ public class KeyedFromEnumeratorKeyValueAddAllStringBearer<TKey, TValue> :
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
-               (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothFormatStrings
-              , ValueFormatString
-              , KeyFormatString, FormattingFlags)
+           .AddAllIterate<IEnumerator<KeyValuePair<TKey, TValue>>,TKey,TValue>
+               (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothFormatStrings, ValueFormatString, KeyFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -311,7 +309,7 @@ public class KeyedFromEnumerableKeyValueRevealerAddAllStringBearer<TKey, TValue,
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllEnumerateValueRevealer
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString
               , ValueRevealer
               , KeyFormatString
@@ -336,7 +334,7 @@ public class KeyedFromEnumerableKeyStructValueRevealerAddAllStringBearer<TKey, T
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllEnumerateNullValueRevealer
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableValueRevealerKeyFormatString
               , ValueRevealer
               , KeyFormatString
@@ -377,7 +375,7 @@ public class KeyedFromEnumeratorKeyValueRevealerAddAllStringBearer<TKey, TValue,
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllIterateValueRevealer<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue, TVRevealBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorValueRevealerKeyFormatString
               , ValueRevealer
               , KeyFormatString
@@ -418,7 +416,7 @@ public class KeyedFromEnumeratorKeyStructValueRevealerAddAllStringBearer<TKey, T
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllIterateNullValueRevealer<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue>
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorValueRevealerKeyFormatString
               , ValueRevealer
               , KeyFormatString
@@ -707,7 +705,7 @@ public class KeyedFromEnumerableKeyRevealerValueRevealerAddAllStringBearer<TKey,
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllEnumerateBothRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers
               , ValueRevealer
               , KeyRevealer
@@ -733,7 +731,7 @@ public class KeyedFromEnumerableStructKeyRevealerValueRevealerAddAllStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllEnumerateBothWithNullKeyRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers
               , ValueRevealer
               , KeyRevealer
@@ -759,7 +757,7 @@ public class KeyedFromEnumerableKeyRevealerStructValueRevealerAddAllStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllEnumerateBothWithNullValueRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers
               , ValueRevealer
               , KeyRevealer
@@ -784,7 +782,7 @@ public class KeyedFromEnumerableStructKeyRevealerStructValueRevealerAddAllString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllEnumerateBothNullRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers
               , ValueRevealer
               , KeyRevealer
@@ -826,7 +824,7 @@ public class KeyedFromEnumeratorKeyRevealerValueRevealerAddAllStringBearer<TKey,
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllIterateBothRevealers<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue, TKRevealBase, TVRevealBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers
               , ValueRevealer
               , KeyRevealer
@@ -867,7 +865,7 @@ public class KeyedFromEnumeratorStructKeyRevealerValueRevealerAddAllStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllIterateBothWithNullKeyRevealers<IEnumerator<KeyValuePair<TKey?, TValue>>, TKey, TValue, TVRevealBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers
               , ValueRevealer
               , KeyRevealer
@@ -908,7 +906,7 @@ public class KeyedFromEnumeratorKeyRevealerStructValueRevealerAddAllStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllIterateBothWithNullValueRevealersExplicit<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue, TKRevealBase>
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers
               , ValueRevealer
               , KeyRevealer
@@ -948,7 +946,7 @@ public class KeyedFromEnumeratorStructKeyRevealerStructValueRevealerAddAllString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddAllEnumerate
+           .AddAllIterateBothNullRevealers
                (KeyedCollectionTypeKeyedCollectionFieldAddAllEnumeratorBothRevealers
               , ValueRevealer
               , KeyRevealer

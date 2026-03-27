@@ -3,6 +3,7 @@
 
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
@@ -11,9 +12,13 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
 public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionMold>
 {
-    private IMoldWriteState<KeyedCollectionMold> stb = null!;
+    private ComplexType.CollectionField.SelectTypeCollectionField<KeyedCollectionMold>?         logOnlyInternalCollectionField;
+    private ComplexType.UnitField.SelectTypeField<KeyedCollectionMold>?                         logOnlyInternalField;
+    private ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<KeyedCollectionMold>? logOnlyInternalMapCollectionField;
+    
+    private IMoldWriteState<KeyedCollectionMold>                                                         stb = null!;
 
-    protected int ItemCount = 0;
+    public int ItemCount = 0;
 
     public KeyedCollectionMold InitializeKeyValueCollectionBuilder 
     (
@@ -38,6 +43,30 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
     }
 
     public override bool IsComplexType => true;
+
+    public ComplexType.UnitField.SelectTypeField<KeyedCollectionMold> LogOnlyField =>
+        logOnlyInternalField ??=
+            PortableState
+                .Master
+                .Recycler
+                .Borrow<ComplexType.UnitField.SelectTypeField<KeyedCollectionMold>>()
+                .Initialize(State);
+
+    public ComplexType.CollectionField.SelectTypeCollectionField<KeyedCollectionMold> LogOnlyCollectionField =>
+        logOnlyInternalCollectionField ??=
+            PortableState
+                .Master
+                .Recycler
+                .Borrow<ComplexType.CollectionField.SelectTypeCollectionField<KeyedCollectionMold>>()
+                .Initialize(MoldStateField);
+
+    public ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<KeyedCollectionMold> LogOnlyKeyedCollectionField =>
+        logOnlyInternalMapCollectionField ??=
+            PortableState
+                .Master
+                .Recycler
+                .Borrow<ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<KeyedCollectionMold>>()
+                .Initialize(MoldStateField);
     
     public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {

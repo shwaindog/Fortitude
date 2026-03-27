@@ -43,10 +43,10 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
 
     private IJsonFormattingOptions parentJsonOptions = null!;
 
-    private CappedCachedUnicodeEscapeRangesValuesInlineArray cachedJsEscapeMappings = new();
+    private CappedCachedUnicodeEscapeRangesValuesInlineArray cachedJsEscapeMappings;
 
-    private CappedUnicodeEscapeRangesInlineArray exemptJsEscapeRanges  = new();
-    private CappedUnicodeEscapeRangesInlineArray unicodeJsEscapeRanges = new();
+    private CappedUnicodeEscapeRangesInlineArray exemptJsEscapeRanges;
+    private CappedUnicodeEscapeRangesInlineArray unicodeJsEscapeRanges;
     
     private IEncodingTransfer? layoutEncoder;
 
@@ -259,8 +259,7 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
             if (exemptRange.WithinRange(codePoint))
             {
                 var subSpan    = destSpan[destStartIndex..];
-                var numOfChars = 0;
-                numOfChars = toMap.EncodeToUtf16(subSpan);
+                var numOfChars = toMap.EncodeToUtf16(subSpan);
                 return numOfChars;
             }
         }
@@ -844,7 +843,6 @@ public class JsonEscapingEncodingTransfer : ReusableObject<JsonEscapingEncodingT
         sb.EnsureCapacity(encodedSize);
 
         var  originalLength = sb.Length;
-        bool isAppend       = false;
         var  desti          = Math.Clamp(destStartIndex, 0, sb.Length);
         if (destStartIndex == int.MaxValue || destStartIndex >= sb.Length)
         {

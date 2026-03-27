@@ -38,6 +38,132 @@ public partial class KeyedCollectionMold
         return stb.Mold;
     }
 
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , TKSelectDerived[] selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            foreach (var key in selectKeys)
+            {
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , TKSelectDerived[] selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : struct
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            foreach (var key in selectKeys)
+            {
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , TKSelectDerived[] selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : TVRevealBase?
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , TKSelectDerived[] selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : struct
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
     public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         IReadOnlyDictionary<TKey, TValue>? value
       , Span<TKSelectDerived> selectKeys
@@ -62,6 +188,134 @@ public partial class KeyedCollectionMold
                 stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
                 stb.FieldEnd();
                 stb.AppendMatchFormattedOrNull(keyValue, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , Span<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue?>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , Span<TKSelectDerived> selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : struct
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , Span<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : TVRevealBase?
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , Span<TKSelectDerived> selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : struct
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue?>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -98,6 +352,134 @@ public partial class KeyedCollectionMold
         return stb.Mold;
     }
 
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , ReadOnlySpan<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , ReadOnlySpan<TKSelectDerived> selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : struct
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue?>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , ReadOnlySpan<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : TVRevealBase?
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , ReadOnlySpan<TKSelectDerived> selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : struct
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Length; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
     public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         IReadOnlyDictionary<TKey, TValue>? value
       , IReadOnlyList<TKSelectDerived> selectKeys
@@ -122,6 +504,132 @@ public partial class KeyedCollectionMold
                 stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
                 stb.FieldEnd();
                 stb.AppendMatchFormattedOrNull(keyValue, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , IReadOnlyList<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Count; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , IReadOnlyList<TKSelectDerived> selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : struct
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            for (var i = 0; i < selectKeys.Count; i++)
+            {
+                var key = selectKeys[i];
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , IReadOnlyList<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : TVRevealBase?
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            foreach (var key in selectKeys)
+            {
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , IReadOnlyList<TKSelectDerived> selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : struct
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            foreach (var key in selectKeys)
+            {
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
                 stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
             }
         }
@@ -157,25 +665,164 @@ public partial class KeyedCollectionMold
         return stb.Mold;
     }
 
-    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>(
+    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>(
         IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKSelectDerived> selectKeys
+      , IEnumerable<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : TVRevealBase?
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            foreach (var key in selectKeys)
+            {
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , IEnumerable<TKSelectDerived> selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectDerived : TKey
+        where TValue : struct
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            keyFormatString ??= "";
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            foreach (var key in selectKeys)
+            {
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , IEnumerable<TKSelectDerived> selectKeys
+      , PalantírReveal<TVRevealBase> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : TVRevealBase?
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            foreach (var key in selectKeys)
+            {
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , IEnumerable<TKSelectDerived> selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKey : TKRevealBase
+        where TValue : struct
+        where TKSelectDerived : TKey
+        where TKRevealBase : notnull
+    {
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (stb.HasSkipBody(actualType, "", formatFlags))
+            return stb.WasSkipped(actualType, "", formatFlags);
+        if (value != null)
+        {
+            var kvpType = typeof(KeyValuePair<TKey, TValue>);
+            ItemCount = 0;
+            foreach (var key in selectKeys)
+            {
+                if (!value.TryGetValue(key, out var keyValue)) continue;
+                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
+                stb.FieldEnd();
+                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
+                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
+            }
+        }
+        return stb.Mold;
+    }
+
+    public KeyedCollectionMold AddWithSelectKeysIterateNoNullables<TEnumtr, TKey, TValue>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , TEnumtr? selectKeys
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TKey>?
+        where TKey: notnull
+        where TValue : notnull
+    {
+        return AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKey>
+            (value, selectKeys, valueFormatString, keyFormatString, formatFlags);
+    }
+
+    public KeyedCollectionMold AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKSelectDerived>(
+        IReadOnlyDictionary<TKey, TValue>? value
+      , TEnumtr? selectKeys
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TKSelectDerived>?
         where TKSelectDerived : TKey
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
         if (stb.HasSkipBody(actualType, "", formatFlags))
             return stb.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys.MoveNext();
+        var hasValue = selectKeys?.MoveNext() ?? false;
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
         ItemCount = 0;
         while (hasValue && value != null)
         {
             valueFormatString ??= "";
             keyFormatString   ??= "";
-            var key = selectKeys.Current;
+            var key = selectKeys!.Current;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();
@@ -190,338 +837,43 @@ public partial class KeyedCollectionMold
         return stb.Mold;
     }
 
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+    public KeyedCollectionMold AddWithSelectKeysIterateNoNullables<TEnumtr, TKey, TValue>(
         IReadOnlyDictionary<TKey, TValue>? value
-      , TKSelectDerived[] selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : TVRevealBase?
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , TKSelectDerived[] selectKeys
+      , TEnumtr? selectKeys
       , PalantírReveal<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : struct
+        where TEnumtr : IEnumerator<TKey>?
+        where TKey: notnull
+        where TValue : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
+        return AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKey, TValue>
+            (value, selectKeys, valueStyler, keyFormatString, valueFormatString, formatFlags);
     }
 
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+    public KeyedCollectionMold AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKSelectDerived, TVRevealBase>(
         IReadOnlyDictionary<TKey, TValue>? value
-      , Span<TKSelectDerived> selectKeys
+      , TEnumtr? selectKeys
       , PalantírReveal<TVRevealBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : TVRevealBase?
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue?>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , Span<TKSelectDerived> selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : struct
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
-        IReadOnlyDictionary<TKey, TValue>? value
-      , ReadOnlySpan<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
+        where TEnumtr : IEnumerator<TKSelectDerived>?
+        where TKSelectDerived : TKey?
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
         if (stb.HasSkipBody(actualType, "", formatFlags))
             return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , ReadOnlySpan<TKSelectDerived> selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : struct
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue?>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
-        IReadOnlyDictionary<TKey, TValue>? value
-      , IReadOnlyList<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : TVRevealBase?
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Count; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , IReadOnlyList<TKSelectDerived> selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : struct
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Count; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>(
-        IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerable<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : TVRevealBase?
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , IEnumerable<TKSelectDerived> selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : struct
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            keyFormatString ??= "";
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TVRevealBase>(
-        IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectDerived : TKey
-        where TValue : TVRevealBase?
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys.MoveNext();
+        var hasValue = selectKeys?.MoveNext() ?? false;
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
         ItemCount = 0;
         while (hasValue && value != null)
         {
             keyFormatString ??= "";
-            var key = selectKeys.Current;
+            var key = selectKeys!.Current!;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();
@@ -536,26 +888,41 @@ public partial class KeyedCollectionMold
         return stb.Mold;
     }
 
-    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived>(
+    public KeyedCollectionMold AddWithSelectKeysIterateValueNullable<TEnumtr, TKey, TValue>(
         IReadOnlyDictionary<TKey, TValue?>? value
-      , IEnumerator<TKSelectDerived> selectKeys
+      , TEnumtr? selectKeys
       , PalantírReveal<TValue> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TKey>?
+        where TValue : struct
+    {
+        return AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKey>
+            (value, selectKeys, valueStyler, keyFormatString, valueFormatString, formatFlags);
+    }
+
+    public KeyedCollectionMold AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKSelectDerived>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , TEnumtr? selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TKSelectDerived>?
         where TKSelectDerived : TKey
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
         if (stb.HasSkipBody(actualType, "", formatFlags))
             return stb.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys.MoveNext();
+        var hasValue = selectKeys?.MoveNext() ?? false;
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
         ItemCount = 0;
         while (hasValue && value != null)
         {
             keyFormatString ??= "";
-            var key = selectKeys.Current;
+            var key = selectKeys!.Current;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();
@@ -570,78 +937,29 @@ public partial class KeyedCollectionMold
         return stb.Mold;
     }
 
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public KeyedCollectionMold AddWithSelectKeysIterateNoNullables<TEnumtr, TKey, TValue>(
         IReadOnlyDictionary<TKey, TValue>? value
-      , TKSelectDerived[] selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : TVRevealBase?
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , TKSelectDerived[] selectKeys
+      , TEnumtr? selectKeys
       , PalantírReveal<TValue> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
+      , PalantírReveal<TKey> keyStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : struct
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
+        where TEnumtr : IEnumerator<TKey>?
+        where TKey: notnull
+        where TValue : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
+        return AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKey, TKey, TValue>
+            (value, selectKeys, valueStyler, keyStyler, valueFormatString, formatFlags);
     }
 
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public KeyedCollectionMold AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
         IReadOnlyDictionary<TKey, TValue>? value
-      , Span<TKSelectDerived> selectKeys
+      , TEnumtr? selectKeys
       , PalantírReveal<TVRevealBase> valueStyler
       , PalantírReveal<TKRevealBase> keyStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TKSelectDerived>?
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
         where TKSelectDerived : TKey
@@ -651,268 +969,12 @@ public partial class KeyedCollectionMold
         var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
         if (stb.HasSkipBody(actualType, "", formatFlags))
             return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , Span<TKSelectDerived> selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : struct
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue?>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
-        IReadOnlyDictionary<TKey, TValue>? value
-      , ReadOnlySpan<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : TVRevealBase?
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , ReadOnlySpan<TKSelectDerived> selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : struct
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            for (var i = 0; i < selectKeys.Length; i++)
-            {
-                var key = selectKeys[i];
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
-        IReadOnlyDictionary<TKey, TValue>? value
-      , IReadOnlyList<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : TVRevealBase?
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , IReadOnlyList<TKSelectDerived> selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : struct
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
-        IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerable<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : TVRevealBase?
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase>(
-        IReadOnlyDictionary<TKey, TValue?>? value
-      , IEnumerable<TKSelectDerived> selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : struct
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        if (value != null)
-        {
-            var kvpType = typeof(KeyValuePair<TKey, TValue>);
-            ItemCount = 0;
-            foreach (var key in selectKeys)
-            {
-                if (!value.TryGetValue(key, out var keyValue)) continue;
-                stb.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, ItemCount++);
-            }
-        }
-        return stb.Mold;
-    }
-
-    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
-        IReadOnlyDictionary<TKey, TValue>? value
-      , IEnumerator<TKSelectDerived> selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKey : TKRevealBase
-        where TValue : TVRevealBase?
-        where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys.MoveNext();
+        var hasValue = selectKeys?.MoveNext() ?? false;
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
         ItemCount = 0;
         while (hasValue && value != null)
         {
-            var key = selectKeys.Current;
+            var key = selectKeys!.Current;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();
@@ -927,27 +989,43 @@ public partial class KeyedCollectionMold
         return stb.Mold;
     }
 
-    public KeyedCollectionMold AddWithSelectKeysEnumerate<TKey, TValue, TKSelectDerived, TKRevealBase>(
+    public KeyedCollectionMold AddWithSelectKeysIterateValueNullable<TEnumtr, TKey, TValue>(
         IReadOnlyDictionary<TKey, TValue?>? value
-      , IEnumerator<TKSelectDerived> selectKeys
+      , TEnumtr? selectKeys
+      , PalantírReveal<TValue> valueStyler
+      , PalantírReveal<TKey> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TKey>?
+        where TKey : notnull
+        where TValue : struct
+    {
+        return AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKey, TKey>
+            (value, selectKeys, valueStyler, keyStyler, valueFormatString, formatFlags);
+    }
+
+    public KeyedCollectionMold AddWithSelectKeysIterate<TEnumtr, TKey, TValue, TKSelectDerived, TKRevealBase>(
+        IReadOnlyDictionary<TKey, TValue?>? value
+      , TEnumtr? selectKeys
       , PalantírReveal<TValue> valueStyler
       , PalantírReveal<TKRevealBase> keyStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TKSelectDerived>?
         where TKey : TKRevealBase
         where TValue : struct
         where TKSelectDerived : TKey
         where TKRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
         if (stb.HasSkipBody(actualType, "", formatFlags))
             return stb.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys.MoveNext();
-        var kvpType  = typeof(KeyValuePair<TKey, TValue?>);
+        var hasValue = selectKeys?.MoveNext() ?? false;
+        var kvpType  = typeof(KeyValuePair<TKey, TValue>);
         ItemCount = 0;
         while (hasValue && value != null)
         {
-            var key = selectKeys.Current;
+            var key = selectKeys!.Current;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();

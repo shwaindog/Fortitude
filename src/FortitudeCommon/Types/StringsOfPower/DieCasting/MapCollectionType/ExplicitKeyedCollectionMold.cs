@@ -8,9 +8,7 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
 public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<ExplicitKeyedCollectionMold<TKey, TValue>>
 {
-    private IMoldWriteState<ExplicitKeyedCollectionMold<TKey, TValue>> stb = null!;
-
-    protected static readonly Type TypeOfElement = typeof(TKey);
+    private IMoldWriteState<ExplicitKeyedCollectionMold<TKey, TValue>>                                   stb = null!;
 
     private int elementCount;
 

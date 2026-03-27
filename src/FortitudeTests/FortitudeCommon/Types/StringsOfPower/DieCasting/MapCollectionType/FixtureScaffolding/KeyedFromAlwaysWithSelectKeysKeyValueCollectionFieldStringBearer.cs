@@ -5,8 +5,8 @@ using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.Test
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType.FixtureScaffolding;
 
-[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
-                | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites 
+                | SubsetListFilter | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromKeyValueDictionaryAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived>
     : SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelectDerived>
     where TKey : notnull
@@ -30,8 +30,8 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysArrayStringBearer<TKey,
            .Complete();
 }
 
-[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites | SubsetListFilter
-                | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites 
+                | SubsetListFilter | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromKeyValueDictionaryAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived>
     : SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelectDerived>
     where TKey : notnull
@@ -55,8 +55,8 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysSpanStringBearer<TKey, 
            .Complete();
 }
 
-[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan | AlwaysWrites
-                | SubsetListFilter | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan 
+                | AlwaysWrites | SubsetListFilter | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
 public class KeyedFromKeyValueDictionaryAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived>
     : SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelectDerived>
     where TKey : notnull
@@ -148,16 +148,17 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysEnumeratorStringBearer<
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysEnumerate
+           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived>
                (AddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings
+                // ReSharper disable once GenericEnumeratorNotDisposed
               , DisplayKeys?.GetEnumerator()!
               , ValueFormatString
               , KeyFormatString, FormattingFlags)
            .Complete();
 }
 
-[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
-                | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites 
+                | SubsetListFilter | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
     : SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase>
     where TKey : notnull
@@ -184,8 +185,8 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysArrayStringBear
            .Complete();
 }
 
-[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites | SubsetListFilter
-                | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites 
+                | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
 public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived>
     : SelectFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived>
     where TKey : notnull
@@ -457,8 +458,9 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysEnumeratorStrin
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysEnumerate
+           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived, TVRevealBase>
                (AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
+                // ReSharper disable once GenericEnumeratorNotDisposed
               , DisplayKeys?.GetEnumerator()!
               , ValueRevealer
               , KeyFormatString
@@ -485,8 +487,9 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysEnumerato
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysEnumerate
+           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived>
                (AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
+                // ReSharper disable once GenericEnumeratorNotDisposed
               , DisplayKeys?.GetEnumerator()!
               , ValueRevealer
               , KeyFormatString
@@ -805,7 +808,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysEnumera
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysEnumerate
+           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
                (AddWithSelectKeysKeyValuePairEnumeratorBothRevealers
               , DisplayKeys?.GetEnumerator()!
               , ValueRevealer
@@ -833,7 +836,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysE
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysEnumerate
+           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived, TKRevealBase>
                (AddWithSelectKeysKeyValuePairEnumeratorBothRevealers
               , DisplayKeys?.GetEnumerator()!
               , ValueRevealer

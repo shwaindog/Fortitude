@@ -27,7 +27,7 @@ public static class ReflectionHelper
 
         return Expression.Lambda<Func<TClass>>(constructorNewExpression).Compile();
     }
-    
+
     public static Func<TClass> DefaultCtorFunc<TClass>(Type concreteType)
     {
         var constructorInfo          = concreteType.GetConstructor(Type.EmptyTypes)!;
@@ -139,8 +139,7 @@ public static class ReflectionHelper
     /// <returns></returns>
     public static T? GetProperty<T>(object? obj, string memberName, bool ignoreComposedMemberNull)
     {
-        if (obj == null)
-            return default;
+        if (obj == null) return default;
 
         var properties = memberName.Split('.');
 
@@ -162,8 +161,7 @@ public static class ReflectionHelper
             {
                 var propertyInfo = current.GetType().GetProperty(prop);
 
-                if (propertyInfo == null)
-                    throw new NotSupportedException(memberName + " -> " + prop);
+                if (propertyInfo == null) throw new NotSupportedException(memberName + " -> " + prop);
 
                 newCurrent = propertyInfo.GetValue(current, null);
             }
@@ -186,8 +184,7 @@ public static class ReflectionHelper
             current = newCurrent;
         }
 
-        if (typeof(T) == typeof(string) && current != null)
-            return (T)(object)current.ToString()!;
+        if (typeof(T) == typeof(string) && current != null) return (T)(object)current.ToString()!;
 
         return (T?)current;
     }
@@ -237,15 +234,13 @@ public static class ReflectionHelper
 
             object? currentValue = null;
 
-            if (current == null)
-                throw new NullReferenceException(memberName + " -> " + prop);
+            if (current == null) throw new NullReferenceException(memberName + " -> " + prop);
 
             try
             {
                 currentPropertyInfo = current.GetType().GetProperty(prop);
 
-                if (currentPropertyInfo == null)
-                    return null;
+                if (currentPropertyInfo == null) return null;
 
                 currentValue = current.GetType().GetProperty(prop)!.GetValue(current, null);
             }
@@ -260,8 +255,7 @@ public static class ReflectionHelper
                     }
             }
 
-            if (currentValue == null && i < properties.Length - 1)
-                throw new NullReferenceException(memberName + " -> " + prop);
+            if (currentValue == null && i < properties.Length - 1) throw new NullReferenceException(memberName + " -> " + prop);
 
             current = currentValue;
         }
@@ -297,8 +291,7 @@ public static class ReflectionHelper
         var fieldsType = typeof(T);
         var fields     = new List<T>();
 
-        if (@object == null)
-            return fields;
+        if (@object == null) return fields;
 
         foreach (var pi in @object.GetType().GetFields())
             if (pi.FieldType == fieldsType)
@@ -428,9 +421,8 @@ public static class ReflectionHelper
         if (removeGetSetPrefix)
         {
             if (methodName.StartsWith("set_"))
-                methodName = methodName.Replace("set_", "");
-            else if (methodName.StartsWith("get_"))
-                methodName = methodName.Replace("get_", "");
+                methodName                                     = methodName.Replace("set_", "");
+            else if (methodName.StartsWith("get_")) methodName = methodName.Replace("get_", "");
         }
 
         return methodName;
@@ -460,8 +452,7 @@ public static class ReflectionHelper
     public static string GetEnumerationDescription<TEnum>(TEnum enumValue) where TEnum : notnull
     {
         var a = GetEnumerationAttribute<DescriptionAttribute>(enumValue);
-        if (a != null)
-            return a.Description;
+        if (a != null) return a.Description;
 
         return enumValue.ToString()!;
     }
@@ -485,10 +476,7 @@ public static class ReflectionHelper
                 if (pi.PropertyType == propertiesType)
                     properties.Add((T)pi.GetValue(@object, null)!);
         }
-        else
-        {
-            throw new NotImplementedException("Recursivity Not implemented " + alreadyBrowsed.Count);
-        }
+        else { throw new NotImplementedException("Recursivity Not implemented " + alreadyBrowsed.Count); }
 
         return properties;
     }
@@ -515,13 +503,52 @@ public static class ReflectionHelper
             var body = (UnaryExpression)expression.Body;
             memberExpression = body.Operand as MemberExpression;
         }
-        else if (expression.Body.NodeType == ExpressionType.MemberAccess)
-        {
-            memberExpression = expression.Body as MemberExpression;
-        }
+        else if (expression.Body.NodeType == ExpressionType.MemberAccess) { memberExpression = expression.Body as MemberExpression; }
 
         if (enforceCheck && memberExpression == null) throw new ArgumentException("Not a member access", "expression");
 
         return memberExpression!;
+    }
+
+
+    public static MethodInfo? GetEnumeratorMethod(this Type? collectionType)
+    {
+        // Step 1: Look for a public instance GetEnumerator() declared on the type
+        var method =
+            collectionType!
+                .GetMethod(nameof(IEnumerable<int>.GetEnumerator), BindingFlags.Instance | BindingFlags.Public,
+                           binder: null, Type.EmptyTypes, modifiers: null);
+
+        return method;
+    }
+
+
+    public static Type? GetEnumeratorType(this Type? collectionType)
+    {
+        // Step 1: Find IEnumerable<T>
+        var ienumT =
+            collectionType
+                ?.GetInterfaces()
+                .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+
+        if (ienumT == null) return null;
+
+        var elementType = ienumT.GetGenericArguments()[0];
+
+        // Step 2: Look for a public instance GetEnumerator() declared on the type
+        var method = collectionType.GetEnumeratorMethod();
+
+        if (method != null)
+        {
+            var returnType = method.ReturnType;
+
+            // If it's not just IEnumerator<T>, treat it as a concrete enumerator
+            if (returnType != typeof(IEnumerator<>)
+             && !(returnType.IsGenericType
+               && returnType.GetGenericTypeDefinition() == typeof(IEnumerator<>))) { return returnType; }
+        }
+
+        // Step 3: fallback to IEnumerator<T>
+        return typeof(IEnumerator<>).MakeGenericType(elementType);
     }
 }

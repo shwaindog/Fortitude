@@ -296,7 +296,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
                         {
                             resolvedFlags     |= ContentAllowComplexType;
                         }
-                        break;
                     }
                     else if (visitResult is { IsARevisit: false })
                     {
@@ -430,7 +429,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
 
         var sb = mws.Sb;
         mws.WroteTypeClose = true;
-        var previousContentPadSpacing = Gb.LastContentSeparatorPaddingRanges;
 
         var lastContentChar = Gb.RemoveLastSeparatorAndPadding();
 
@@ -678,14 +676,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
     {
         if (createTypeFlags.HasNoRevisitCheck() || createTypeFlags.HasIsFieldNameFlag()) return 0;
         var sb = mws.Sb;
-        var instanceInfoFieldNameFormatFlags =
-            StyleOptions.InstanceMarkingWrapInstanceInfoFieldNamesInQuotes
-                ? DefaultCallerTypeFlags
-                : DisableFieldNameDelimiting;
-        var instanceIdFormatFlags =
-            StyleOptions.InstanceMarkingWrapInstanceIdInQuotes
-                ? DefaultCallerTypeFlags
-                : DisableAutoDelimiting;
 
         var formatFlags = createTypeFlags.HasAsStringContentFlag()
                        && mws.CurrentWriteMethod.HasAsComplexFlag()
@@ -705,6 +695,10 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var appendAt       = sb.Length;
         var addAsDelimiter = !mws.CreateMoldFormatFlags.HasAsStringContentFlag();
 
+        var instanceInfoFieldNameFormatFlags =
+            StyleOptions.InstanceMarkingWrapInstanceInfoFieldNamesInQuotes
+                ? DefaultCallerTypeFlags
+                : DisableFieldNameDelimiting;
         AppendFieldName(mws, "$ref", instanceInfoFieldNameFormatFlags & ~(AsStringContent));
         mws.IsEmpty = false;
         AppendFieldValueSeparator();
@@ -1040,9 +1034,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
 
         var withMoldInherited = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
-        mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(withMoldInherited | NoRevisitCheck | IsFieldName);
-        mws.Master.SetCallerWriteAs(writeAs);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withMoldInherited | NoRevisitCheck | IsFieldName);
+        mws.Master.WithNextCallWriteAs(writeAs);
 
         AppendSummary appendSummary;
 
@@ -1099,9 +1093,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
 
         var withMoldInherited = callerFormatFlags | inherited;
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited | NoRevisitCheck | IsFieldName);
-        mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(withMoldInherited | NoRevisitCheck | IsFieldName);
-        mws.Master.SetCallerWriteAs(writeAs);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withMoldInherited | NoRevisitCheck | IsFieldName);
+        mws.Master.WithNextCallWriteAs(writeAs);
         AppendSummary appendSummary;
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
@@ -1503,9 +1497,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
 
         var withMoldInherited = callerFormatFlags | inherited;
-        mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(withMoldInherited);
-        mws.Master.SetCallerWriteAs(writeAs);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withMoldInherited);
+        mws.Master.WithNextCallWriteAs(writeAs);
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (value == null)
         {
@@ -1559,9 +1553,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
 
         var withMoldInherited = callerFormatFlags | inherited;
-        mws.Master.SetCallerFormatString(callerFormatString);
-        mws.Master.SetCallerFormatFlags(withMoldInherited);
-        mws.Master.SetCallerWriteAs(writeAs);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withMoldInherited);
+        mws.Master.WithNextCallWriteAs(writeAs);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (styledObj == null)
@@ -1986,7 +1980,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         = FormatSwitches.EncodeInnerContent)
     {
         var inheritedFmtFlags = Gb.CurrentSectionRanges.StartedWithFormatFlags | (FormatFlags)formatSwitches;
-        var notCollection = !(JsonOptions.CharBufferWritesAsCharCollection || formatSwitches.HasAsCollectionFlag());
         Gb.StartNextContentSeparatorPaddingSequence(sb, inheritedFmtFlags);
         if (elementType.IsChar()
          && (formatSwitches.TreatCharArrayAsString()
@@ -2004,7 +1997,6 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         }
         Gb.AppendContent(SqBrktOpn);
         return Gb.Complete(inheritedFmtFlags).Length;
-        return 0;
     }
 
     public override int CollectionStart(Type elementType, Span<char> destSpan, int destStartIndex, bool hasItems
@@ -2256,9 +2248,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
         var withInherited        = callerFormatFlags | inherited;
 
-        mws.Master.SetCallerFormatFlags(withInherited);
-        mws.Master.SetCallerWriteAs(AsCollectionItem);
-        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withInherited);
+        mws.Master.WithNextCallWriteAs(AsCollectionItem);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
 
         var stateExtractResult = styler(item, mws.Master);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
@@ -2383,9 +2375,9 @@ public class CompactJsonTypeFormatting : JsonFormatter, IStyledTypeFormatting, I
         var inherited            = parentFlags.GetParentInheritedFlags(grandParentCallFlags);
         var withInherited        = callerFormatFlags | inherited;
 
-        mws.Master.SetCallerFormatFlags(withInherited);
-        mws.Master.SetCallerWriteAs(AsCollectionItem);
-        mws.Master.SetCallerFormatString(callerFormatString);
+        mws.Master.WithNextCallFormatFlags(withInherited);
+        mws.Master.WithNextCallWriteAs(AsCollectionItem);
+        mws.Master.WithNextCallValueFormatString(callerFormatString);
 
         var stateExtractResult = item.RevealState(mws.Master);
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);

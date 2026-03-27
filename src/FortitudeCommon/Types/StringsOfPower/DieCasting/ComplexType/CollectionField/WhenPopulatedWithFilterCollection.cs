@@ -2319,9 +2319,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
+    public TExt WhenPopulatedWithFilterEnumerate<TEnumbl>(string fieldName, TEnumbl? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<bool>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -2365,9 +2366,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TExt WhenPopulatedWithFilterEnumerate<TEnumbl>(string fieldName, TEnumbl? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<bool?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -2411,13 +2413,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerable<TFmt?>? value
-      , OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TExt WhenPopulatedWithFilterEnumerate<TEnumbl, TFmt, TFmtBase>(string fieldName, TEnumbl? value
+      , OrderedCollectionPredicate<TFmtBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase
+        where TEnumbl : IEnumerable<TFmt>?
+        where TFmt : ISpanFormattable?, TFmtBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt?>);
+        var actualType = value?.GetType() ?? typeof(TEnumbl);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
         var count = 0;
 
@@ -2459,10 +2461,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate<TFmtStruct>(string fieldName, IEnumerable<TFmtStruct?>? value
+    public TExt WhenPopulatedWithFilterEnumerate<TEnumbl, TFmtStruct>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TFmtStruct?>?
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>);
@@ -2508,10 +2511,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenPopulatedWithFilterRevealEnumerate<TCloaked, TFilterBase, TRevealBase>(string fieldName
-      , IEnumerable<TCloaked?>? value
+    public TExt WhenPopulatedWithFilterRevealEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TCloaked>?     
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
@@ -2556,9 +2559,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterRevealEnumerate<TCloakedStruct>(string fieldName, IEnumerable<TCloakedStruct?>? value
+    public TExt WhenPopulatedWithFilterRevealEnumerate<TEnumbl, TCloakedStruct>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TCloakedStruct?>?     
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>);
@@ -2603,10 +2607,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenPopulatedWithFilterRevealEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerable<TBearer?>? value
+    public TExt WhenPopulatedWithFilterRevealEnumerate<TEnumbl, TBearer, TBearerBase>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TBearer : IStringBearer, TBearerBase
+        where TEnumbl : IEnumerable<TBearer>?     
+        where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearer?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -2649,9 +2654,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterRevealEnumerate<TBearerStruct>(string fieldName, IEnumerable<TBearerStruct?>? value
-      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
-      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TExt WhenPopulatedWithFilterRevealEnumerate<TEnumbl, TBearerStruct>(string fieldName, TEnumbl? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TBearerStruct?>?     
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>);
@@ -2695,9 +2700,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<string?>? value, OrderedCollectionPredicate<string> filterPredicate
+    public TExt WhenPopulatedWithFilterEnumerate<TEnumbl>(string fieldName, TEnumbl? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<string?>?     
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<string?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -2741,12 +2747,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerable<TCharSeq>? value
+    public TExt WhenPopulatedWithFilterCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TCharSeq>?     
         where TCharSeq : ICharSequence?, TCharSeqBase?
-        where TCharSeqBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -2790,10 +2796,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerable<StringBuilder?>? value
-      , OrderedCollectionPredicate<StringBuilder> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TExt WhenPopulatedWithFilterStringBuilderEnumerate<TEnumbl>(string fieldName, TEnumbl? value
+      , OrderedCollectionPredicate<StringBuilder> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<StringBuilder?>?     
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<StringBuilder?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -2838,10 +2844,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenPopulatedWithFilterMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerable<TAny?>? value
+    public TExt WhenPopulatedWithFilterMatchEnumerate<TEnumbl, TAny, TAnyBase>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TAny>?      
+        where TAny : TAnyBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TAny>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -2885,10 +2893,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterObjectEnumerate(string fieldName, IEnumerable<object?>? value
-      , OrderedCollectionPredicate<object> filterPredicate
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TExt WhenPopulatedWithFilterObjectEnumerate<TEnumbl>(string fieldName, TEnumbl? value
+      , OrderedCollectionPredicate<object> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<object?>?      
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<object?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -2932,9 +2940,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
+    public TExt WhenPopulatedWithFilterIterate<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<bool>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -2977,6 +2986,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -2986,9 +2996,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TExt WhenPopulatedWithFilterIterate<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<bool?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<bool?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -3031,6 +3042,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3041,10 +3053,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenPopulatedWithFilterEnumerate<TFmt, TFmtBase>(string fieldName, IEnumerator<TFmt?>? value
+    public TExt WhenPopulatedWithFilterIterate<TEnumtr, TFmt, TFmtBase>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TFmt : ISpanFormattable, TFmtBase
+        where TEnumtr : IEnumerator<TFmt>?
+        where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -3087,6 +3100,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3096,10 +3110,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate<TFmtStruct>(string fieldName, IEnumerator<TFmtStruct?>? value
+    public TExt WhenPopulatedWithFilterIterate<TEnumtr, TFmtStruct>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TFmtStruct?>?
         where TFmtStruct : struct, ISpanFormattable
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>);
@@ -3143,6 +3158,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3153,9 +3169,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenPopulatedWithFilterRevealEnumerate<TCloaked, TFilterBase, TRevealBase>(string fieldName
-      , IEnumerator<TCloaked?>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
-      , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public TExt WhenPopulatedWithFilterRevealIterate<TEnumtr, TCloaked, TFilterBase, TRevealBase>(string fieldName, TEnumtr? value
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TCloaked>?
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
@@ -3199,6 +3216,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3208,9 +3226,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterRevealEnumerate<TCloakedStruct>(string fieldName, IEnumerator<TCloakedStruct?>? value
+    public TExt WhenPopulatedWithFilterRevealIterate<TEnumtr, TCloakedStruct>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TCloakedStruct?>?
         where TCloakedStruct : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>);
@@ -3253,6 +3272,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3263,8 +3283,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenPopulatedWithFilterRevealEnumerate<TBearer, TBearerBase>(string fieldName, IEnumerator<TBearer>? value
+    public TExt WhenPopulatedWithFilterRevealIterate<TEnumtr, TBearer, TBearerBase>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TBearer>?
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer>);
@@ -3307,6 +3328,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3316,8 +3338,9 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterRevealEnumerate<TBearerStruct>(string fieldName, IEnumerator<TBearerStruct?>? value
+    public TExt WhenPopulatedWithFilterRevealIterate<TEnumtr, TBearerStruct>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>);
@@ -3361,6 +3384,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3370,9 +3394,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<string?>? value, OrderedCollectionPredicate<string> filterPredicate
+    public TExt WhenPopulatedWithFilterIterate<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<string?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<string?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -3415,6 +3440,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3424,9 +3450,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterCharSeqEnumerate<TCharSeq, TCharSeqBase>(string fieldName, IEnumerator<TCharSeq>? value
+    public TExt WhenPopulatedWithFilterCharSeqIterate<TEnumtr, TCharSeq, TCharSeqBase>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence?, TCharSeqBase?
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TCharSeq>?
+        where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCharSeq?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -3470,6 +3498,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 skipCount = filterResult.SkipNextCount;
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3479,9 +3508,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterEnumerate(string fieldName, IEnumerator<StringBuilder?>? value
+    public TExt WhenPopulatedWithFilterIterate<TEnumtr>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<StringBuilder?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<StringBuilder?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -3525,6 +3555,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3535,9 +3566,11 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt WhenPopulatedWithFilterMatchEnumerate<TAny, TAnyBase>(string fieldName, IEnumerator<TAny>? value
+    public TExt WhenPopulatedWithFilterMatchIterate<TEnumtr, TAny, TAnyBase>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) where TAny : TAnyBase
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<TAny>?
+        where TAny : TAnyBase
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TAny>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -3582,6 +3615,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;
@@ -3591,9 +3625,10 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterObjectEnumerate(string fieldName, IEnumerator<object?>? value
+    public TExt WhenPopulatedWithFilterObjectIterate<TEnumtr>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<object> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator<object?>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<object?>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -3638,6 +3673,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 hasValue  = value.MoveNext();
             }
         }
+        value?.Dispose();
         if (eocm != null)
         {
             eocm.TotalCount = count;

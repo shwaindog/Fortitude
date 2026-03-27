@@ -75,12 +75,12 @@ public class KeyedCollectionMoldCompactJsonTests : KeyedCollectionMoldTests
     public void BothRevealersSubListFilteredCompactJsonDict(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod] 
+    [TestMethod] 
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations[19]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[912], StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(ValueRevealerDictTestData.AllValueRevealerUnfilteredDictExpectations[15]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[937], StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

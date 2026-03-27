@@ -45,6 +45,10 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     IStyledTypeFormatting CurrentStyledTypeFormatter { get; set; }
 
+    ITheOneString WithNextCallFormatFlags(FormatFlags callerContentHandler);
+    ITheOneString WithNextCallValueFormatString(string? formatString);
+    ITheOneString WithNextCallWriteAs(WrittenAsFlags writeAs);
+
     ITheOneString ReInitialize(IStringBuilder usingStringBuilder, StringStyle buildStyle = StringStyle.CompactLog);
 
     ITheOneString ClearAndReinitialize
@@ -120,10 +124,6 @@ public interface ISecretStringOfPower : ITheOneString
     GraphTrackingBuilder? CurrentGraphBuilder { get; }
 
     GraphInstanceRegistry ActiveGraphRegistry { get; }
-
-    void SetCallerFormatFlags(FormatFlags callerContentHandler);
-    void SetCallerFormatString(string? formatString);
-    void SetCallerWriteAs(WrittenAsFlags writeAs);
 
     bool IsExemptFromCircularRefNodeTracking(Type typeStarted);
 
@@ -365,19 +365,25 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         set => Formatter = value;
     }
 
-    public void SetCallerFormatFlags(FormatFlags callerContentHandler)
+    public ITheOneString WithNextCallFormatFlags(FormatFlags callerContentHandler)
     {
         nextCallContext.FormatFlags = callerContentHandler;
+
+        return this;
     }
 
-    public void SetCallerFormatString(string? formatString)
+    public ITheOneString WithNextCallValueFormatString(string? formatString)
     {
         nextCallContext.FormatString = formatString;
+
+        return this;
     }
 
-    public void SetCallerWriteAs(WrittenAsFlags writeAs)
+    public ITheOneString WithNextCallWriteAs(WrittenAsFlags writeAs)
     {
         nextCallContext.WriteAs = writeAs;
+
+        return this;
     }
 
     public ITheOneString ReInitialize(IStringBuilder usingStringBuilder, StringStyle buildStyle = StringStyle.CompactLog)
