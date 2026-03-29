@@ -140,7 +140,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
     {
         if (value != null)
         {
-            return AlwaysAddAllEnumerate(fieldName, value.Value, valueFormatString, keyFormatString, formatFlags);
+            return AlwaysAddAllEnumerate<TEnumbl, TKey, TValue>(fieldName, value.Value, valueFormatString, keyFormatString, formatFlags);
         }
         Mws.FieldNameJoin(fieldName);
         Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
