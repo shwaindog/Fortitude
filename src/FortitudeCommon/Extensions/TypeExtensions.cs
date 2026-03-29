@@ -231,7 +231,7 @@ public static class TypeExtensions
 
     public static bool IsNotKeyValueOrderedCollection(this Type type) => !type.IsKeyValueOrderedCollection();
 
-    public static bool IsKeyedCollection(this Type type) => type.IsReadOnlyDictionaryType() || type.IsKeyValueOrderedCollection();
+    public static bool IsKeyedCollection(this Type? type) => type != null &&  (type.IsReadOnlyDictionaryType() || type.IsKeyValueOrderedCollection());
 
     public static bool IsNotKeyedCollection(this Type type) => !type.IsKeyedCollection();
 
@@ -240,9 +240,9 @@ public static class TypeExtensions
     {
         if (type.IsReadOnlyDictionaryType())
         {
-            var dictionaryInterface =
+            var dictionaryInterface =  
                 type.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef)!;
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == ReadOnlyDictionaryTypeDef) ?? type;
             return new KeyValuePair<Type, Type>(dictionaryInterface.GenericTypeArguments[0], dictionaryInterface.GenericTypeArguments[1]);
         }
         if (type.IsIndexedKeyValueOrderedCollection())

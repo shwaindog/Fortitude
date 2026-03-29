@@ -6,12 +6,8 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
-public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<ExplicitKeyedCollectionMold<TKey, TValue>>
+public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
 {
-    private IMoldWriteState<ExplicitKeyedCollectionMold<TKey, TValue>>                                   stb = null!;
-
-    private int elementCount;
-
     public ExplicitKeyedCollectionMold<TKey, TValue> InitializeExplicitKeyValueCollectionBuilder
     (
         object instanceOrContainer
@@ -23,13 +19,10 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags )
+      , CreateContext createContext )
     {
-        InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName, remainingGraphDepth
-                                      , moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
-
-        stb = MoldStateField;
-
+        InitializeKeyValueCollectionBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName, remainingGraphDepth
+                                          , moldGraphVisit, writeMethodType, callerContext, createContext);
         return this;
     }
 
@@ -37,7 +30,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
 
     public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
-        var keyValueTypes       = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
+        var keyValueTypes   = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
         var typeCreateFlags = stb.CreateMoldFormatFlags;
         usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key
                                                 , keyValueTypes.Value.Value, formatFlags | typeCreateFlags);
@@ -51,7 +44,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
     public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, elementCount, formatFlags);
+        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount, formatFlags);
     }
 
     protected override void InheritedStateReset()
@@ -69,13 +62,13 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueFormatString, keyFormatString);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueFormatString, keyFormatString);
         return this;
     }
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(
-        TK? key
-      , TV? value
+        TK key
+      , TV value
       , PalantírReveal<TVRevealBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -85,13 +78,13 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
         return this;
     }
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(
         TK? key
-      , TV? value
+      , TV value
       , PalantírReveal<TVRevealBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -101,12 +94,12 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
         return this;
     }
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TVRevealBase>(
-        TK? key
+        TK key
       , TV? value
       , PalantírReveal<TVRevealBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
@@ -117,11 +110,11 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
         return this;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK key, TV value
       , PalantírReveal<TVRevealBase> valueStyler
       , PalantírReveal<TKRevealBase> keyStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -132,11 +125,11 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK? key, TV? value
+    public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchEntry<TK, TV, TKRevealBase, TVRevealBase>(TK key, TV? value
       , PalantírReveal<TVRevealBase> valueStyler
       , PalantírReveal<TKRevealBase> keyStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
@@ -147,7 +140,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
@@ -162,7 +155,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
@@ -177,11 +170,10 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
         where TVRevealBase : notnull
     {
         if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, elementCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
+        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
-
-
+    
     public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry(
         TKey key
       , TValue? value
@@ -226,7 +218,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : MultiValueTypeMolder<Ex
     }
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AddKeyValueMatchAndGoToNextEntry<TK, TV, TVRevealBase>(
-        TK? key
+        TK key
       , TV? value
       , PalantírReveal<TVRevealBase> valueStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null

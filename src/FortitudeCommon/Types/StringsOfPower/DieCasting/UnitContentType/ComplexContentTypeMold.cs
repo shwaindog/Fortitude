@@ -25,10 +25,10 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags )
+      , CreateContext createContext )
     {
         InitializeContentTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-                                 , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
+                                 , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createContext);
 
         return this;
     }

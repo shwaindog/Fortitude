@@ -27,10 +27,10 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
       , CallerContext callerContext
-      , FormatFlags createFormatFlags)
+      , CreateContext createContext)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-                 , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
+                 , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createContext);
 
         return this;
     }

@@ -15,33 +15,31 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
-public static class KeyedCollectionMoldEnumeratorExtensions
+public static class KeyedCollectionAddAllEnumerateExtensions
 {
     private static MethodInfo[]? myMethodInfosCached;
+    
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> NoRevealersCallStructEnumtrInvokerCache = new();
+    private static readonly ConcurrentDictionary<(Type, Type), Delegate>       NoRevealersInvokerCache                 = new();
 
-    private static readonly ConcurrentDictionary<Type, Type?>       EnumerableToEnumeratorTypeCache       = new();
-    private static readonly ConcurrentDictionary<Type, MethodInfo?> EnumerableToEnumeratorMethodInfoCache = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> ValueRevealerNoNullableStructCallStructEnumtrInvokerCache = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> ValueRevealerNoNullableStructInvokerCache                 = new();
 
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> ValueRevealerNullableValueStructCallStructEnumtrInvokerCache = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> ValueRevealerNullableValueStructInvokerCache                 = new();
 
-    private static readonly ConcurrentDictionary<(Type, Type), Delegate> NoRevealersCallStructEnumtrInvokerCache = new();
-    private static readonly ConcurrentDictionary<Type, Delegate>         NoRevealersInvokerCache                 = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> BothRevealersNoNullableStructCallStructEnumtrInvokerCache = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type, Type), Delegate> BothRevealersNoNullableStructInvokerCache = new();
 
-    private static readonly ConcurrentDictionary<(Type, Type), Delegate> ValueRevealerNoNullableStructCallStructEnumtrInvokerCache = new();
-    private static readonly ConcurrentDictionary<(Type, Type), Delegate> ValueRevealerNoNullableStructInvokerCache                 = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type, Type), Delegate> BothRevealersNullableKeyStructCallStructEnumtrInvokerCache
+        = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type, Type), Delegate> BothRevealersNullableKeyStructInvokerCache = new();
 
-    private static readonly ConcurrentDictionary<(Type, Type), Delegate> ValueRevealerNullableValueStructCallStructEnumtrInvokerCache = new();
-    private static readonly ConcurrentDictionary<(Type, Type), Delegate> ValueRevealerNullableValueStructInvokerCache                 = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type, Type), Delegate> BothRevealersNullableValueStructCallStructEnumtrInvokerCache
+        = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type, Type), Delegate> BothRevealersNullableValueStructInvokerCache = new();
 
-    private static readonly ConcurrentDictionary<(Type, Type), Delegate>       BothRevealersNoNullableStructCallStructEnumtrInvokerCache = new();
-    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> BothRevealersNoNullableStructInvokerCache                 = new();
-
-    private static readonly ConcurrentDictionary<(Type, Type), Delegate>       BothRevealersNullableKeyStructCallStructEnumtrInvokerCache = new();
-    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> BothRevealersNullableKeyStructInvokerCache                 = new();
-
-    private static readonly ConcurrentDictionary<(Type, Type), Delegate>       BothRevealersNullableValueStructCallStructEnumtrInvokerCache = new();
-    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> BothRevealersNullableValueStructInvokerCache                 = new();
-
-    private static readonly ConcurrentDictionary<(Type, Type), Delegate> BothNullableRevealersCallStructEnumtrInvokerCache = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> BothNullableRevealersCallStructEnumtrInvokerCache = new();
 
     private delegate KeyedCollectionMold NoRevealersInvoker<in TEnumbl, TKey, TValue>(
         KeyedCollectionMold callOn
@@ -57,7 +55,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
       , string? valueFormatString = null
       , string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable;
+        where TEnumbl : IEnumerable?;
 
     private delegate KeyedCollectionMold ValueRevealerNoNullableStructInvoker<in TEnumbl, TKey, TValue, out TVRevealBase>(
         KeyedCollectionMold callOn
@@ -159,7 +157,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
       , PalantírReveal<TKRevealBase> keyStyler
       , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>
+        where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>?
         where TKey : TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull;
@@ -189,48 +187,50 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         where TKey : struct
         where TValue : struct;
 
-    private static NoRevealersInvoker<TEnumbl, TKey, TValue> GetNoRevealersCallStructEnumtrInvoker<TEnumbl, TKey, TValue>
+    private static NoRevealersInvoker<TEnumbl, TKey, TValue> GetAddAllNoRevealersCallStructEnumtrInvoker<TEnumbl, TKey, TValue>
         (this Type enumblType, Type enumtrType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue>>
     {
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var callAsFactory   = true;
         var invoker =
             (NoRevealersInvoker<TEnumbl, TKey, TValue>)
             NoRevealersCallStructEnumtrInvokerCache
-                .GetOrAdd((enumblType, enumtrType)
-                        , static ((Type enumblType, Type enumeratorType) key, bool _) =>
-                              key.enumblType.BuildNoRevealersCallStructEnumtr
-                                  <TEnumbl, TKey, TValue>(key.enumeratorType), callAsFactory);
+                .GetOrAdd((enumblParamType, enumblType, enumtrType)
+                        , static ((Type enumblParamType, Type enumblType, Type enumeratorType) key, bool _) =>
+                              key.enumblType.BuildAddAllNoRevealersCallStructEnumtr
+                                  <TEnumbl, TKey, TValue>(key.enumblParamType, key.enumeratorType), callAsFactory);
         return invoker;
     }
 
-    private static NoRevealersInvoker<TEnumbl, TKey, TValue> BuildNoRevealersCallStructEnumtr<TEnumbl, TKey, TValue>
-        (this Type enumblType, Type enumeratorType)
-        where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>?
+    private static NoRevealersInvoker<TEnumbl, TKey, TValue> BuildAddAllNoRevealersCallStructEnumtr<TEnumbl, TKey, TValue>
+        (this Type enumblType, Type enumblParamType, Type enumeratorType)
+        where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue>>?
     {
-        var callEnumtrInvokeMethInf  = enumeratorType.GetGetNoRevealersInvokerMethodInfo();
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var callEnumtrInvokeMethInf  = enumeratorType.GetAddAllNoRevealersInvokerMethodInfo();
         var enumtrInvokeParams       = callEnumtrInvokeMethInf.GetParameters();
         var boolRequiresNullableCast = enumtrInvokeParams[1].ParameterType.IsNullable() && !enumeratorType.IsNullable();
 
         var helperMethod =
             new DynamicMethod
                 ($"{enumblType.Name}_DynamicNoRevealersNoNullableStructInvoke_{enumblType.Name}", typeof(KeyedCollectionMold),
-                 [typeof(KeyedCollectionMold), typeof(TEnumbl), typeof(string), typeof(string), typeof(FormatFlags)]
-               , typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
+                 [typeof(KeyedCollectionMold), enumblParamType, typeof(string), typeof(string), typeof(FormatFlags)]
+               , typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
         // Make space for enumblType  and enumeratorType and if required Nullable<enumeratorType> local variables
         var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
         ilGenerator.DeclareLocal(enumeratorType);
         LocalBuilder? castEnumtrToNullable = null;
-        if (boolRequiresNullableCast)
-        {
-            castEnumtrToNullable = ilGenerator.DeclareLocal(typeof(Nullable<>).MakeGenericType(enumeratorType));
-        }
-        
+        if (boolRequiresNullableCast) { castEnumtrToNullable = ilGenerator.DeclareLocal(typeof(Nullable<>).MakeGenericType(enumeratorType)); }
+
         // cast TEnumbl value => (enumblType)value
         ilGenerator.DeclareLocal(enumeratorType);
         ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
+        if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+        else if (requiresCast) { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
         ilGenerator.Emit(OpCodes.Stloc_0);
 
         var getEnumtrMethInf = enumblLocalType.LocalType.GetEnumeratorMethodInfo() ??
@@ -263,54 +263,65 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         return (NoRevealersInvoker<TEnumbl, TKey, TValue>)methodInvoker;
     }
 
-    private static NoRevealersInvoker<TEnumbl> GetNoRevealersInvoker<TEnumbl>(Type? enumblType = null)
+    private static NoRevealersInvoker<TEnumbl> GetAddAllNoRevealersInvoker<TEnumbl>(Type enumblType)
         where TEnumbl : IEnumerable?
     {
-        enumblType ??= typeof(TEnumbl);
+        var enumblParamType = typeof(TEnumbl);
+        var callAsFactory   = true;
         var invoker =
-            (NoRevealersInvoker<TEnumbl>)NoRevealersInvokerCache.GetOrAdd(enumblType, static (enumerableType) =>
-            {
-                var kvpTypes = enumerableType.GetKeyedCollectionTypes();
-                if (kvpTypes == null) throw new ArgumentException("Expected to receive a KeyValue enumerator");
-                var keyType   = kvpTypes.Value.Key;
-                var valueType = kvpTypes.Value.Value;
-                var toInvokeOn = GetStaticMethodInfo(nameof(AddAllEnumerate), [enumerableType, keyType, valueType],
-                [
-                    typeof(KeyedCollectionMold), typeof(IEnumerable), typeof(string), typeof(string), typeof(FormatFlags)
-                ]);
-                
-                var genGenMethod
-                    = myMethodInfosCached!
-                        .First(mi => mi.Name.Contains(nameof(BuildNoRevealersInvoker)));
-                var concreteGenMethod
-                    = genGenMethod.MakeGenericMethod([typeof(TEnumbl), keyType, valueType]);
-                return (NoRevealersInvoker<TEnumbl>)
-                    concreteGenMethod.Invoke(null, [toInvokeOn, enumerableType])!;
-            });
+            (NoRevealersInvoker<TEnumbl>)
+            NoRevealersInvokerCache
+                .GetOrAdd((enumblParamType, enumblType), static ((Type enumblParamType, Type enumblType) key, bool _) =>
+                {
+                    var kvpTypes = key.enumblType.GetKeyedCollectionTypes();
+                    if (kvpTypes == null) throw new ArgumentException("Expected to receive a KeyValue enumerator");
+                    var keyType   = kvpTypes.Value.Key;
+                    var valueType = kvpTypes.Value.Value;
+                    var toInvokeOn = GetStaticMethodInfo(nameof(AddAllEnumerate), [key.enumblType, keyType, valueType],
+                    [
+                        typeof(KeyedCollectionMold), key.enumblType, typeof(string), typeof(string), typeof(FormatFlags)
+                    ]);
+
+                    var genGenMethod
+                        = myMethodInfosCached!
+                            .First(mi => mi.Name.Contains(nameof(BuildAddAllNoRevealersInvoker)));
+                    var concreteGenMethod
+                        = genGenMethod.MakeGenericMethod([key.enumblParamType, keyType, valueType]);
+                    return (NoRevealersInvoker<TEnumbl>)
+                        concreteGenMethod.Invoke(null, [toInvokeOn, key.enumblParamType, key.enumblType])!;
+                }, callAsFactory);
         return invoker;
     }
 
-    private static NoRevealersInvoker<TEnumbl> BuildNoRevealersInvoker<TEnumbl, TKey, TValue>(MethodInfo methodInfo, Type enumblType)
+    private static NoRevealersInvoker<TEnumbl> BuildAddAllNoRevealersInvoker<TEnumbl, TKey, TValue>(MethodInfo methodInfo, Type enumblParamType
+      , Type enumblType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue>>?
     {
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicEnumeratorInvoke", typeof(KeyedCollectionMold),
                 [
-                    typeof(KeyedCollectionMold), typeof(TEnumbl), typeof(string), typeof(string), typeof(FormatFlags)
-                ], typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
+                    typeof(KeyedCollectionMold), enumblParamType, typeof(string), typeof(string), typeof(FormatFlags)
+                ], typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
         var ilGenerator = helperMethod.GetILGenerator();
-        // Make space for enumblType local variables
-        var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-        
-        // cast TEnumbl value => (enumblType)value
-        ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
-        ilGenerator.Emit(OpCodes.Stloc_0);
-        
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
+
         // call AddAllEnumerate(KeyedCollectionMold, TEnumbl, valueFmtStr, keyFmtStr, valueFmtStr, FormatFlags)
         ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(OpCodes.Ldarg_1);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
         ilGenerator.Emit(OpCodes.Ldarg_2);
         ilGenerator.Emit(OpCodes.Ldarg_3);
         ilGenerator.Emit(OpCodes.Ldarg_S, 4);
@@ -326,31 +337,35 @@ public static class KeyedCollectionMoldEnumeratorExtensions
     }
 
     private static ValueRevealerNoNullableStructInvoker<TEnumbl, TKey, TValue, TVRevealerBase>
-        GetValueRevealerNoNullableStructICallStructEnumtrInvoker
+        GetAddAllValueRevealerNoNullableStructICallStructEnumtrInvoker
         <TEnumbl, TKey, TValue, TVRevealerBase>(this Type enumblType, Type enumtrType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue>>
         where TValue : TVRevealerBase?
         where TVRevealerBase : notnull
     {
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var callAsFactory   = true;
         var invoker =
             (ValueRevealerNoNullableStructInvoker<TEnumbl, TKey, TValue, TVRevealerBase>)
             ValueRevealerNoNullableStructCallStructEnumtrInvokerCache
-                .GetOrAdd((enumblType, enumtrType)
-                        , static ((Type enumblType, Type enumeratorType) key, bool _) =>
-                              key.enumblType.BuildValueRevealerNoNullableStructICallStructEnumtrInvoker
-                                  <TEnumbl, TKey, TValue, TVRevealerBase>(key.enumeratorType), callAsFactory);
+                .GetOrAdd((enumblParamType, enumblType, enumtrType)
+                        , static ((Type enumblParamType, Type enumblType, Type enumeratorType) key, bool _) =>
+                              key.enumblType.BuildAddAllValueRevealerNoNullableStructICallStructEnumtrInvoker
+                                  <TEnumbl, TKey, TValue, TVRevealerBase>(key.enumblParamType, key.enumeratorType), callAsFactory);
         return invoker;
     }
 
     private static ValueRevealerNoNullableStructInvoker<TEnumbl, TKey, TValue, TVRevealerBase>
-        BuildValueRevealerNoNullableStructICallStructEnumtrInvoker<TEnumbl, TKey, TValue, TVRevealerBase>
-        (this Type enumblType, Type enumeratorType)
-        where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>?
+        BuildAddAllValueRevealerNoNullableStructICallStructEnumtrInvoker<TEnumbl, TKey, TValue, TVRevealerBase>
+        (this Type enumblType, Type enumblParamType, Type enumeratorType)
+        where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue>>?
         where TValue : TVRevealerBase?
         where TVRevealerBase : notnull
     {
-        var callEnumtrInvokeMethInf  = enumeratorType.GetValueRevealerNoNullableStructIInvokerMethodInfo<TVRevealerBase>();
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var callEnumtrInvokeMethInf  = enumeratorType.GetAddAllValueRevealerNoNullableStructIInvokerMethodInfo<TVRevealerBase>();
         var enumtrInvokeParams       = callEnumtrInvokeMethInf.GetParameters();
         var boolRequiresNullableCast = enumtrInvokeParams[1].ParameterType.IsNullable() && !enumeratorType.IsNullable();
 
@@ -358,10 +373,10 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             new DynamicMethod
                 ($"{enumblType.Name}_DynamicValueRevealerNoNullableStructInvoke_{enumeratorType.Name}", typeof(KeyedCollectionMold),
                 [
-                    typeof(KeyedCollectionMold), typeof(TEnumbl), typeof(PalantírReveal<TVRevealerBase>), typeof(string)
+                    typeof(KeyedCollectionMold), enumblParamType, typeof(PalantírReveal<TVRevealerBase>), typeof(string)
                   , typeof(string), typeof(FormatFlags)
-                ], typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
+                ], typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
         // Make space for enumblType  and enumeratorType and if required Nullable<enumeratorType> local variables
         var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
         ilGenerator.DeclareLocal(enumeratorType);
@@ -374,7 +389,8 @@ public static class KeyedCollectionMoldEnumeratorExtensions
 
         // cast TEnumbl value => (enumblType)value
         ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
+        if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+        else if (requiresCast) { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
         ilGenerator.Emit(OpCodes.Stloc_0);
 
         var getEnumtrMethInf = enumblLocalType.LocalType.GetEnumeratorMethodInfo() ??
@@ -409,75 +425,81 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         return (ValueRevealerNoNullableStructInvoker<TEnumbl, TKey, TValue, TVRevealerBase>)methodInvoker;
     }
 
-    private static ValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealerBase> GetValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealerBase>(
-        Type? enumtrType = null)
-        where TEnumbl : IEnumerable
+    private static ValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealerBase>
+        GetAddAllValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealerBase>(
+            Type enumblType)
+        where TEnumbl : IEnumerable?
         where TVRevealerBase : notnull
     {
-        enumtrType ??= typeof(TEnumbl);
-        var tvRevealBase = typeof(TVRevealerBase);
+        var enumblParamType = typeof(TEnumbl);
+        var tvRevealBase    = typeof(TVRevealerBase);
         var invoker =
             (ValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealerBase>)
             ValueRevealerNoNullableStructInvokerCache
                 .GetOrAdd
-                    ((enumtrType, tvRevealBase),
-                     static ((Type enumblType, Type tvRevealType) key, bool _) =>
+                    ((enumblParamType, enumblType, tvRevealBase),
+                     static ((Type enumblParamType, Type enumblType, Type tvRevealType) key, bool _) =>
                      {
                          var kvpTypes = key.enumblType.GetKeyedCollectionTypes();
-                         if (kvpTypes == null)
-                             throw new ArgumentException("Expected to receive a KeyValue enumerator");
+                         if (kvpTypes == null) throw new ArgumentException("Expected to receive a KeyValue enumerator");
                          var keyType   = kvpTypes.Value.Key;
                          var valueType = kvpTypes.Value.Value;
                          var toInvokeOn =
                              GetStaticMethodInfo
                                  (nameof(AddAllEnumerateValueRevealer)
-                                 , [key.enumblType, keyType, valueType, key.tvRevealType],
-                                 [
-                                     typeof(KeyedCollectionMold), typeof(TEnumbl)
-                                     , typeof(PalantírReveal<TVRevealerBase>)
-                                     , typeof(string), typeof(string), typeof(FormatFlags)
-                                 ]);
+                                , [key.enumblType, keyType, valueType, key.tvRevealType],
+                                  [
+                                      typeof(KeyedCollectionMold), key.enumblType
+                                    , typeof(PalantírReveal<TVRevealerBase>)
+                                    , typeof(string), typeof(string), typeof(FormatFlags)
+                                  ]);
 
                          var genGenMethod
                              = myMethodInfosCached!
                                  .First(mi =>
                                             mi.Name.Contains(nameof(
-                                                BuildValueRevealerNoNullableStructInvoker)));
+                                                                 BuildAddAllValueRevealerNoNullableStructInvoker)));
                          var concreteGenMethod
-                             = genGenMethod.MakeGenericMethod([typeof(TEnumbl), keyType, valueType, key.tvRevealType ]);
+                             = genGenMethod.MakeGenericMethod([typeof(TEnumbl), keyType, valueType, key.tvRevealType]);
                          return (ValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealerBase>)
                              concreteGenMethod.Invoke(null, [
-                                 toInvokeOn, key.enumblType, typeof(PalantírReveal<TVRevealerBase>)
+                                 toInvokeOn, key.enumblParamType, key.enumblType, typeof(PalantírReveal<TVRevealerBase>)
                              ])!;
                      }, true);
         return invoker;
     }
 
-    private static ValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealerBase> BuildValueRevealerNoNullableStructInvoker
-        <TEnumbl, TKey, TValue, TVRevealerBase>(MethodInfo methodInfo, Type? enumblType = null, Type? tvRevealBase = null)
+    private static ValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealerBase> BuildAddAllValueRevealerNoNullableStructInvoker
+        <TEnumbl, TKey, TValue, TVRevealerBase>(MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type? tvRevealBase = null)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue>>?
         where TValue : TVRevealerBase?
         where TVRevealerBase : notnull
     {
-        enumblType   ??= typeof(TEnumbl);
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
         tvRevealBase ??= typeof(PalantírReveal<TVRevealerBase>);
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicAddAllIterateValueRevealerInvoke_{enumblType.Name}", typeof(KeyedCollectionMold),
-                 [typeof(KeyedCollectionMold), typeof(TEnumbl), tvRevealBase, typeof(string), typeof(string), typeof(FormatFlags)]
-               , typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
-        // Make space for enumblType local variables
-        var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-        
-        // cast TEnumbl value => (enumblType)value
-        ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
-        ilGenerator.Emit(OpCodes.Stloc_0);
+                 [typeof(KeyedCollectionMold), enumblParamType, tvRevealBase, typeof(string), typeof(string), typeof(FormatFlags)]
+               , typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
 
         // call AddAllEnumerateNullValueRevealer(KeyedCollectionMold, TEnumbl, valueRevealer, keyFmtStr, valueFmtStr, FormatFlags)
         ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(OpCodes.Ldloc_0);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
         ilGenerator.Emit(OpCodes.Ldarg_2);
         ilGenerator.Emit(OpCodes.Ldarg_3);
         ilGenerator.Emit(OpCodes.Ldarg_S, 4);
@@ -494,29 +516,33 @@ public static class KeyedCollectionMoldEnumeratorExtensions
     }
 
     private static ValueRevealerNullableValueStructInvoker<TEnumbl, TKey, TValue>
-        GetValueRevealerNullableValueStructCallStructEnumtrInvoker
+        GetAddAllValueRevealerNullableValueStructCallStructEnumtrInvoker
         <TEnumbl, TKey, TValue>(this Type enumblType, Type enumtrType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>
         where TValue : struct
     {
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var callAsFactory   = true;
         var invoker =
             (ValueRevealerNullableValueStructInvoker<TEnumbl, TKey, TValue>)
             ValueRevealerNullableValueStructCallStructEnumtrInvokerCache
-                .GetOrAdd((enumblType, enumtrType)
-                        , static ((Type enumblType, Type enumeratorType) key, bool _) =>
-                              key.enumblType.BuildValueRevealerNullableValueStructCallStructEnumtr
-                                  <TEnumbl, TKey, TValue>(key.enumeratorType), callAsFactory);
+                .GetOrAdd((enumblParamType, enumblType, enumtrType)
+                        , static ((Type enumblParamType, Type enumblType, Type enumeratorType) key, bool _) =>
+                              key.enumblType.BuildAddAllValueRevealerNullableValueStructCallStructEnumtr
+                                  <TEnumbl, TKey, TValue>(key.enumblParamType, key.enumeratorType), callAsFactory);
         return invoker;
     }
 
     private static ValueRevealerNullableValueStructInvoker<TEnumbl, TKey, TValue>
-        BuildValueRevealerNullableValueStructCallStructEnumtr<TEnumbl, TKey, TValue>
-        (this Type enumblType, Type enumeratorType)
+        BuildAddAllValueRevealerNullableValueStructCallStructEnumtr<TEnumbl, TKey, TValue>
+        (this Type enumblType, Type enumblParamType, Type enumeratorType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>?
         where TValue : struct
     {
-        var callEnumtrInvokeMethInf  = enumeratorType.GeValueRevealerNullableValueStructMethodInfo<TValue>();
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var callEnumtrInvokeMethInf  = enumeratorType.GetAddAllValueRevealerNullableValueStructMethodInfo<TValue>();
         var enumtrInvokeParams       = callEnumtrInvokeMethInf.GetParameters();
         var boolRequiresNullableCast = enumtrInvokeParams[1].ParameterType.IsNullable() && !enumeratorType.IsNullable();
 
@@ -524,10 +550,10 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             new DynamicMethod
                 ($"{enumblType.Name}_DynamicNoRevealersNoNullableStructInvoke_{enumblType.Name}", typeof(KeyedCollectionMold),
                 [
-                    typeof(KeyedCollectionMold), typeof(TEnumbl), typeof(PalantírReveal<TValue>), typeof(string)
+                    typeof(KeyedCollectionMold), enumblParamType, typeof(PalantírReveal<TValue>), typeof(string)
                   , typeof(string), typeof(FormatFlags)
-                ], typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
+                ], typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
         // Make space for enumblType  and enumeratorType and if required Nullable<enumeratorType> local variables
         var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
         ilGenerator.DeclareLocal(enumeratorType);
@@ -537,10 +563,11 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             var callEnumeratorType = typeof(Nullable<>).MakeGenericType(enumeratorType);
             castEnumtrToNullable = ilGenerator.DeclareLocal(callEnumeratorType);
         }
-        
+
         // cast TEnumbl value => (enumblType)value
         ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
+        if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+        else if (requiresCast) { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
         ilGenerator.Emit(OpCodes.Stloc_0);
 
         var getEnumtrMethInf = enumblLocalType.LocalType.GetEnumeratorMethodInfo() ??
@@ -550,7 +577,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         ilGenerator.Emit(OpCodes.Ldloc_0);
         ilGenerator.Emit(OpCodes.Callvirt, getEnumtrMethInf);
         ilGenerator.Emit(OpCodes.Stloc_1);
-        
+
         if (castEnumtrToNullable != null)
         {
             // enumeratorType valueEnumtr => Nullable<enumeratorType>
@@ -574,65 +601,72 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         return (ValueRevealerNullableValueStructInvoker<TEnumbl, TKey, TValue>)methodInvoker;
     }
 
-    private static ValueRevealerNullableValueStructInvoker<TEnumbl, TValue> GetValueRevealerNullableValueStructInvoker<TEnumbl, TValue>
-        (Type? enumblType = null)
+    private static ValueRevealerNullableValueStructInvoker<TEnumbl, TValue> GetAddAllValueRevealerNullableValueStructInvoker<TEnumbl, TValue>
+        (Type enumblType)
         where TEnumbl : IEnumerable
         where TValue : struct
     {
-        enumblType ??= typeof(TEnumbl);
-        var tValueType    = typeof(TValue);
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var tValueType      = typeof(TValue);
+        var callAsFactory   = true;
         var invoker =
-            (ValueRevealerNullableValueStructInvoker<TEnumbl, TValue>)ValueRevealerNullableValueStructInvokerCache.GetOrAdd((enumblType, tValueType),
-             static ((Type enumblType, Type tValue) key, bool _) =>
-             {
-                 var kvpTypes = key.enumblType.GetKeyedCollectionTypes();
-                 if (kvpTypes == null) throw new ArgumentException("Expected to receive a KeyValue enumerator");
-                 var keyType = kvpTypes.Value.Key;
-                 var toInvokeOn =
-                     GetStaticMethodInfo
-                         (nameof(AddAllEnumerateNullValueRevealer)
-                       , [typeof(TEnumbl), keyType, key.tValue],
-                         [
-                             typeof(KeyedCollectionMold), key.enumblType, typeof(PalantírReveal<TValue>)
-                           , typeof(string), typeof(string), typeof(FormatFlags)
-                         ]);
+            (ValueRevealerNullableValueStructInvoker<TEnumbl, TValue>)
+            ValueRevealerNullableValueStructInvokerCache
+                .GetOrAdd((enumblParamType, enumblType, tValueType),
+                          static ((Type enumblParamType, Type enumblType, Type tValue) key, bool _) =>
+                          {
+                              var kvpTypes = key.enumblType.GetKeyedCollectionTypes();
+                              if (kvpTypes == null) throw new ArgumentException("Expected to receive a KeyValue enumerator");
+                              var keyType = kvpTypes.Value.Key;
+                              var toInvokeOn =
+                                  GetStaticMethodInfo
+                                      (nameof(AddAllEnumerateNullValueRevealer)
+                                     , [typeof(TEnumbl), keyType, key.tValue],
+                                       [
+                                           typeof(KeyedCollectionMold), key.enumblType, typeof(PalantírReveal<TValue>)
+                                         , typeof(string), typeof(string), typeof(FormatFlags)
+                                       ]);
 
-                 var genGenMethod
-                     = myMethodInfosCached!
-                         .First(mi => mi.Name.Contains(nameof(BuildValueRevealerNullableValueStructInvoker)));
-                 var concreteGenMethod
-                     = genGenMethod.MakeGenericMethod([typeof(TEnumbl), keyType, key.tValue]);
-                 return (ValueRevealerNullableValueStructInvoker<TEnumbl, TValue>)
-                     concreteGenMethod.Invoke(null, [toInvokeOn, key.enumblType, typeof(PalantírReveal<TValue>)])!;
-             }, callAsFactory);
+                              var genGenMethod
+                                  = myMethodInfosCached!
+                                      .First(mi => mi.Name.Contains(nameof(BuildAddAllValueRevealerNullableValueStructInvoker)));
+                              var concreteGenMethod
+                                  = genGenMethod.MakeGenericMethod([typeof(TEnumbl), keyType, key.tValue]);
+                              return (ValueRevealerNullableValueStructInvoker<TEnumbl, TValue>)
+                                  concreteGenMethod.Invoke(null, [toInvokeOn, key.enumblParamType, key.enumblType, typeof(PalantírReveal<TValue>)])!;
+                          }, callAsFactory);
         return invoker;
     }
 
-    private static ValueRevealerNullableValueStructInvoker<TEnumbl, TValue> BuildValueRevealerNullableValueStructInvoker<TEnumbl, TKey, TValue>
-        (MethodInfo methodInfo, Type? enumblType = null, Type? valueRevealerType = null)
+    private static ValueRevealerNullableValueStructInvoker<TEnumbl, TValue> BuildAddAllValueRevealerNullableValueStructInvoker<TEnumbl, TKey, TValue>
+        (MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type? valueRevealerType = null)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>?
         where TValue : struct
     {
-        enumblType        ??= typeof(TEnumbl);
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
         valueRevealerType ??= typeof(PalantírReveal<TValue>);
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicAddAllIterateNullValueRevealerInvoke_{enumblType.Name}", typeof(KeyedCollectionMold),
-                 [typeof(KeyedCollectionMold), typeof(TEnumbl), valueRevealerType, typeof(string), typeof(string), typeof(FormatFlags)]
-               , typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
+                 [typeof(KeyedCollectionMold), enumblParamType, valueRevealerType, typeof(string), typeof(string), typeof(FormatFlags)]
+               , typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
         var ilGenerator = helperMethod.GetILGenerator();
-        // Make space for enumblType local variables
-        var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-        
-        // cast TEnumbl value => (enumblType)value
-        ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
-        ilGenerator.Emit(OpCodes.Stloc_0);
-        
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
         // call AddAllEnumerateNullValueRevealer(KeyedCollectionMold, TEnumbl, valueRevealer, keyFmtStr, valueFmtStr, FormatFlags)
         ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(OpCodes.Ldloc_0);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
         ilGenerator.Emit(OpCodes.Ldarg_2);
         ilGenerator.Emit(OpCodes.Ldarg_3);
         ilGenerator.Emit(OpCodes.Ldarg_S, 4);
@@ -649,7 +683,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
     }
 
     private static BothRevealersNoNullableStructInvoker<TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>
-        GetValueRevealerNoNullableStructCallStructEnumtrInvoker
+        GetAddAllValueRevealerNoNullableStructCallStructEnumtrInvoker
         <TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>(this Type enumblType, Type enumtrType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue>>
         where TKey : TKRevealBase?
@@ -657,28 +691,32 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var callAsFactory   = true;
         var invoker =
             (BothRevealersNoNullableStructInvoker<TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>)
             BothRevealersNoNullableStructCallStructEnumtrInvokerCache
-                .GetOrAdd((enumblType, enumtrType)
-                        , static ((Type enumblType, Type enumeratorType) key, bool _) =>
+                .GetOrAdd((enumblParamType, enumblType, enumtrType)
+                        , static ((Type enumblParamType, Type enumblType, Type enumeratorType) key, bool _) =>
                               key.enumblType.BuildAddAllEnumerateBothRevealersCallStructEnumtr
-                                  <TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>(key.enumeratorType), callAsFactory);
+                                  <TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>(key.enumblParamType, key.enumeratorType), callAsFactory);
         return invoker;
     }
 
 
     private static BothRevealersNoNullableStructInvoker<TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>
         BuildAddAllEnumerateBothRevealersCallStructEnumtr<TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>
-        (this Type enumblType, Type enumeratorType)
+        (this Type enumblType, Type enumblParamType, Type enumeratorType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue>>
         where TKey : TKRevealBase?
         where TValue : TVRevealBase?
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var callEnumtrInvokeMethInf  = enumeratorType.GetBothRevealersNoNullableStructMethodInfo<TKRevealBase, TVRevealBase>();
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var callEnumtrInvokeMethInf  = enumeratorType.GetAddAllBothRevealersNoNullableStructMethodInfo<TKRevealBase, TVRevealBase>();
         var enumtrInvokeParams       = callEnumtrInvokeMethInf.GetParameters();
         var boolRequiresNullableCast = enumtrInvokeParams[1].ParameterType.IsNullable() && !enumeratorType.IsNullable();
 
@@ -686,10 +724,10 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             new DynamicMethod
                 ($"{enumblType.Name}_DynamicNoRevealersNoNullableStructInvoke_{enumblType.Name}", typeof(KeyedCollectionMold),
                 [
-                    typeof(KeyedCollectionMold), typeof(TEnumbl), typeof(PalantírReveal<TVRevealBase>), typeof(PalantírReveal<TKRevealBase>)
+                    typeof(KeyedCollectionMold), enumblParamType, typeof(PalantírReveal<TVRevealBase>), typeof(PalantírReveal<TKRevealBase>)
                   , typeof(string), typeof(FormatFlags)
-                ], typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
+                ], typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
         // Make space for enumblType  and enumeratorType and if required Nullable<enumeratorType> local variables
         var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
         ilGenerator.DeclareLocal(enumeratorType);
@@ -699,10 +737,11 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             var callEnumeratorType = typeof(Nullable<>).MakeGenericType(enumeratorType);
             castEnumtrToNullable = ilGenerator.DeclareLocal(callEnumeratorType);
         }
-        
+
         // cast TEnumbl value => (enumblType)value
         ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
+        if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+        else if (requiresCast) { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
         ilGenerator.Emit(OpCodes.Stloc_0);
 
         var getEnumtrMethInf = enumblLocalType.LocalType.GetEnumeratorMethodInfo() ??
@@ -712,7 +751,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         ilGenerator.Emit(OpCodes.Ldloc_0);
         ilGenerator.Emit(OpCodes.Callvirt, getEnumtrMethInf);
         ilGenerator.Emit(OpCodes.Stloc_1);
-        
+
         if (castEnumtrToNullable != null)
         {
             // enumeratorType valueEnumtr => Nullable<enumeratorType>
@@ -737,54 +776,55 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         return (BothRevealersNoNullableStructInvoker<TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>)methodInvoker;
     }
 
-    private static BothRevealersNoNullableStructInvoker<TEnumbl, TKRevealerBase, TVRevealerBase> GetBothRevealersNoNullableStructInvoker
-        <TEnumbl, TKRevealerBase, TVRevealerBase>(Type? enumblType = null)
+    private static BothRevealersNoNullableStructInvoker<TEnumbl, TKRevealerBase, TVRevealerBase> GetAddAllBothRevealersNoNullableStructInvoker
+        <TEnumbl, TKRevealerBase, TVRevealerBase>(Type enumblType)
         where TEnumbl : IEnumerable?
         where TKRevealerBase : notnull
         where TVRevealerBase : notnull
     {
-        enumblType ??= typeof(TEnumbl);
-        var tKRevealBase  = typeof(TKRevealerBase);
-        var tvRevealBase  = typeof(TVRevealerBase);
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var tKRevealBase    = typeof(TKRevealerBase);
+        var tvRevealBase    = typeof(TVRevealerBase);
+        var callAsFactory   = true;
         var invoker =
             (BothRevealersNoNullableStructInvoker<TEnumbl, TKRevealerBase, TVRevealerBase>)
             BothRevealersNoNullableStructInvokerCache
                 .GetOrAdd
-                    ((enumblType, tKRevealBase, tvRevealBase),
-                      static ((Type enumblType, Type tkRevealType, Type tvRevealType) key, bool _) =>
-                      {
-                          var kvpTypes = key.enumblType.GetKeyedCollectionTypes();
-                          if (kvpTypes == null) throw new ArgumentException("Expected to receive a KeyValue enumerator");
-                          var keyType   = kvpTypes.Value.Key;
-                          var valueType = kvpTypes.Value.Value;
-                          var toInvokeOn =
-                              GetStaticMethodInfo
-                                  (nameof(AddAllEnumerateBothRevealers)
-                                 , [key.enumblType, keyType, valueType, key.tkRevealType, key.tvRevealType]
-                                 , [
-                                       typeof(KeyedCollectionMold), key.enumblType
-                                     , typeof(PalantírReveal<TVRevealerBase>)
-                                     , typeof(PalantírReveal<TKRevealerBase>), typeof(string)
-                                     , typeof(FormatFlags)
-                                   ]);
+                    ((enumblParamType, enumblType, tKRevealBase, tvRevealBase),
+                     static ((Type enumblParamType, Type enumblType, Type tkRevealType, Type tvRevealType) key, bool _) =>
+                     {
+                         var kvpTypes = key.enumblType.GetKeyedCollectionTypes();
+                         if (kvpTypes == null) throw new ArgumentException("Expected to receive a KeyValue enumerator");
+                         var keyType   = kvpTypes.Value.Key;
+                         var valueType = kvpTypes.Value.Value;
+                         var toInvokeOn =
+                             GetStaticMethodInfo
+                                 (nameof(AddAllEnumerateBothRevealers)
+                                , [key.enumblType, keyType, valueType, key.tkRevealType, key.tvRevealType]
+                                , [
+                                      typeof(KeyedCollectionMold), key.enumblType
+                                    , typeof(PalantírReveal<TVRevealerBase>)
+                                    , typeof(PalantírReveal<TKRevealerBase>), typeof(string)
+                                    , typeof(FormatFlags)
+                                  ]);
 
-                          var genGenMethod =
-                              myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildBothRevealersNoNullableStructInvoker)));
-                          var concreteGenMethod =
-                              genGenMethod.MakeGenericMethod([typeof(TEnumbl), keyType, valueType, key.tkRevealType, key.tvRevealType]);
-                          return (BothRevealersNoNullableStructInvoker<TEnumbl, TKRevealerBase,
-                                  TVRevealerBase>)
-                              concreteGenMethod.Invoke(null,
-                              [
-                                  toInvokeOn, key.enumblType, typeof(PalantírReveal<TKRevealerBase>), typeof(PalantírReveal<TVRevealerBase>)
-                              ])!;
-                      }, callAsFactory);
+                         var genGenMethod =
+                             myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddAllBothRevealersNoNullableStructInvoker)));
+                         var concreteGenMethod =
+                             genGenMethod.MakeGenericMethod([key.enumblParamType, keyType, valueType, key.tkRevealType, key.tvRevealType]);
+                         return (BothRevealersNoNullableStructInvoker<TEnumbl, TKRevealerBase,
+                                 TVRevealerBase>)
+                             concreteGenMethod.Invoke(null,
+                             [
+                                 toInvokeOn, key.enumblParamType, key.enumblType, typeof(PalantírReveal<TKRevealerBase>)
+                               , typeof(PalantírReveal<TVRevealerBase>)
+                             ])!;
+                     }, callAsFactory);
         return invoker;
     }
 
-    private static BothRevealersNoNullableStructInvoker<TEnumbl, TKRevealerBase, TVRevealerBase> BuildBothRevealersNoNullableStructInvoker
-        <TEnumbl, TKey, TValue, TKRevealerBase, TVRevealerBase>(MethodInfo methodInfo, Type? enumblType = null, Type? tkRevealer = null
+    private static BothRevealersNoNullableStructInvoker<TEnumbl, TKRevealerBase, TVRevealerBase> BuildAddAllBothRevealersNoNullableStructInvoker
+        <TEnumbl, TKey, TValue, TKRevealerBase, TVRevealerBase>(MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type? tkRevealer = null
           , Type? tvRevealer = null)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue>>?
         where TKey : TKRevealerBase?
@@ -792,26 +832,32 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         where TKRevealerBase : notnull
         where TVRevealerBase : notnull
     {
-        enumblType ??= typeof(TEnumbl);
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
         tkRevealer ??= typeof(PalantírReveal<TKRevealerBase>);
         tvRevealer ??= typeof(PalantírReveal<TVRevealerBase>);
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicAddAllIterateBothRevealers_{enumblType.Name}", typeof(KeyedCollectionMold),
-                 [typeof(KeyedCollectionMold), typeof(TEnumbl), tvRevealer, tkRevealer, typeof(string), typeof(FormatFlags)]
-               , typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
-        // Make space for enumblType local variables
-        var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-        
-        // cast TEnumbl value => (enumblType)value
-        ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
-        ilGenerator.Emit(OpCodes.Stloc_0);
+                 [typeof(KeyedCollectionMold), enumblParamType, tvRevealer, tkRevealer, typeof(string), typeof(FormatFlags)]
+               , typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
 
         // call AddAllEnumerateBothRevealers(KeyedCollectionMold, TEnumbl, valueRevealer, keyRevealer, valueFmtStr, FormatFlags)
         ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(OpCodes.Ldloc_0);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
         ilGenerator.Emit(OpCodes.Ldarg_2);
         ilGenerator.Emit(OpCodes.Ldarg_3);
         ilGenerator.Emit(OpCodes.Ldarg_S, 4);
@@ -823,7 +869,6 @@ public static class KeyedCollectionMoldEnumeratorExtensions
                 (typeof(BothRevealersNoNullableStructInvoker<TEnumbl, TKey, TValue, TKRevealerBase, TVRevealerBase>));
         var createInvoker = (BothRevealersNoNullableStructInvoker<TEnumbl, TKey, TValue, TKRevealerBase, TVRevealerBase>)methodInvoker;
 
-
         KeyedCollectionMold Wrapped(KeyedCollectionMold kcm, TEnumbl? enumbl, PalantírReveal<TVRevealerBase> vRevealer
           , PalantírReveal<TKRevealerBase> keyRevealer, string? valueFmtString, FormatFlags flags) =>
             createInvoker(kcm, enumbl, vRevealer, keyRevealer, valueFmtString, flags);
@@ -832,33 +877,38 @@ public static class KeyedCollectionMoldEnumeratorExtensions
     }
 
     private static BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TValue, TVRevealBase>
-        GetBothRevealersNullableKeyStructCallStructEnumtrInvoker
+        GetAddAllBothRevealersNullableKeyStructCallStructEnumtrInvoker
         <TEnumbl, TKey, TValue, TVRevealBase>(this Type enumblType, Type enumtrType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey?, TValue>>
         where TKey : struct
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var callAsFactory   = true;
+        var tvRevealerType  = typeof(TVRevealBase);
         var invoker =
             (BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TValue, TVRevealBase>)
             BothRevealersNullableKeyStructCallStructEnumtrInvokerCache
-                .GetOrAdd((enumblType, enumtrType)
-                        , static ((Type enumblType, Type enumeratorType) key, bool _) =>
-                              key.enumblType.BuildBothRevealersNullableKeyStructCallStructEnumtr
-                                  <TEnumbl, TKey, TValue, TVRevealBase>(key.enumeratorType), callAsFactory);
+                .GetOrAdd((enumblParamType, enumblType, tvRevealerType, enumtrType)
+                        , static ((Type enumblParamType, Type enumblType, Type tvRevealerType, Type enumeratorType) key, bool _) =>
+                              key.enumblType.BuildAddAllBothRevealersNullableKeyStructCallStructEnumtr
+                                  <TEnumbl, TKey, TValue, TVRevealBase>(key.enumblParamType, key.enumeratorType), callAsFactory);
         return invoker;
     }
 
     private static BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TValue, TVRevealBase>
-        BuildBothRevealersNullableKeyStructCallStructEnumtr<TEnumbl, TKey, TValue, TVRevealBase>
-        (this Type enumblType, Type enumeratorType)
+        BuildAddAllBothRevealersNullableKeyStructCallStructEnumtr<TEnumbl, TKey, TValue, TVRevealBase>
+        (this Type enumblType, Type enumblParamType, Type enumeratorType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey?, TValue>>?
         where TKey : struct
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        var callEnumtrInvokeMethInf  = enumeratorType.GetBothRevealersNullableKeyStructMethodInfo<TKey, TVRevealBase>();
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var callEnumtrInvokeMethInf  = enumeratorType.GetAddAllBothRevealersNullableKeyStructMethodInfo<TKey, TVRevealBase>();
         var enumtrInvokeParams       = callEnumtrInvokeMethInf.GetParameters();
         var boolRequiresNullableCast = enumtrInvokeParams[1].ParameterType.IsNullable() && !enumeratorType.IsNullable();
 
@@ -866,10 +916,10 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             new DynamicMethod
                 ($"{enumblType.Name}_DynamicNoRevealersNoNullableStructInvoke_{enumblType.Name}", typeof(KeyedCollectionMold),
                 [
-                    typeof(KeyedCollectionMold), typeof(TEnumbl), typeof(PalantírReveal<TVRevealBase>), typeof(PalantírReveal<TKey>)
+                    typeof(KeyedCollectionMold), enumblParamType, typeof(PalantírReveal<TVRevealBase>), typeof(PalantírReveal<TKey>)
                   , typeof(string), typeof(FormatFlags)
-                ], typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
+                ], typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
         // Make space for enumblType  and enumeratorType and if required Nullable<enumeratorType> local variables
         var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
         ilGenerator.DeclareLocal(enumeratorType);
@@ -879,10 +929,11 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             var callEnumeratorType = typeof(Nullable<>).MakeGenericType(enumeratorType);
             castEnumtrToNullable = ilGenerator.DeclareLocal(callEnumeratorType);
         }
-        
+
         // cast TEnumbl value => (enumblType)value
         ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
+        if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+        else if (requiresCast) { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
         ilGenerator.Emit(OpCodes.Stloc_0);
 
         var getEnumtrMethInf = enumblLocalType.LocalType.GetEnumeratorMethodInfo() ??
@@ -892,7 +943,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         ilGenerator.Emit(OpCodes.Ldloc_0);
         ilGenerator.Emit(OpCodes.Callvirt, getEnumtrMethInf);
         ilGenerator.Emit(OpCodes.Stloc_1);
-        
+
         if (castEnumtrToNullable != null)
         {
             // enumeratorType valueEnumtr => Nullable<enumeratorType>
@@ -916,13 +967,13 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         return (BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TValue, TVRevealBase>)methodInvoker;
     }
 
-    private static BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase> GetBothRevealersNullableKeyStructInvoker
-        <TEnumbl, TKey, TVRevealerBase>(Type? enumblType = null)
+    private static BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase> GetAddAllBothRevealersNullableKeyStructInvoker
+        <TEnumbl, TKey, TVRevealerBase>(Type enumblType)
         where TEnumbl : IEnumerable
         where TKey : struct
         where TVRevealerBase : notnull
     {
-        enumblType ??= typeof(TEnumbl);
+        var enumblParamType  = typeof(TEnumbl);
         var tKeyType         = typeof(TKey);
         var tvRevealBaseType = typeof(TVRevealerBase);
         var callAsFactory    = true;
@@ -930,33 +981,32 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             (BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase>)
             BothRevealersNullableKeyStructInvokerCache
                 .GetOrAdd
-                    ((enumblType, tKeyType, tvRevealBaseType),
-                     static ((Type enumblType, Type tKey, Type tvRevealType) key, bool _) =>
+                    ((enumblParamType, enumblType, tKeyType, tvRevealBaseType),
+                     static ((Type enumblParamType, Type enumblType, Type tKey, Type tvRevealType) key, bool _) =>
                      {
                          var kvpTypes = key.enumblType.GetKeyedCollectionTypes();
-                         if (kvpTypes == null)
-                             throw new ArgumentException("Expected to receive a KeyValue enumerator");
+                         if (kvpTypes == null) throw new ArgumentException("Expected to receive a KeyValue enumerator");
                          var valueType = kvpTypes.Value.Value;
                          var toInvokeOn =
                              GetStaticMethodInfo
                                  (nameof(AddAllEnumerateBothWithNullKeyRevealers)
                                 , [key.enumblType, key.tKey, valueType, key.tvRevealType],
                                   [
-                                      typeof(KeyedCollectionMold), typeof(IEnumerator)
+                                      typeof(KeyedCollectionMold), key.enumblType
                                     , typeof(PalantírReveal<TVRevealerBase>), typeof(PalantírReveal<TKey>)
                                     , typeof(string), typeof(FormatFlags)
                                   ]);
 
                          var genGenMethod
                              = myMethodInfosCached!
-                                 .First(mi => mi.Name.Contains(nameof(BuildBothRevealersNullableKeyStructInvoker)));
+                                 .First(mi => mi.Name.Contains(nameof(BuildAddAllBothRevealersNullableKeyStructInvoker)));
                          var concreteGenMethod
                              = genGenMethod.MakeGenericMethod([
                                  typeof(TEnumbl), key.tKey, valueType, key.tvRevealType
                              ]);
                          return (BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase>)
                              concreteGenMethod.Invoke(null, [
-                                 toInvokeOn, key.enumblType
+                                 toInvokeOn, key.enumblParamType, key.enumblType
                                , typeof(PalantírReveal<TKey>)
                                , typeof(PalantírReveal<TVRevealerBase>)
                              ])!;
@@ -964,32 +1014,40 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         return invoker;
     }
 
-    private static BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase> BuildBothRevealersNullableKeyStructInvoker
-        <TEnumbl, TKey, TValue, TVRevealerBase>(MethodInfo methodInfo, Type enumblType, Type? tKeyRevealerType = null, Type? tvRevealBaseType = null)
+    private static BothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase> BuildAddAllBothRevealersNullableKeyStructInvoker
+        <TEnumbl, TKey, TValue, TVRevealerBase>(MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type? tKeyRevealerType = null
+          , Type? tvRevealBaseType = null)
         where TEnumbl : IEnumerable<KeyValuePair<TKey?, TValue>>?
         where TKey : struct
         where TValue : TVRevealerBase?
         where TVRevealerBase : notnull
     {
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
         tKeyRevealerType ??= typeof(PalantírReveal<TKey>);
         tvRevealBaseType ??= typeof(PalantírReveal<TVRevealerBase>);
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicAddAllIterateBothRevealers_{enumblType.Name}", typeof(KeyedCollectionMold),
-                 [typeof(KeyedCollectionMold), typeof(TEnumbl), tvRevealBaseType, tKeyRevealerType, typeof(string), typeof(FormatFlags)]
-               , typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
-        // Make space for enumblType local variables
-        var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-        
-        // cast TEnumbl value => (enumblType)value
-        ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
-        ilGenerator.Emit(OpCodes.Stloc_0);
+                 [typeof(KeyedCollectionMold), enumblParamType, tvRevealBaseType, tKeyRevealerType, typeof(string), typeof(FormatFlags)]
+               , typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
 
         // call AddAllEnumerateBothWithNullKeyRevealers(KeyedCollectionMold, TEnumbl, valueRevealer, keyRevealer, valueFmtStr, FormatFlags)
         ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(OpCodes.Ldloc_0);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
         ilGenerator.Emit(OpCodes.Ldarg_2);
         ilGenerator.Emit(OpCodes.Ldarg_3);
         ilGenerator.Emit(OpCodes.Ldarg_S, 4);
@@ -1008,33 +1066,38 @@ public static class KeyedCollectionMoldEnumeratorExtensions
     }
 
     private static BothRevealersNullableValueStructInvoker<TEnumbl, TKey, TValue, TKRevealBase>
-        GetBothRevealersNullableValueStructCallStructEnumtrInvoker
+        GetAddAllBothRevealersNullableValueStructCallStructEnumtrInvoker
         <TEnumbl, TKey, TValue, TKRevealBase>(this Type enumblType, Type enumtrType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>
         where TKey : TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
     {
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var tvRevealerType  = typeof(TKRevealBase);
+        var callAsFactory   = true;
         var invoker =
             (BothRevealersNullableValueStructInvoker<TEnumbl, TKey, TValue, TKRevealBase>)
             BothRevealersNullableValueStructCallStructEnumtrInvokerCache
-                .GetOrAdd((enumblType, enumtrType)
-                        , static ((Type enumblType, Type enumeratorType) key, bool _) =>
-                              key.enumblType.BuildBothRevealersNullableValueStructCallStructEnumtr
-                                  <TEnumbl, TKey, TValue, TKRevealBase>(key.enumeratorType), callAsFactory);
+                .GetOrAdd((enumblParamType, enumblType, tvRevealerType, enumtrType)
+                        , static ((Type enumblParamType, Type enumblType, Type tvRevealerType, Type enumeratorType) key, bool _) =>
+                              key.enumblType.BuildAddAllBothRevealersNullableValueStructCallStructEnumtr
+                                  <TEnumbl, TKey, TValue, TKRevealBase>(key.enumblParamType, key.enumeratorType), callAsFactory);
         return invoker;
     }
 
     private static BothRevealersNullableValueStructInvoker<TEnumbl, TKey, TValue, TKRevealBase>
-        BuildBothRevealersNullableValueStructCallStructEnumtr<TEnumbl, TKey, TValue, TKRevealBase>
-        (this Type enumblType, Type enumeratorType)
+        BuildAddAllBothRevealersNullableValueStructCallStructEnumtr<TEnumbl, TKey, TValue, TKRevealBase>
+        (this Type enumblType, Type enumblParamType, Type enumeratorType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>?
         where TKey : TKRevealBase?
         where TValue : struct
         where TKRevealBase : notnull
     {
-        var callEnumtrInvokeMethInf  = enumeratorType.GetBothRevealersNullableValueStructMethodInfo<TValue, TKRevealBase>();
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var callEnumtrInvokeMethInf  = enumeratorType.GetAddAllBothRevealersNullableValueStructMethodInfo<TValue, TKRevealBase>();
         var enumtrInvokeParams       = callEnumtrInvokeMethInf.GetParameters();
         var boolRequiresNullableCast = enumtrInvokeParams[1].ParameterType.IsNullable() && !enumeratorType.IsNullable();
 
@@ -1042,10 +1105,10 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             new DynamicMethod
                 ($"{enumblType.Name}_DynamicNoRevealersNoNullableStructInvoke_{enumblType.Name}", typeof(KeyedCollectionMold),
                 [
-                    typeof(KeyedCollectionMold), typeof(TEnumbl), typeof(PalantírReveal<TValue>), typeof(PalantírReveal<TKRevealBase>)
+                    typeof(KeyedCollectionMold), enumblParamType, typeof(PalantírReveal<TValue>), typeof(PalantírReveal<TKRevealBase>)
                   , typeof(string), typeof(FormatFlags)
-                ], typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
+                ], typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
         // Make space for enumblType  and enumeratorType and if required Nullable<enumeratorType> local variables
         var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
         ilGenerator.DeclareLocal(enumeratorType);
@@ -1058,7 +1121,8 @@ public static class KeyedCollectionMoldEnumeratorExtensions
 
         // cast TEnumbl value => (enumblType)value
         ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
+        if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+        else if (requiresCast) { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
         ilGenerator.Emit(OpCodes.Stloc_0);
 
         var getEnumtrMethInf = enumblLocalType.LocalType.GetEnumeratorMethodInfo() ??
@@ -1093,30 +1157,29 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         return (BothRevealersNullableValueStructInvoker<TEnumbl, TKey, TValue, TKRevealBase>)methodInvoker;
     }
 
-    private static BothRevealersNullableValueStructInvoker<TEnumbl, TValue, TKRevealerBase> GetBothRevealersNullableValueStructInvoker
-        <TEnumbl, TValue, TKRevealerBase>(Type? enumblType = null)
+    private static BothRevealersNullableValueStructInvoker<TEnumbl, TValue, TKRevealerBase> GetAddAllBothRevealersNullableValueStructInvoker
+        <TEnumbl, TValue, TKRevealerBase>(Type enumblType)
         where TEnumbl : IEnumerable
         where TValue : struct
         where TKRevealerBase : notnull
     {
-        enumblType ??= typeof(TEnumbl);
-        var tValue        = typeof(TValue);
-        var tkRevealBase  = typeof(TKRevealerBase);
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var tValue          = typeof(TValue);
+        var tkRevealBase    = typeof(TKRevealerBase);
+        var callAsFactory   = true;
         var invoker =
             (BothRevealersNullableValueStructInvoker<TEnumbl, TValue, TKRevealerBase>)
             BothRevealersNullableValueStructInvokerCache
                 .GetOrAdd
-                    ((enumblType, tValue, tkRevealBase),
-                      static ((Type enumblType, Type tValue, Type tkRevealBase) key, bool _) =>
-                      {
-                          var kvpTypes = key.enumblType.GetKeyedCollectionTypes();
-                          if (kvpTypes == null)
-                              throw new ArgumentException("Expected to receive a KeyValue enumerator");
-                          var keyType = kvpTypes.Value.Key;
-                          var toInvokeOn =
-                              GetStaticMethodInfo
-                                  (nameof( AddAllEnumerateBothWithNullValueRevealers)
+                    ((enumblParamType, enumblType, tValue, tkRevealBase),
+                     static ((Type enumblParamType, Type enumblType, Type tValue, Type tkRevealBase) key, bool _) =>
+                     {
+                         var kvpTypes = key.enumblType.GetKeyedCollectionTypes();
+                         if (kvpTypes == null) throw new ArgumentException("Expected to receive a KeyValue enumerator");
+                         var keyType = kvpTypes.Value.Key;
+                         var toInvokeOn =
+                             GetStaticMethodInfo
+                                 (nameof(AddAllEnumerateBothWithNullValueRevealers)
                                 , [key.enumblType, keyType, key.tValue, key.tkRevealBase],
                                   [
                                       typeof(KeyedCollectionMold), key.enumblType
@@ -1125,55 +1188,62 @@ public static class KeyedCollectionMoldEnumeratorExtensions
                                     , typeof(string), typeof(FormatFlags)
                                   ]);
 
-                          var genGenMethod
-                              = myMethodInfosCached!
-                                  .First(mi =>
-                                             mi.Name.Contains(nameof(
-                                                 BuildBothRevealersNullableValueStructInvoker)));
-                          var concreteGenMethod
-                              = genGenMethod.MakeGenericMethod([
-                                  typeof(TEnumbl), keyType, key.tValue, key.tkRevealBase
-                              ]);
-                          return (
-                                  BothRevealersNullableValueStructInvoker<TEnumbl, TValue,
-                                      TKRevealerBase>)
-                              concreteGenMethod.Invoke(null, [
-                                  toInvokeOn, key.enumblType
-                                , typeof(PalantírReveal<TValue>)
-                                , typeof(PalantírReveal<TKRevealerBase>)
-                              ])!;
-                      }, callAsFactory);
+                         var genGenMethod
+                             = myMethodInfosCached!
+                                 .First(mi =>
+                                            mi.Name.Contains(nameof(
+                                                                 BuildAddAllBothRevealersNullableValueStructInvoker)));
+                         var concreteGenMethod
+                             = genGenMethod.MakeGenericMethod([
+                                 key.enumblParamType, keyType, key.tValue, key.tkRevealBase
+                             ]);
+                         return (
+                                 BothRevealersNullableValueStructInvoker<TEnumbl, TValue,
+                                     TKRevealerBase>)
+                             concreteGenMethod.Invoke(null, [
+                                 toInvokeOn, key.enumblParamType, key.enumblType
+                               , typeof(PalantírReveal<TValue>)
+                               , typeof(PalantírReveal<TKRevealerBase>)
+                             ])!;
+                     }, callAsFactory);
         return invoker;
     }
 
-    private static BothRevealersNullableValueStructInvoker<TEnumbl, TValue, TKRevealerBase> BuildBothRevealersNullableValueStructInvoker
+    private static BothRevealersNullableValueStructInvoker<TEnumbl, TValue, TKRevealerBase> BuildAddAllBothRevealersNullableValueStructInvoker
         <TEnumbl, TKey, TValue, TKRevealerBase>
-        (MethodInfo methodInfo, Type? enumblType = null, Type? tValueRevealer = null, Type? tkRevealBase = null)
+        (MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type? tValueRevealer = null, Type? tkRevealBase = null)
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>?
         where TKey : TKRevealerBase?
         where TValue : struct
         where TKRevealerBase : notnull
     {
-        enumblType     ??= typeof(TEnumbl);
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+        
         tValueRevealer ??= typeof(PalantírReveal<TValue>);
         tkRevealBase   ??= typeof(PalantírReveal<TKRevealerBase>);
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicAddAllIterateBothRevealers_{enumblType.Name}", typeof(KeyedCollectionMold),
-                 [typeof(KeyedCollectionMold), typeof(TEnumbl), tValueRevealer, tkRevealBase, typeof(string), typeof(FormatFlags)]
-               , typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
+                 [typeof(KeyedCollectionMold), enumblParamType, tValueRevealer, tkRevealBase, typeof(string), typeof(FormatFlags)]
+               , typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
         // Make space for enumblType local variables
         var ilGenerator     = helperMethod.GetILGenerator();
-        var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-        
-        // cast TEnumbl value => (enumblType)value
-        ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
-        ilGenerator.Emit(OpCodes.Stloc_0);
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
 
         // call AddAllEnumerateBothWithNullValueRevealers(KeyedCollectionMold, TEnumbl, valueRevealer, keyRevealer, valueFmtStr, FormatFlags)
         ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(OpCodes.Ldloc_0);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
         ilGenerator.Emit(OpCodes.Ldarg_2);
         ilGenerator.Emit(OpCodes.Ldarg_3);
         ilGenerator.Emit(OpCodes.Ldarg_S, 4);
@@ -1191,49 +1261,34 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         return Wrapped;
     }
 
-    // private static void CallGetEnumerator<TKey, TValue, TKRevealBase>(KeyedCollectionMold callOn
-    //   , IEnumerable<KeyValuePair<TKey, TValue?>> keyedCollectionMold
-    //   , PalantírReveal<TValue> valueRevealer
-    //   , PalantírReveal<TKRevealBase> keyStyler
-    //   , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-    //   , FormatFlags formatFlags = DefaultCallerTypeFlags)
-    //     where TKey : TKRevealBase?
-    //     where TValue : struct
-    //     where TKRevealBase : notnull
-    // {
-    //     var strongType = (List<KeyValuePair<TKey, TValue?>>)keyedCollectionMold;
-    //     var enumerator = strongType.GetEnumerator();
-    //     var nullEnumerator = (List<KeyValuePair<TKey, TValue?>>.Enumerator?)enumerator;
-    //     callOn.AddAllIterateBothWithNullValueRevealers<List<KeyValuePair<TKey, TValue?>>.Enumerator, TKey, TValue, TKRevealBase>
-    //         (nullEnumerator, valueRevealer, keyStyler, valueFormatString, formatFlags);
-    // }
-
-    private static BothNullRevealersInvoker<TEnumbl, TKey, TValue>
-        GetBothNullableRevealersCallStructEnumtrInvoker
+    private static BothNullRevealersInvoker<TEnumbl, TKey, TValue> GetAddAllBothNullableRevealersCallStructEnumtrInvoker
         <TEnumbl, TKey, TValue>(this Type enumblType, Type enumtrType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey?, TValue?>>
         where TKey : struct
         where TValue : struct
     {
-        var callAsFactory = true;
+        var enumblParamType = typeof(TEnumbl);
+        var callAsFactory   = true;
         var invoker =
             (BothNullRevealersInvoker<TEnumbl, TKey, TValue>)
             BothNullableRevealersCallStructEnumtrInvokerCache
-                .GetOrAdd((enumblType, enumtrType)
-                        , static ((Type enumblType, Type enumeratorType) key, bool _) =>
-                              key.enumblType.BuildBothNullableRevealersStructCallStructEnumtr
-                                  <TEnumbl, TKey, TValue>(key.enumeratorType), callAsFactory);
+                .GetOrAdd((enumblParamType, enumblType, enumtrType)
+                        , static ((Type enumblParamType, Type enumblType, Type enumeratorType) key, bool _) =>
+                              key.enumblType.BuildAddAllBothNullableRevealersStructCallStructEnumtr
+                                  <TEnumbl, TKey, TValue>(key.enumblParamType,  key.enumeratorType), callAsFactory);
         return invoker;
     }
 
-    private static BothNullRevealersInvoker<TEnumbl, TKey, TValue>
-        BuildBothNullableRevealersStructCallStructEnumtr<TEnumbl, TKey, TValue>
-        (this Type enumblType, Type enumeratorType)
+    private static BothNullRevealersInvoker<TEnumbl, TKey, TValue> BuildAddAllBothNullableRevealersStructCallStructEnumtr<TEnumbl, TKey, TValue>
+        (this Type enumblType, Type enumblParamType, Type enumeratorType)
         where TEnumbl : IEnumerable<KeyValuePair<TKey?, TValue?>>?
         where TKey : struct
         where TValue : struct
     {
-        var callEnumtrInvokeMethInf  = enumeratorType.GeBothNullRevealersMethodInfo<TKey, TValue>();
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+        
+        var callEnumtrInvokeMethInf  = enumeratorType.GetAddAllBothNullRevealersMethodInfo<TKey, TValue>();
         var enumtrInvokeParams       = callEnumtrInvokeMethInf.GetParameters();
         var boolRequiresNullableCast = enumtrInvokeParams[1].ParameterType.IsNullable() && !enumeratorType.IsNullable();
 
@@ -1241,10 +1296,10 @@ public static class KeyedCollectionMoldEnumeratorExtensions
             new DynamicMethod
                 ($"{enumblType.Name}_DynamicNoRevealersNoNullableStructInvoke_{enumblType.Name}", typeof(KeyedCollectionMold),
                 [
-                    typeof(KeyedCollectionMold), typeof(TEnumbl), typeof(PalantírReveal<TValue>), typeof(PalantírReveal<TKey>)
+                    typeof(KeyedCollectionMold), enumblParamType, typeof(PalantírReveal<TValue>), typeof(PalantírReveal<TKey>)
                   , typeof(string), typeof(FormatFlags)
-                ], typeof(KeyedCollectionMoldIteratorExtensions).Module, false);
-        var ilGenerator     = helperMethod.GetILGenerator();
+                ], typeof(KeyedCollectionAddAllIterateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
         // Make space for enumblType  and enumeratorType local variables
         var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
         ilGenerator.DeclareLocal(enumeratorType);
@@ -1256,7 +1311,8 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         }
         // cast TEnumbl value => (enumblType)value
         ilGenerator.Emit(OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType);
+        if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+        else if (requiresCast) { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
         ilGenerator.Emit(OpCodes.Stloc_0);
 
         var getEnumtrMethInf = enumblLocalType.LocalType.GetEnumeratorMethodInfo()
@@ -1292,7 +1348,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
 
     private static MethodInfo GetStaticMethodInfo(string findMethodName, Type[] findGenericParams, params Type[] findParamTypes)
     {
-        myMethodInfosCached ??= typeof(KeyedCollectionMoldEnumeratorExtensions).GetMethods(NonPublic | Public | Static);
+        myMethodInfosCached ??= typeof(KeyedCollectionAddAllEnumerateExtensions).GetMethods(NonPublic | Public | Static);
 
         MethodInfo? genTypeDefMeth = null;
 
@@ -1344,15 +1400,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
 
         return generified;
     }
-
-    private static Type? GetEnumeratorType(Type enumerableType) =>
-        EnumerableToEnumeratorTypeCache
-            .GetOrAdd(enumerableType, static (enumblType) => enumblType.GetEnumeratorType());
-
-
-    private static MethodInfo? GetEnumeratorMethodInfo(this Type enumerableType) =>
-        EnumerableToEnumeratorMethodInfoCache
-            .GetOrAdd(enumerableType, static (enumblType) => enumblType.GetEnumeratorMethod());
+    
 
     public static KeyedCollectionMold AddAllEnumerate<TEnumbl>(
         this KeyedCollectionMold callOn
@@ -1365,7 +1413,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var invoker = GetNoRevealersInvoker<TEnumbl>(actualType);
+        var invoker = GetAddAllNoRevealersInvoker<TEnumbl>(actualType);
         return invoker(callOn, value, valueFormatString, keyFormatString, formatFlags);
     }
 
@@ -1381,7 +1429,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value == null) return callOn;
-        var invoker = GetNoRevealersInvoker<TEnumbl>(actualType);
+        var invoker = GetAddAllNoRevealersInvoker<TEnumbl>(actualType);
         return invoker(callOn, value.Value, valueFormatString, keyFormatString, formatFlags);
     }
 
@@ -1398,10 +1446,10 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                var structEnumtrInvoker = actualType.GetNoRevealersCallStructEnumtrInvoker<TEnumbl, TKey, TValue>(enumeratorType);
+                var structEnumtrInvoker = actualType.GetAddAllNoRevealersCallStructEnumtrInvoker<TEnumbl, TKey, TValue>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 return structEnumtrInvoker(callOn, value, valueFormatString, keyFormatString, formatFlags);
             }
@@ -1434,7 +1482,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var invoker = GetValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealBase>(actualType);
+        var invoker = GetAddAllValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealBase>(actualType);
         return invoker(callOn, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
     }
 
@@ -1452,7 +1500,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value == null) return callOn;
-        var invoker = GetValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealBase>(actualType);
+        var invoker = GetAddAllValueRevealerNoNullableStructInvoker<TEnumbl, TVRevealBase>(actualType);
         return invoker(callOn, value.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
     }
 
@@ -1467,16 +1515,16 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
+        var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
                 var structEnumtrInvoker
-                    = actualType.GetValueRevealerNoNullableStructICallStructEnumtrInvoker<TEnumbl, TKey, TValue, TVRevealBase>(enumeratorType);
+                    = actualType.GetAddAllValueRevealerNoNullableStructICallStructEnumtrInvoker<TEnumbl, TKey, TValue, TVRevealBase>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 return structEnumtrInvoker(callOn, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
             }
@@ -1507,7 +1555,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var invoker = GetValueRevealerNullableValueStructInvoker<TEnumbl, TValue>(actualType);
+        var invoker = GetAddAllValueRevealerNullableValueStructInvoker<TEnumbl, TValue>(actualType);
         return invoker(callOn, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
     }
 
@@ -1525,7 +1573,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value == null) return callOn;
-        var invoker = GetValueRevealerNullableValueStructInvoker<TEnumbl, TValue>(actualType);
+        var invoker = GetAddAllValueRevealerNullableValueStructInvoker<TEnumbl, TValue>(actualType);
         return invoker(callOn, value.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
     }
 
@@ -1539,15 +1587,15 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         where TEnumbl : IEnumerable<KeyValuePair<TKey, TValue?>>?
         where TValue : struct
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
+        var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                var structEnumtrInvoker = actualType.GetValueRevealerNullableValueStructCallStructEnumtrInvoker
+                var structEnumtrInvoker = actualType.GetAddAllValueRevealerNullableValueStructCallStructEnumtrInvoker
                     <TEnumbl, TKey, TValue>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 return structEnumtrInvoker(callOn, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
@@ -1580,7 +1628,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var invoker = GetBothRevealersNoNullableStructInvoker<TEnumbl, TKRevealBase, TVRevealBase>(actualType);
+        var invoker = GetAddAllBothRevealersNoNullableStructInvoker<TEnumbl, TKRevealBase, TVRevealBase>(actualType);
         return invoker(callOn, value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
@@ -1599,7 +1647,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value == null) return callOn;
-        var invoker = GetBothRevealersNoNullableStructInvoker<TEnumbl, TKRevealBase, TVRevealBase>(actualType);
+        var invoker = GetAddAllBothRevealersNoNullableStructInvoker<TEnumbl, TKRevealBase, TVRevealBase>(actualType);
         return invoker(callOn, value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
@@ -1621,10 +1669,10 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                var structEnumtrInvoker = actualType.GetValueRevealerNoNullableStructCallStructEnumtrInvoker
+                var structEnumtrInvoker = actualType.GetAddAllValueRevealerNoNullableStructCallStructEnumtrInvoker
                     <TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 return structEnumtrInvoker(callOn, value, valueRevealer, keyStyler, valueFormatString, formatFlags);
@@ -1656,7 +1704,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var invoker = GetBothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase>(actualType);
+        var invoker = GetAddAllBothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase>(actualType);
         return invoker(callOn, value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
@@ -1675,7 +1723,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value == null) return callOn;
-        var invoker = GetBothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase>(actualType);
+        var invoker = GetAddAllBothRevealersNullableKeyStructInvoker<TEnumbl, TKey, TVRevealerBase>(actualType);
         return invoker(callOn, value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
@@ -1691,15 +1739,15 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey?, TValue>>);
+        var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                var structEnumtrInvoker = actualType.GetBothRevealersNullableKeyStructCallStructEnumtrInvoker
+                var structEnumtrInvoker = actualType.GetAddAllBothRevealersNullableKeyStructCallStructEnumtrInvoker
                     <TEnumbl, TKey, TValue, TVRevealBase>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 return structEnumtrInvoker(callOn, value, valueRevealer, keyStyler, valueFormatString, formatFlags);
@@ -1731,7 +1779,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var invoker = GetBothRevealersNullableValueStructInvoker<TEnumbl, TValue, TKRevealerBase>(actualType);
+        var invoker = GetAddAllBothRevealersNullableValueStructInvoker<TEnumbl, TValue, TKRevealerBase>(actualType);
         return invoker(callOn, value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
@@ -1750,7 +1798,7 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value == null) return callOn;
-        var invoker = GetBothRevealersNullableValueStructInvoker<TEnumbl, TValue, TKRevealerBase>(actualType);
+        var invoker = GetAddAllBothRevealersNullableValueStructInvoker<TEnumbl, TValue, TKRevealerBase>(actualType);
         return invoker(callOn, value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
@@ -1766,15 +1814,15 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         where TValue : struct
         where TKRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
+        var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                var structEnumtrInvoker = actualType.GetBothRevealersNullableValueStructCallStructEnumtrInvoker
+                var structEnumtrInvoker = actualType.GetAddAllBothRevealersNullableValueStructCallStructEnumtrInvoker
                     <TEnumbl, TKey, TValue, TKRevealBase>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 return structEnumtrInvoker(callOn, value, valueRevealer, keyStyler, valueFormatString, formatFlags);
@@ -1818,15 +1866,15 @@ public static class KeyedCollectionMoldEnumeratorExtensions
         where TKey : struct
         where TValue : struct
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
+        var actualType = value?.GetType() ?? typeof(TEnumbl);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                var structEnumtrInvoker = actualType.GetBothNullableRevealersCallStructEnumtrInvoker
+                var structEnumtrInvoker = actualType.GetAddAllBothNullableRevealersCallStructEnumtrInvoker
                     <TEnumbl, TKey, TValue>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 return structEnumtrInvoker(callOn, value, valueRevealer, keyStyler, valueFormatString, formatFlags);

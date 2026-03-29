@@ -70,7 +70,7 @@ public interface ITheOneString : IReusableObject<ITheOneString>
 
     KeyedCollectionMold StartKeyedCollectionType<T>(T toStyle, CreateContext createContext = default);
 
-    ExplicitKeyedCollectionMold<TKey, TValue> StartExplicitKeyedCollectionType<TKey, TValue>(object keyValueContainerInstance
+    ExplicitKeyedCollectionMold<TKey, TValue> StartExplicitKeyedCollectionType<TKVPColl, TKey, TValue>(TKVPColl keyValueContainerInstance
       , CreateContext createContext = default);
 
     SimpleOrderedCollectionMold StartSimpleCollectionType<T>(T toStyle, CreateContext createContext = default);
@@ -626,7 +626,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var simpleValueBuilder =
             AlwaysRecycler.Borrow<TrackedInstanceMold>().InitializeRawContentTypeBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride, remainingDepth
-               , visitResult, writeMethod, NextCallContext, mergedCreateFlags, innerContentFormatFlags);
+               , visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags}, innerContentFormatFlags);
         TypeStart(toStyle, visitType, simpleValueBuilder, writeMethod, mergedCreateFlags);
         return simpleValueBuilder;
     }
@@ -647,17 +647,17 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var keyedCollectionBuilder =
             AlwaysRecycler.Borrow<KeyedCollectionMold>().InitializeKeyValueCollectionBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride
-               , remainingDepth, visitResult, writeMethod, NextCallContext, mergedCreateFlags);
+               , remainingDepth, visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(toStyle, visitType, keyedCollectionBuilder, writeMethod, mergedCreateFlags);
         return keyedCollectionBuilder;
     }
 
-    public ExplicitKeyedCollectionMold<TKey, TValue> StartExplicitKeyedCollectionType<TKey, TValue>(object keyValueContainerInstance
+    public ExplicitKeyedCollectionMold<TKey, TValue> StartExplicitKeyedCollectionType<TKVPColl, TKey, TValue>(TKVPColl keyValueContainerInstance
       , CreateContext createContext)
     {
         var callFlags   = createContext.FormatFlags | NextCallContext.FormatFlags;
         var callWriteAs = NextCallContext.WriteAs | AsMapCollection;
-        var actualType  = keyValueContainerInstance.GetType();
+        var actualType  = keyValueContainerInstance?.GetType() ?? typeof(TKVPColl);
         if (!actualType.IsKeyedCollection()) { throw new ArgumentException("Expected keyValueContainerInstance to be a keyed collection type"); }
 
         var visitResult = !IsExemptFromCircularRefNodeTracking(actualType)
@@ -669,8 +669,8 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var remainingDepth = MyActiveGraphRegistry.RemainingDepth - 1;
         var keyedCollectionBuilder =
             AlwaysRecycler.Borrow<ExplicitKeyedCollectionMold<TKey, TValue>>().InitializeExplicitKeyValueCollectionBuilder
-                (keyValueContainerInstance, actualType, this, actualType, createContext.NameOverride
-               , remainingDepth, visitResult, writeMethod, NextCallContext, mergedCreateFlags);
+                (WrapOrReturnSubjectAsObject(keyValueContainerInstance), actualType, this, actualType, createContext.NameOverride
+               , remainingDepth, visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(keyValueContainerInstance, actualType, keyedCollectionBuilder, writeMethod, mergedCreateFlags);
         return keyedCollectionBuilder;
     }
@@ -692,7 +692,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var simpleOrderedCollectionBuilder =
             AlwaysRecycler.Borrow<SimpleOrderedCollectionMold>().InitializeSimpleOrderedCollectionBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride, remainingDepth
-               , visitResult, writeMethod, NextCallContext, mergedCreateFlags);
+               , visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(toStyle, visitType, simpleOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return simpleOrderedCollectionBuilder;
     }
@@ -714,7 +714,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var complexOrderedCollectionBuilder =
             AlwaysRecycler.Borrow<ComplexOrderedCollectionMold>().InitializeComplexOrderedCollectionBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride, remainingDepth
-               , visitResult, writeMethod, NextCallContext, mergedCreateFlags);
+               , visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(toStyle, visitType, complexOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return complexOrderedCollectionBuilder;
     }
@@ -735,7 +735,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var explicitOrderedCollectionBuilder =
             AlwaysRecycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (collectionInstance, actualType, this, actualType, createContext.NameOverride, remainingDepth
-               , visitResult, writeMethod, NextCallContext, mergedCreateFlags);
+               , visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(collectionInstance, actualType, explicitOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return explicitOrderedCollectionBuilder;
     }
@@ -753,7 +753,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             AlwaysRecycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (NeverEqual, actualType, this, actualType, createContext.NameOverride, remainingDepth
                , MyActiveGraphRegistry.VisitCheckNotRequired(MyActiveGraphRegistry.CurrentGraphNodeVisitId), writeMethod, NextCallContext
-               , mergedCreateFlags);
+               , createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(actualType, explicitOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return explicitOrderedCollectionBuilder;
     }
@@ -772,7 +772,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
             AlwaysRecycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (NeverEqual, actualType, this, actualType, createContext.NameOverride, remainingDepth
                , MyActiveGraphRegistry.VisitCheckNotRequired(MyActiveGraphRegistry.CurrentGraphNodeVisitId), writeMethod, NextCallContext
-               , mergedCreateFlags);
+               , createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(actualType, explicitOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return explicitOrderedCollectionBuilder;
     }
@@ -793,7 +793,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var explicitOrderedCollectionBuilder =
             AlwaysRecycler.Borrow<ExplicitOrderedCollectionMold<TElement>>().InitializeExplicitOrderedCollectionBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride, remainingDepth
-               , visitResult, writeMethod, NextCallContext, mergedCreateFlags);
+               , visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(toStyle, visitType, explicitOrderedCollectionBuilder, writeMethod, mergedCreateFlags);
         return explicitOrderedCollectionBuilder;
     }
@@ -814,7 +814,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var complexTypeBuilder =
             AlwaysRecycler.Borrow<ComplexPocoTypeMold>().InitializeComplexTypeBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride
-               , remainingDepth, visitResult, writeMethod, NextCallContext, mergedCreateFlags);
+               , remainingDepth, visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(toStyle, visitType, complexTypeBuilder, writeMethod, mergedCreateFlags);
         return complexTypeBuilder;
     }
@@ -840,7 +840,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var simpleValueBuilder =
             AlwaysRecycler.Borrow<SimpleContentTypeMold>().InitializeSimpleValueTypeBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride, remainingDepth
-               , visitResult, writeMethod, NextCallContext, mergedCreateFlags);
+               , visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(toStyle, visitType, simpleValueBuilder, writeMethod, mergedCreateFlags);
         return simpleValueBuilder;
     }
@@ -866,7 +866,7 @@ public class TheOneString : ReusableObject<ITheOneString>, ISecretStringOfPower
         var complexContentBuilder =
             AlwaysRecycler.Borrow<ComplexContentTypeMold>().InitializeComplexValueTypeBuilder
                 (WrapOrReturnSubjectAsObject(toStyle), actualType, this, visitType, createContext.NameOverride, remainingDepth
-               , visitResult, writeMethod, NextCallContext, mergedCreateFlags);
+               , visitResult, writeMethod, NextCallContext, createContext with { FormatFlags  = mergedCreateFlags});
         TypeStart(toStyle, visitType, complexContentBuilder, writeMethod, mergedCreateFlags);
         return complexContentBuilder;
     }

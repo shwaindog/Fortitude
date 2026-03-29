@@ -9,16 +9,19 @@ public struct CreateContext
     public CreateContext() { }
 
     public CreateContext(string? nameOverride = null, FormatFlags formatFlags = DieCasting.FormatFlags.DefaultCallerTypeFlags
-      , string? formatString = null, ushort initiatorDefaultDepth = ushort.MaxValue, byte cappedMinRemainingDepth = 0)
+      , string? formatString = null, ushort initiatorDefaultDepth = ushort.MaxValue, byte cappedMinRemainingDepth = 0, Type? displayAsType = null)
     {
         NameOverride = nameOverride;
         FormatFlags  = formatFlags;
         FormatString = formatString;
         InitiatorDefaultDepth = initiatorDefaultDepth;
         CappedMinRemainingDepth = cappedMinRemainingDepth;
+        DisplayAsType = displayAsType;
     }
 
     public string? NameOverride { get; set; }
+    
+    public Type? DisplayAsType { get; set; }
 
     public FormatFlags FormatFlags { get; set; }
 
@@ -28,6 +31,8 @@ public struct CreateContext
     
     public byte CappedMinRemainingDepth { get; set; }
 
+
+    public static implicit operator CreateContext(Type? displayAsType) => new() { DisplayAsType = displayAsType };
 
     public static implicit operator CreateContext(string? formatString) => new() { FormatString = formatString };
 

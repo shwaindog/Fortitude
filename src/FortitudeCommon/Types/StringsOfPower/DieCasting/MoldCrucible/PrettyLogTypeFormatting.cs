@@ -2,10 +2,8 @@
 // Copyright Alexis Sawenko 2025 all rights reserved
 
 using System.Text.Json.Nodes;
-using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
@@ -31,12 +29,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var sb                = mws.Sb;
-        var buildingType         = instanceToOpen is IRecyclableStructContainer structContainer
-            ? structContainer.StoredType
-            : (instanceToOpen is Type asType 
-                ? asType 
-                : (instanceToOpen?.GetType() ?? typeof(T)));
-        var buildTypeFullName = buildingType.FullName ?? "";
+        var buildingType      = mws.GetDisplayType(instanceToOpen);
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
 
@@ -45,21 +38,7 @@ public class PrettyLogTypeFormatting : CompactLogTypeFormatting
         if (!mws.WroteTypeName && formatFlags.DoesNotHaveLogSuppressTypeNamesFlag() && 
             (!mergedFlags.HasSuppressOpening() || mergedFlags.HasAddTypeNameFieldFlag()))
         {
-            var showTypeName = false;
-
-            showTypeName |= (openAs.HasAnyOf(AsContent | AsObject)
-                          && (!(StyleOptions.LogSuppressDisplayTypeNames.Any(s => buildTypeFullName.StartsWith(s))))
-                          || formatFlags.HasAddTypeNameFieldFlag());
-
-            if (!showTypeName)
-            {
-                var elementType         = buildingType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? buildingType;
-                var elementTypeFullName = elementType.FullName ?? "";
-                showTypeName |= (openAs.HasAsCollectionFlag() &&
-                                 !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => buildTypeFullName.StartsWith(s))
-                                && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)))
-                              || (mws.MoldGraphVisit.IsARevisit && mws is ICollectionMoldWriteState { IsSimple: true }));
-            }
+            var showTypeName = mergedFlags.HasAddTypeNameFieldFlag() || StyleOptions.ShouldDisplayTypeName(buildingType);
 
             if (showTypeName)
             {

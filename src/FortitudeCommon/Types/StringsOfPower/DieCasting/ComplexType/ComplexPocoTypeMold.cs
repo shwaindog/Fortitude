@@ -24,10 +24,10 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags )
+      , CreateContext createContext )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName, remainingGraphDepth
-                                      , moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
+                                      , moldGraphVisit, writeMethodType, callerContext, createContext);
         WrittenAs = writeMethodType;
         return this;
     }

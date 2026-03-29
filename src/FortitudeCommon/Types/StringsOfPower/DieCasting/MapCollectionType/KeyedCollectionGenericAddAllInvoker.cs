@@ -16,8 +16,8 @@ public static class KeyedCollectionGenericAddAllInvoker
 
     private const string AddAllMethodName = $"{nameof(KeyedCollectionMold.AddAll)}";
 
-    private const string AddAllEnumerateMethodName = $"{nameof(KeyedCollectionMoldEnumeratorExtensions.AddAllEnumerate)}";
-    private const string AddAllIterateMethodName   = $"{nameof(KeyedCollectionMoldIteratorExtensions.AddAllIterate)}";
+    private const string AddAllEnumerateMethodName = $"{nameof(KeyedCollectionAddAllEnumerateExtensions.AddAllEnumerate)}";
+    private const string AddAllIterateMethodName   = $"{nameof(KeyedCollectionAddAllIterateExtensions.AddAllIterate)}";
 
     private static readonly MethodInfo KeyValueReadOnlyDictionaryBuilderArrayAddAll;
     private static readonly MethodInfo KeyValueCollectionBuilderArrayAddAll;
@@ -26,8 +26,8 @@ public static class KeyedCollectionGenericAddAllInvoker
     private static readonly MethodInfo KeyValueCollectionAddAllIterate;
 
     private static readonly Type KeyValueCollectionBuilderType          = typeof(KeyedCollectionMold);
-    private static readonly Type KeyValueCollectionEnumerateBuilderType = typeof(KeyedCollectionMoldEnumeratorExtensions);
-    private static readonly Type KeyValueCollectionIterateBuilderType   = typeof(KeyedCollectionMoldIteratorExtensions);
+    private static readonly Type KeyValueCollectionEnumerateBuilderType = typeof(KeyedCollectionAddAllEnumerateExtensions);
+    private static readonly Type KeyValueCollectionIterateBuilderType   = typeof(KeyedCollectionAddAllIterateExtensions);
 
     private static readonly Type StringType                = typeof(string);
     private static readonly Type FormatFlagsType           = typeof(FormatFlags);

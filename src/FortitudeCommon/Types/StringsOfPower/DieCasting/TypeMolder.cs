@@ -86,7 +86,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
       , int remainingGraphDepth
       , VisitResult visitResult
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags)
+      , CreateContext createContext)
     {
         PortableState.InstanceOrContainer = instanceOrContainer;
         PortableState.TypeBeingBuilt      = typeBeingBuilt;
@@ -96,8 +96,8 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         PortableState.RemainingGraphDepth = remainingGraphDepth;
         PortableState.CompleteResult      = null;
         PortableState.MoldGraphVisit      = visitResult;
-        PortableState.CreateFormatFlags   = createFormatFlags;
         PortableState.CallerContext       = callerContext;
+        PortableState.CreateContext       = createContext;
 
         OriginalStartIndex = master.WriteBuffer.Length;
     }
@@ -160,7 +160,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         PortableState.Master              = null!;
         PortableState.TypeName            = null!;
         PortableState.CompleteResult      = null;
-        PortableState.CreateFormatFlags   = DefaultCallerTypeFlags;
+        PortableState.CreateContext       = new CreateContext();
         PortableState.MoldGraphVisit      = VisitResult.VisitNotChecked;
         PortableState.CallerContext       = new CallerContext();
         PortableState.WrittenAsFlags      = Empty;
@@ -193,8 +193,13 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
         public VisitResult MoldGraphVisit { get; set; }
 
-        public FormatFlags CreateFormatFlags { get; set; }
-        
+        public CreateContext CreateContext { get; set; }
+        public FormatFlags CreateFormatFlags
+        {
+            get => CreateContext.FormatFlags;
+            set => CreateContext = CreateContext with { FormatFlags = value };
+        }
+
         public CallerContext CallerContext { get; set; }
 
         public int RemainingGraphDepth { get; set; }
@@ -218,7 +223,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
             TypeName            = source.TypeName;
             WrittenAsFlags      = source.WrittenAsFlags;
             MoldGraphVisit      = source.MoldGraphVisit;
-            CreateFormatFlags   = source.CreateFormatFlags;
+            CreateContext       = source.CreateContext;
             Master              = source.Master;
             CompleteResult      = source.CompleteResult;
             CallerContext       = source.CallerContext;

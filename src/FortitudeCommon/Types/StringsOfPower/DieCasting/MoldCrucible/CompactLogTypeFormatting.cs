@@ -6,6 +6,7 @@ using System.Text;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
@@ -130,11 +131,8 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         }
         if (typeofT.IsKeyedCollection())
         {
-            var kvpType = typeof(KeyValuePair<,>);
-            if (typeofT.IsFrameworkDictionary() || typeofT.IsArrayOfGeneric(kvpType) || typeofT.IsListOfGeneric(kvpType)
-                // || typeofT.IsJustReadOnlyListOfGeneric(kvpType) 
-             || typeofT.IsSpanOfGeneric(kvpType) || typeofT.IsReadOnlySpanOfGeneric(kvpType)
-             || callerInputType.IsJustEnumerableOfGeneric(kvpType) || callerInputType.IsJustEnumeratorOfGeneric(kvpType))
+            var showKeyedCollection = StyleOptions.ShouldDisplayKeyedCollectionTypeName(typeofT);
+            if (!showKeyedCollection)
             {
                 setFlags |= LogSuppressTypeNames;
             }
@@ -412,9 +410,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var sb          = mws.Sb;
         var mergedFlags = formatFlags | mws.CreateMoldFormatFlags;
 
-        var buildingType = instanceToOpen is IRecyclableStructContainer structContainer
-            ? structContainer.StoredType
-            : (instanceToOpen as Type ?? (instanceToOpen?.GetType() ?? typeof(T)));
+        var buildingType = mws.GetDisplayType(instanceToOpen);
         Gb.StartNextContentSeparatorPaddingSequence(sb, mergedFlags);
         if ((!mws.WroteTypeName && mergedFlags.DoesNotHaveLogSuppressTypeNamesFlag()) &&
             (!mergedFlags.HasSuppressOpening() || mergedFlags.HasAddTypeNameFieldFlag()))
@@ -481,9 +477,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         if (mws.WroteTypeOpen) return ContentSeparatorRanges.None;
         var sb = mws.Sb;
 
-        var buildingType = instanceToOpen is IRecyclableStructContainer structContainer
-            ? structContainer.StoredType
-            : (instanceToOpen?.GetType() ?? typeof(T));
+        var buildingType = mws.GetDisplayType(instanceToOpen);
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
 
@@ -631,14 +625,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     {
         var sb = mws.Sb;
 
-        var keyedCollectionType = mws.TypeBeingBuilt;
+        var keyedCollectionType = mws.GetDisplayType(mws.TypeBeingBuilt);
 
         Gb.StartNextContentSeparatorPaddingSequence(sb, formatFlags);
-        var kvpTypes = keyedCollectionType.GetKeyedCollectionTypes();
         if (formatFlags.DoesNotHaveLogSuppressTypeNamesFlag()
-         && !(StyleOptions.LogSuppressDisplayCollectionNames.Any(s => keyedCollectionType.FullName?.StartsWith(s) ?? false)
-           && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => kvpTypes?.Key.FullName?.StartsWith(s) ?? false)
-           && StyleOptions.LogSuppressDisplayCollectionElementNames.Any(s => kvpTypes?.Value.FullName?.StartsWith(s) ?? false)))
+         && (formatFlags.HasAddTypeNameFieldFlag() || mws.Settings.ShouldDisplayKeyedCollectionTypeName(keyedCollectionType)))
         {
             keyedCollectionType.AppendShortNameInCSharpFormat(sb);
             mws.WroteTypeName = true;
@@ -870,14 +861,10 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var toRestore = Gb;
         Gb = insertBuilder;
 
-        var alreadySupportsMultipleFields = writtenAs.SupportsMultipleFields();
-
         var deltaIndent         = 0;
         var eachNewLineIndentBy = 0;
 
-        var needsBracesWrap  = false;
         var needsTypeName    = false;
-        var needsBracketWrap = false;
 
         string? typeNameString = null;
 
@@ -887,13 +874,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var prefixNewLines = 0;
         var suffixNewLines = 0;
 
-        var actualLength = contentLength < 0 ? sb.Length - typeOpenIndex : contentLength;
-
         // first entry spot maybe removed if empty so backtrack to open add one;
         var firstFieldPad    = SizeNextFieldPadding(createTypeFlags);
         var isEmpty          = contentLength >= 0 && indexToInsertAt - firstFieldPad + 1 == typeOpenIndex + contentLength;
-        var fronInsertLength = actualLength - (indexToInsertAt - typeOpenIndex);
-        int contentNewLines  = sb.SubSequenceOccurrenceCount(indexToInsertAt, fronInsertLength, StyleOptions.NewLineStyle);
         if (!moldWrittenFlags.HasWroteTypeNameFlag()) { needsTypeName = true; }
         if (isEmpty)
         {
@@ -907,9 +890,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         else
         {
             // after inserted
-            alreadySupportsMultipleFields = true;
-
-            needsBracketWrap =  true;
             prefixInsertSize += 2; // Open Brace Only close in done later
             if (needsTypeName)
             {

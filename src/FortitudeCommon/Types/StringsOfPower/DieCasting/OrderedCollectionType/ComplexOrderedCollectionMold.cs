@@ -22,12 +22,12 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags)
+      , CreateContext createContext)
     {
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
            , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext
-           , createFormatFlags | FormatFlags.AsCollection);
+           , createContext with{ FormatFlags = createContext.FormatFlags | FormatFlags.AsCollection });
 
         return this;
     }

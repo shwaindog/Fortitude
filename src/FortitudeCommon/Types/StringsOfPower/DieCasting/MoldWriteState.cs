@@ -96,6 +96,8 @@ public interface IMoldWriteState : IRecyclableObject, ITransferState
     int IncrementIndent();
     int IncrementCloseDepthDecrementBy(int amountBy);
 
+    public Type GetDisplayType<T>(T instanceContainerOrType);
+
     void UnSetIgnoreFlag(FormatFlags flagToUnset);
     void SetUntrackedVisit();
 
@@ -387,6 +389,20 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
     public StyleOptions Settings
     {
         [DebuggerStepThrough] get => typeBuilderState.Master.Settings;
+    }
+
+    public Type GetDisplayType<T>(T instanceContainerOrType)
+    {
+        if (typeBuilderState.CreateContext.DisplayAsType != null)
+        {
+            var overrideName = typeBuilderState.CreateContext.DisplayAsType;
+            typeBuilderState.CreateContext = typeBuilderState.CreateContext with { DisplayAsType = null };
+            return overrideName;
+        }
+        
+        return instanceContainerOrType is IRecyclableStructContainer structContainer
+            ? structContainer.StoredType
+            : (instanceContainerOrType as Type ?? (instanceContainerOrType?.GetType() ?? TypeBeingBuilt));
     }
 
     public int DecrementIndent()

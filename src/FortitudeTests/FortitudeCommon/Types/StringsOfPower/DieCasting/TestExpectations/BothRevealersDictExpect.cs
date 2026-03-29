@@ -7,6 +7,7 @@ using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField.FixtureScaffolding;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 #pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
@@ -372,6 +373,14 @@ public class BothRevealersDictExpect<TKey, TValue, TKFilterBase, TVFilterBase, T
         if (KeyFormatString != null && createdStringBearer is ISupportsKeyFormatString supportsKeyFormatString)
             supportsKeyFormatString.KeyFormatString = KeyFormatString;
 
+        if (createdStringBearer is IKeyedCollectionMoldScaffold keyedCollScaff)
+        {
+            KeyedCollectionType = keyedCollScaff.KeyedCollectionType;
+        }
+        else
+        {
+            KeyedCollectionType = typeof(Object);
+        }
         return createdStringBearer;
     }
 };

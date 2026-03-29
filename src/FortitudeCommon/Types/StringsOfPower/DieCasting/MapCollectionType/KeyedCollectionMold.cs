@@ -3,7 +3,6 @@
 
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
@@ -16,13 +15,12 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
     private ComplexType.UnitField.SelectTypeField<KeyedCollectionMold>?                         logOnlyInternalField;
     private ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<KeyedCollectionMold>? logOnlyInternalMapCollectionField;
     
-    private IMoldWriteState<KeyedCollectionMold>                                                         stb = null!;
+    protected IMoldWriteState<KeyedCollectionMold> stb = null!;
 
     public int ItemCount = 0;
 
     public KeyedCollectionMold InitializeKeyValueCollectionBuilder 
-    (
-        object instanceOrContainer
+    (   object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
       , Type typeVisitedAs
@@ -31,10 +29,10 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags )
+      , CreateContext createContext )
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName
-                                      , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
+                                      , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createContext);
         WrittenAs = WrittenAsFlags.AsMapCollection;
 
         stb = MoldStateField;

@@ -23,10 +23,10 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType  
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags )
+      , CreateContext createContext )
     {
         Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName
-                                       , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createFormatFlags);
+                                       , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createContext);
     }
 
 

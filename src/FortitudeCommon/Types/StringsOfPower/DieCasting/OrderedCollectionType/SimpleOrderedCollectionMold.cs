@@ -15,12 +15,13 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
-      , CallerContext callerContext  
-      , FormatFlags createFormatFlags)
+      , CallerContext callerContext
+      , CreateContext createContext)
     {
-        InitializeOrderedCollectionBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-                                         , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext
-                                         , createFormatFlags | FormatFlags.AsCollection);
+        InitializeOrderedCollectionBuilder
+            (instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
+           , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext
+           , createContext with { FormatFlags = createContext.FormatFlags | FormatFlags.AsCollection });
 
         return this;
     }
@@ -28,7 +29,7 @@ public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCo
     protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {
         var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
-        MoldStateField = 
+        MoldStateField =
             recycler
                 .Borrow<CollectionMoldWriteState<SimpleOrderedCollectionMold>>()
                 .InitializeOrderCollectionComponentAccess(this, PortableState, writeMethod);

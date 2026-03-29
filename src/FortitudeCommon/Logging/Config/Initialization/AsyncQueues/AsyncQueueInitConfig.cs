@@ -7,6 +7,7 @@ using FortitudeCommon.Logging.Config.Appending.Forwarding;
 using FortitudeCommon.Types;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField;
 using Microsoft.Extensions.Configuration;
 
 namespace FortitudeCommon.Logging.Config.Initialization.AsyncQueues;
@@ -256,7 +257,8 @@ public class AsyncQueuesInitConfig : FLogConfig, IMutableAsyncQueuesInitConfig
            .Field.AlwaysAdd(nameof(MaxAsyncProcessing), MaxAsyncProcessing)
            .Field.AlwaysAdd(nameof(DefaultAppenderAsyncQueueNumber), DefaultAppenderAsyncQueueNumber)
            .Field.AlwaysAdd(nameof(DefaultAppenderFlushQueueNumber), DefaultAppenderFlushQueueNumber)
-           .KeyedCollectionField.WhenPopulatedAddAllEnumerate(nameof(AsyncQueues), AsyncQueues.GetEnumerator())
+           // ReSharper disable once GenericEnumeratorNotDisposed
+           .KeyedCollectionField.WhenPopulatedAddAllIterate(nameof(AsyncQueues), AsyncQueues.GetEnumerator())
            .Complete();
 
     public override string ToString() => this.DefaultToString();
