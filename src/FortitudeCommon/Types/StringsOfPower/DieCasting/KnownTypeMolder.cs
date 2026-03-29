@@ -30,7 +30,7 @@ public interface IStateTransitioningTransitioningKnownTypeMolder : IDisposable
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags);
+      , CreateContext createContext);
 
     void Free();
 }
@@ -56,10 +56,10 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags)
+      , CreateContext createContext)
     {
         InitializeStyledTypeBuilder(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName, remainingGraphDepth
-                                  , moldGraphVisit, callerContext, createFormatFlags);
+                                  , moldGraphVisit, callerContext, createContext);
 
         SourceBuilderComponentAccess(writeMethodType);
     }

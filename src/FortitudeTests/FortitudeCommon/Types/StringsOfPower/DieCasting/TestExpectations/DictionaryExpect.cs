@@ -9,6 +9,7 @@ using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField.FixtureScaffolding;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 #pragma warning disable CS8714 // The type cannot be used as type parameter in the generic type or method. Nullability of type argument doesn't match 'notnull' constraint.
 
@@ -22,6 +23,8 @@ public interface IKeyedCollectionExpect : IFormatExpectation
     
     Type ValueType { get; }
     Type ValueUnderlyingType { get; }
+    
+    Type KeyedCollectionType { get; }
     
     bool KeyTypeIsNullable { get; }
     bool KeyTypeIsNullableStruct { get; }
@@ -221,6 +224,8 @@ public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubLis
     public bool ValueTypeIsNullableStruct => ValueType.IsNullable();
     public bool ValueTypeIsNotNullableStruct => !ValueTypeIsNullableStruct;
 
+    public Type KeyedCollectionType { get; protected set; }
+
     public bool ContainsNullKeys
     {
         get { return Input?.Any(kvp => kvp.Key == null) ?? false; }
@@ -310,6 +315,15 @@ public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubLis
             supportsValueFormatString.ValueFormatString = ValueFormatString;
         if (KeyFormatString != null && createdStringBearer is ISupportsKeyFormatString supportsKeyFormatString)
             supportsKeyFormatString.KeyFormatString = KeyFormatString;
+
+        if (createdStringBearer is IKeyedCollectionMoldScaffold keyedCollScaff)
+        {
+            KeyedCollectionType = keyedCollScaff.KeyedCollectionType;
+        }
+        else
+        {
+            KeyedCollectionType = typeof(Object);
+        }
 
         return createdStringBearer;
     }

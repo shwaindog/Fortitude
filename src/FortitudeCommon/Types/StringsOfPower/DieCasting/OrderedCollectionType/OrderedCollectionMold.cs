@@ -18,11 +18,11 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
       , CallerContext callerContext  
-      , FormatFlags createFormatFlags)
+      , CreateContext createContext)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
                  , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext
-                 , createFormatFlags | FormatFlags.AsCollection);
+                 , createContext with{ FormatFlags = createContext.FormatFlags | FormatFlags.AsCollection });
 
         mws = CompAsOrderedCollectionMold;
 

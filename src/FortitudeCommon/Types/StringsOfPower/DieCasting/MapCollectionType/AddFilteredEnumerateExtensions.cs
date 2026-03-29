@@ -18,8 +18,6 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
 {
     private static MethodInfo[]? myMethodInfosCached;
 
-    private static readonly ConcurrentDictionary<Type, Type?>       EnumerableToEnumeratorTypeCache       = new();
-    private static readonly ConcurrentDictionary<Type, MethodInfo?> EnumerableToEnumeratorMethodInfoCache = new();
     
     private static readonly ConcurrentDictionary<(Type, Type, Type, Type), Delegate> NoRevealersCallStructEnumtrInvokerCache = new();
     private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate>      NoRevealersInvokerCache                 = new();
@@ -1393,16 +1391,7 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
 
         return generified;
     }
-
-    private static Type? GetEnumeratorType(Type enumerableType) =>
-        EnumerableToEnumeratorTypeCache
-            .GetOrAdd(enumerableType, static (enumblType) => enumblType.GetEnumeratorType());
-
-
-    private static MethodInfo? GetEnumeratorMethodInfo(this Type enumerableType) =>
-        EnumerableToEnumeratorMethodInfoCache
-            .GetOrAdd(enumerableType, static (enumblType) => enumblType.GetEnumeratorMethod());
-
+    
     public static KeyedCollectionMold AddFilteredEnumerate<TEnumbl, TKFilterBase, TVFilterBase>(
         this KeyedCollectionMold callOn
       , TEnumbl? value
@@ -1471,7 +1460,7 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
             var skipCount = 0;
             foreach (var kvp in value)
             {
-                var enumeratorType = GetEnumeratorType(actualType);
+                var enumeratorType = actualType.GetEnumeratorType();
                 if (enumeratorType?.IsValueType ?? false)
                 {
                     var structEnumtrInvoker = actualType.GetAddFilteredNoRevealersCallStructEnumtrInvoker<TEnumbl, TKey, TValue, TKFilterBase, TVFilterBase>(enumeratorType);
@@ -1571,7 +1560,7 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
             return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
                 var structEnumtrInvoker = 
@@ -1680,7 +1669,7 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
             return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
                 var structEnumtrInvoker = 
@@ -1793,7 +1782,7 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
             return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
                 var structEnumtrInvoker = 
@@ -1905,7 +1894,7 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
             return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
                 var structEnumtrInvoker = 
@@ -2017,7 +2006,7 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
             return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
                 var structEnumtrInvoker = 
@@ -2091,7 +2080,7 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
             return mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
-            var enumeratorType = GetEnumeratorType(actualType);
+            var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
                 var structEnumtrInvoker = 
@@ -2129,5 +2118,4 @@ public static class KeyedCollectionAddFilteredEnumerateExtensions
         }
         return callOn;
     }
-
 }

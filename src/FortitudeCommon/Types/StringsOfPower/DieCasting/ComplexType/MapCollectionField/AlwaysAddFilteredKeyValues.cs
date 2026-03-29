@@ -26,13 +26,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : TKeyFilterBase? where TValue : TValueFilterBase?
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<KeyValuePair<TKey, TValue>[], TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
@@ -54,8 +54,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase>
@@ -67,13 +67,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : TKFilterBase? where TValue : TVFilterBase?
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyList<KeyValuePair<TKey, TValue>>, TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
@@ -95,8 +95,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>(string fieldName
@@ -108,13 +108,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : TKFilterBase? where TValue : TVFilterBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm      = Mws.Master.StartExplicitKeyedCollectionType<IEnumerable<KeyValuePair<TKey, TValue>>, TKey, TValue>(value, createFormatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -138,8 +138,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase>
@@ -151,13 +151,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : TKFilterBase? where TValue : TVFilterBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue>(value, createFormatFlags);
             var hasValue = value.MoveNext();
             if (hasValue)
             {
@@ -192,8 +192,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
@@ -231,13 +231,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<KeyValuePair<TKey, TValue>[], TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
@@ -259,8 +259,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase>
@@ -274,13 +274,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<KeyValuePair<TKey, TValue?>[], TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
@@ -302,8 +302,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
@@ -318,13 +318,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyList<KeyValuePair<TKey, TValue>>, TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
@@ -346,8 +346,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase>
@@ -361,13 +361,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyList<KeyValuePair<TKey, TValue?>>, TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
@@ -389,8 +389,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
@@ -405,13 +405,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm      = Mws.Master.StartExplicitKeyedCollectionType<IEnumerable<KeyValuePair<TKey, TValue>>, TKey, TValue>(value, createFormatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -435,8 +435,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase>
@@ -450,13 +450,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm      = Mws.Master.StartExplicitKeyedCollectionType<IEnumerable<KeyValuePair<TKey, TValue?>>, TKey, TValue>(value, createFormatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -480,8 +480,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
@@ -495,13 +495,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue>(value, createFormatFlags);
             var hasValue = value.MoveNext();
             if (hasValue)
             {
@@ -537,8 +537,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase>
@@ -551,13 +551,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue>(value, createFormatFlags);
             var hasValue = value.MoveNext();
             if (hasValue)
             {
@@ -593,8 +593,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(
@@ -638,13 +638,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<KeyValuePair<TKey, TValue>[], TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
@@ -666,8 +666,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -683,13 +683,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<KeyValuePair<TKey?, TValue>[], TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
@@ -711,8 +711,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>(
@@ -728,13 +728,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<KeyValuePair<TKey, TValue?>[], TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
@@ -756,8 +756,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue>(string fieldName
@@ -771,13 +771,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<KeyValuePair<TKey?, TValue?>[], TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Length; i++)
             {
                 var kvp          = value[i];
@@ -799,8 +799,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase, TVFilterBase, TVRevealBase>(
@@ -817,13 +817,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyList<KeyValuePair<TKey, TValue>>, TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
@@ -845,8 +845,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -862,13 +862,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyList<KeyValuePair<TKey?, TValue>>, TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
@@ -890,8 +890,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue, TKFilterBase, TKRevealBase>(
@@ -907,13 +907,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyList<KeyValuePair<TKey, TValue?>>, TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
@@ -935,8 +935,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFiltered<TKey, TValue>(
@@ -951,13 +951,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyList<KeyValuePair<TKey?, TValue?>>, TKey, TValue>(value, createFormatFlags);
             for (var i = 0; i < value.Count; i++)
             {
                 var kvp          = value[i];
@@ -979,8 +979,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
@@ -997,13 +997,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm      = Mws.Master.StartExplicitKeyedCollectionType<IEnumerable<KeyValuePair<TKey, TValue>>, TKey, TValue>(value, createFormatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -1027,8 +1027,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -1044,13 +1044,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm      = Mws.Master.StartExplicitKeyedCollectionType<IEnumerable<KeyValuePair<TKey?, TValue>>, TKey, TValue>(value, createFormatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -1074,8 +1074,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>(
@@ -1091,13 +1091,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm      = Mws.Master.StartExplicitKeyedCollectionType<IEnumerable<KeyValuePair<TKey, TValue?>>, TKey, TValue>(value, createFormatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -1121,8 +1121,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue>(
@@ -1137,13 +1137,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm      = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm      = Mws.Master.StartExplicitKeyedCollectionType<IEnumerable<KeyValuePair<TKey?, TValue?>>, TKey, TValue>(value, createFormatFlags);
             var count     = 0;
             var skipCount = 0;
             foreach (var kvp in value)
@@ -1167,8 +1167,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
@@ -1185,13 +1185,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IEnumerator<KeyValuePair<TKey, TValue>>, TKey, TValue>(value, createFormatFlags);
             var hasValue = value.MoveNext();
             if (hasValue)
             {
@@ -1226,8 +1226,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -1243,13 +1243,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IEnumerator<KeyValuePair<TKey?, TValue>>, TKey, TValue>(value, createFormatFlags);
             var hasValue = value.MoveNext();
             if (hasValue)
             {
@@ -1284,8 +1284,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue, TKFilterBase, TKRevealBase>(
@@ -1301,13 +1301,13 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IEnumerator<KeyValuePair<TKey, TValue?>>, TKey, TValue>(value, createFormatFlags);
             var hasValue = value.MoveNext();
             if (hasValue)
             {
@@ -1342,8 +1342,8 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 
     public TExt AlwaysAddFilteredEnumerate<TKey, TValue>(string fieldName
@@ -1357,13 +1357,16 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipField(actualType, fieldName, formatFlags))
-            return stb.WasSkipped(actualType, fieldName, formatFlags);
-        var createFormatFlags = stb.StyleFormatter.ResolveContentFormatFlags(stb.Sb, value, formatFlags);
-        stb.FieldNameJoin(fieldName);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
+            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
+        Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm     = stb.Master.StartExplicitKeyedCollectionType<TKey, TValue>(value, createFormatFlags);
+            var ekcm     = 
+                Mws
+                    .Master
+                    .StartExplicitKeyedCollectionType<IEnumerator<KeyValuePair<TKey?, TValue?>>, TKey, TValue>(value, createFormatFlags);
             var hasValue = value.MoveNext();
             if (hasValue)
             {
@@ -1398,7 +1401,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
             ekcm.AppendCollectionComplete();
         }
         else 
-            stb.StyleFormatter.AppendFormattedNull(stb.Sb, valueFormatString  ?? "", formatFlags);
-        return stb.AddGoToNext();
+            Mws.StyleFormatter.AppendFormattedNull(Mws.Sb, valueFormatString  ?? "", formatFlags);
+        return Mws.AddGoToNext();
     }
 }

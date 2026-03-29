@@ -231,7 +231,7 @@ public static class TypeExtensions
 
     public static bool IsNotKeyValueOrderedCollection(this Type type) => !type.IsKeyValueOrderedCollection();
 
-    public static bool IsKeyedCollection(this Type type) => type.IsReadOnlyDictionaryType() || type.IsKeyValueOrderedCollection();
+    public static bool IsKeyedCollection(this Type? type) => type != null &&  (type.IsReadOnlyDictionaryType() || type.IsKeyValueOrderedCollection());
 
     public static bool IsNotKeyedCollection(this Type type) => !type.IsKeyedCollection();
 

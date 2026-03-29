@@ -18,6 +18,8 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysArrayStringBeare
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => WhenNonNullAddWithSelectKeysFromArray?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArray);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -43,6 +45,8 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysSpanStringBearer
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => WhenNonNullAddWithSelectKeysFromSpan?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpan);
 
@@ -70,6 +74,8 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysReadOnlySpanStri
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => WhenNonNullAddWithSelectKeysFromReadOnlySpan?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpan);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -95,6 +101,8 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysListStringBearer
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => WhenNonNullAddWithSelectKeysFromList?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromList);
 
@@ -122,6 +130,8 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysEnumerableString
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => WhenNonNullAddWithSelectKeysFromEnumerable?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromEnumerable );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -148,6 +158,9 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysEnumeratorString
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysKeyValuePairEnumerator?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerator );
 
@@ -177,6 +190,9 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysArrayStr
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -204,6 +220,9 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysAr
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArrayValueRevealerKeyFormatString );
 
@@ -235,6 +254,9 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysSpanStri
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -263,6 +285,9 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysSp
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpanValueRevealerKeyFormatString );
 
@@ -293,6 +318,9 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysReadOnly
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -320,6 +348,9 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysRe
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
 
@@ -350,6 +381,9 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysListStri
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -377,6 +411,9 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysLi
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromListValueRevealerKeyFormatString );
 
@@ -407,6 +444,9 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysEnumerab
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -435,6 +475,9 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysEn
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings );
 
@@ -466,6 +509,9 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysEnumerat
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -493,6 +539,9 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysEn
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings );
 
@@ -524,6 +573,9 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromArrayBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArrayBothRevealers );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -552,6 +604,9 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromArrayBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromArrayBothRevealers );
 
@@ -583,6 +638,9 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromSpanBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpanBothRevealers );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -611,6 +669,9 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromSpanBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromSpanBothRevealers );
 
@@ -643,6 +704,9 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -672,6 +736,9 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromReadOnlySpanBothRevealers );
 
@@ -703,6 +770,9 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromListBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromListBothRevealers );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -731,6 +801,9 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysFromListBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysFromListBothRevealers );
 
@@ -762,6 +835,9 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -791,6 +867,9 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers );
 
@@ -823,6 +902,9 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -851,6 +933,9 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers );
 

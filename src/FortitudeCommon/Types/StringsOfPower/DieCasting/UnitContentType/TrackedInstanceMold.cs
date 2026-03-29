@@ -27,11 +27,11 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
       , VisitResult moldGraphVisit
       , WrittenAsFlags writeMethodType
       , CallerContext callerContext  
-      , FormatFlags parentTypeFormatFlags
+      , CreateContext createContext
       , FormatFlags innerContentFormatFlags)
     {
         Initialize(instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
-                 , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, parentTypeFormatFlags);
+                 , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createContext);
 
         innerContentFormatFLags = innerContentFormatFlags;
         return this;

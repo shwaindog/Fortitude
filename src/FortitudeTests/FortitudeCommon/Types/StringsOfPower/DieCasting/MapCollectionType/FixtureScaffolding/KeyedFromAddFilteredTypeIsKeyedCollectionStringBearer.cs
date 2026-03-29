@@ -24,6 +24,9 @@ public class KeyedFromDictionaryKeyValueAddFilteredStringBearer<TKey, TValue, TK
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothFormatStrings);
     
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -48,6 +51,9 @@ public class KeyedFromArrayKeyValueAddFilteredStringBearer<TKey, TValue, TKFilte
         get => Value?.ToArray();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothFormatStrings?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothFormatStrings);
 
@@ -74,6 +80,9 @@ public class KeyedFromListKeyValueAddFilteredStringBearer<TKey, TValue, TKFilter
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothFormatStrings?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothFormatStrings);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -98,6 +107,10 @@ public class KeyedFromEnumerableKeyValueAddFilteredStringBearer<TKey, TValue, TK
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings?.GetType() 
+     ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothFormatStrings);
 
@@ -139,6 +152,10 @@ public class KeyedFromEnumeratorKeyValueAddFilteredStringBearer<TKey, TValue, TK
         }
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings?.GetType() 
+     ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothFormatStrings);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -165,6 +182,10 @@ public class KeyedFromDictionaryKeyValueRevealerAddFilteredStringBearer<TKey, TV
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -190,6 +211,10 @@ public class KeyedFromDictionaryKeyStructValueRevealerAddFilteredStringBearer<TK
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryValueRevealerKeyFormatString);
 
@@ -218,6 +243,10 @@ public class KeyedFromArrayKeyValueRevealerAddFilteredStringBearer<TKey, TValue,
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(KeyValuePair<TKey, TValue>[]);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -243,6 +272,10 @@ public class KeyedFromArrayKeyStructValueRevealerAddFilteredStringBearer<TKey, T
         get => Value?.ToArray();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(KeyValuePair<TKey, TValue?>[]);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayValueRevealerKeyFormatString);
 
@@ -271,6 +304,10 @@ public class KeyedFromListKeyValueRevealerAddFilteredStringBearer<TKey, TValue, 
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -296,6 +333,10 @@ public class KeyedFromListKeyStructValueRevealerAddFilteredStringBearer<TKey, TV
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue?>>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListValueRevealerKeyFormatString);
 
@@ -324,6 +365,10 @@ public class KeyedFromEnumerableKeyValueRevealerAddFilteredStringBearer<TKey, TV
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -349,6 +394,10 @@ public class KeyedFromEnumerableKeyStructValueRevealerAddFilteredStringBearer<TK
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableValueRevealerKeyFormatString);
 
@@ -392,6 +441,10 @@ public class KeyedFromEnumeratorKeyValueRevealerAddFilteredStringBearer<TKey, TV
         }
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -433,6 +486,10 @@ public class KeyedFromEnumeratorKeyStructValueRevealerAddFilteredStringBearer<TK
         }
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IEnumerator<KeyValuePair<TKey, TValue?>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -461,6 +518,10 @@ public class KeyedFromDictionaryKeyRevealerValueRevealerAddFilteredStringBearer<
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers?.GetType() 
+     ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -487,6 +548,10 @@ public class KeyedFromDictionaryKeyRevealerStructValueRevealerAddFilteredStringB
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers?.GetType() 
+     ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredDictionaryBothRevealers);
 
@@ -516,6 +581,9 @@ public class KeyedFromArrayKeyRevealerValueRevealerAddFilteredStringBearer<TKey,
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -542,6 +610,9 @@ public class KeyedFromArrayStructKeyRevealerValueRevealerAddFilteredStringBearer
         get => Value?.ToArray();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers?.GetType() ?? typeof(KeyValuePair<TKey?, TValue>[]);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers);
 
@@ -570,6 +641,9 @@ public class KeyedFromArrayKeyRevealerStructValueRevealerAddFilteredStringBearer
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers?.GetType() ?? typeof(KeyValuePair<TKey, TValue?>[]);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -595,6 +669,9 @@ public class KeyedFromArrayStructKeyRevealerStructValueRevealerAddFilteredString
         get => Value?.ToArray();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers?.GetType() ?? typeof(KeyValuePair<TKey?, TValue?>[]);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredArrayBothRevealers);
 
@@ -624,6 +701,9 @@ public class KeyedFromListKeyRevealerValueRevealerAddFilteredStringBearer<TKey, 
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -650,6 +730,9 @@ public class KeyedFromListStructKeyRevealerValueRevealerAddFilteredStringBearer<
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey?, TValue>>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers);
 
@@ -678,6 +761,9 @@ public class KeyedFromListKeyRevealerStructValueRevealerAddFilteredStringBearer<
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue?>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -703,6 +789,9 @@ public class KeyedFromListStructKeyRevealerStructValueRevealerAddFilteredStringB
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey?, TValue?>>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredListBothRevealers);
 
@@ -732,6 +821,9 @@ public class KeyedFromEnumerableKeyRevealerValueRevealerAddFilteredStringBearer<
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -758,6 +850,9 @@ public class KeyedFromEnumerableStructKeyRevealerValueRevealerAddFilteredStringB
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey?, TValue>>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
 
@@ -786,6 +881,9 @@ public class KeyedFromEnumerableKeyRevealerStructValueRevealerAddFilteredStringB
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -811,6 +909,9 @@ public class KeyedFromEnumerableStructKeyRevealerStructValueRevealerAddFilteredS
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey?, TValue?>>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumerableBothRevealers);
 
@@ -855,6 +956,9 @@ public class KeyedFromEnumeratorKeyRevealerValueRevealerAddFilteredStringBearer<
         }
     }
 
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -896,6 +1000,9 @@ public class KeyedFromEnumeratorStructKeyRevealerValueRevealerAddFilteredStringB
             Value = newValue;
         }
     }
+
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey?, TValue>>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers);
 
@@ -939,6 +1046,9 @@ public class KeyedFromEnumeratorKeyRevealerStructValueRevealerAddFilteredStringB
         }
     }
 
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue?>>);
+
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -979,6 +1089,9 @@ public class KeyedFromEnumeratorStructKeyRevealerStructValueRevealerAddFilteredS
             Value = newValue;
         }
     }
+
+    public override Type KeyedCollectionType =>
+        KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey?, TValue?>>);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddFilteredEnumeratorBothRevealers);
 

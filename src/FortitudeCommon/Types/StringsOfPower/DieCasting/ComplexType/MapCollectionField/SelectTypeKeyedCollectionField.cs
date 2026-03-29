@@ -2,21 +2,33 @@
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField;
 
-public partial class SelectTypeKeyedCollectionField<TExt> : RecyclableObject
+public interface ISelectKeyedCollectionField
+{
+}
+
+public partial class SelectTypeKeyedCollectionField<TExt> : RecyclableObject, ISelectKeyedCollectionField
     where TExt : TypeMolder
 {
-    private IMoldWriteState<TExt> stb = null!;
+    public IMoldWriteState<TExt> Mws { get; private set; } = null!;
     
-    public SelectTypeKeyedCollectionField<TExt> Initialize(IMoldWriteState<TExt> molderDieCast)
+    internal TExt Mold => Mws.Mold;
+    
+    public int ItemCount { get; set; }
+    
+    public Type? CollectionType { get; set; }
+    
+    public SelectTypeKeyedCollectionField<TExt> Initialize(IMoldWriteState<TExt> moldWriteState)
     {
-        stb = molderDieCast;
+        Mws = moldWriteState;
 
         return this;
     }
 
     public override void StateReset()
     {
-        stb = null!;
+        Mws = null!;
+        ItemCount = 0;
+        CollectionType = null;
         base.StateReset();
     }
 }

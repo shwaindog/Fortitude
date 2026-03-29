@@ -7,17 +7,26 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpecta
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField.FixtureScaffolding;
 
-public abstract class FormattedKeyValueFieldMoldScaffold<TKey, TValue> : FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>?>, ISupportsKeyFormatString
+public interface IKeyedCollectionMoldScaffold
+{
+    Type KeyedCollectionType { get; }
+}
+
+public abstract class FormattedKeyValueFieldMoldScaffold<TKey, TValue> : FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>?>
+  , ISupportsKeyFormatString, IKeyedCollectionMoldScaffold
     where TKey : notnull
 {
     public string? KeyFormatString { get; set; }
+    public abstract Type KeyedCollectionType { get; }
 }
 
-public abstract class FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase> : 
-    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>?>, ISupportsKeyFormatString, ISupportsValueRevealer<TVRevealBase>
+public abstract class FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase> :
+    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>?>, ISupportsKeyFormatString
+  , ISupportsValueRevealer<TVRevealBase>, IKeyedCollectionMoldScaffold
     where TValue : TVRevealBase?
     where TVRevealBase : notnull
 {
+    public abstract Type KeyedCollectionType { get; }
     public Delegate ValueRevealerDelegate { get; set; } = null!;
 
     public PalantírReveal<TVRevealBase> ValueRevealer
@@ -29,9 +38,10 @@ public abstract class FormattedKeyValueRevealerFieldMoldScaffold<TKey, TValue, T
 }
 
 public abstract class FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TValue> : 
-    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue?>>?>, ISupportsKeyFormatString, ISupportsValueRevealer<TValue>
+    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue?>>?>, ISupportsKeyFormatString, ISupportsValueRevealer<TValue>, IKeyedCollectionMoldScaffold
     where TValue : struct
 {
+    public abstract Type KeyedCollectionType { get; }
     public Delegate ValueRevealerDelegate { get; set; } = null!;
 
     public PalantírReveal<TValue> ValueRevealer
@@ -43,12 +53,14 @@ public abstract class FormattedKeyStructValueRevealerFieldMoldScaffold<TKey, TVa
 }
 
 public abstract class KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase, TVRevealBase> : 
-    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>?>, ISupportsKeyRevealer<TKRevealBase>, ISupportsValueRevealer<TVRevealBase>
+    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>?>, ISupportsKeyRevealer<TKRevealBase>
+  , ISupportsValueRevealer<TVRevealBase>, IKeyedCollectionMoldScaffold
     where TKey : TKRevealBase?
     where TValue : TVRevealBase?
     where TKRevealBase : notnull
     where TVRevealBase : notnull
 {
+    public abstract Type KeyedCollectionType { get; }
     public Delegate KeyRevealerDelegate { get; set; } = null!;
 
     public PalantírReveal<TKRevealBase> KeyRevealer
@@ -67,11 +79,13 @@ public abstract class KeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TK
 }
 
 public abstract class KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue, TKRevealBase> : 
-    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue?>>?>, ISupportsKeyRevealer<TKRevealBase>, ISupportsValueRevealer<TValue>
+    FormattedMoldScaffold<List<KeyValuePair<TKey, TValue?>>?>, ISupportsKeyRevealer<TKRevealBase>
+  , ISupportsValueRevealer<TValue>, IKeyedCollectionMoldScaffold
     where TKey : TKRevealBase?
     where TValue : struct
     where TKRevealBase : notnull
 {
+    public abstract Type KeyedCollectionType { get; }
     public Delegate KeyRevealerDelegate { get; set; } = null!;
 
     public PalantírReveal<TKRevealBase> KeyRevealer
@@ -90,10 +104,12 @@ public abstract class KeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TVal
 }
 
 public abstract class StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey, TValue> : 
-    FormattedMoldScaffold<List<KeyValuePair<TKey?, TValue?>>?>, ISupportsKeyRevealer<TKey>, ISupportsValueRevealer<TValue>
+    FormattedMoldScaffold<List<KeyValuePair<TKey?, TValue?>>?>, ISupportsKeyRevealer<TKey>
+  , ISupportsValueRevealer<TValue>, IKeyedCollectionMoldScaffold
     where TKey : struct
     where TValue : struct
 {
+    public abstract Type KeyedCollectionType { get; }
     public Delegate KeyRevealerDelegate { get; set; } = null!;
 
     public PalantírReveal<TKey> KeyRevealer
@@ -112,11 +128,13 @@ public abstract class StructKeyRevealerStructValueRevealerFieldMoldScaffold<TKey
 }
 
 public abstract class StructKeyRevealerValueRevealerFieldMoldScaffold<TKey, TValue, TVRevealBase> : 
-    FormattedMoldScaffold<List<KeyValuePair<TKey?, TValue>>?>, ISupportsKeyRevealer<TKey>, ISupportsValueRevealer<TVRevealBase>
+    FormattedMoldScaffold<List<KeyValuePair<TKey?, TValue>>?>, ISupportsKeyRevealer<TKey>
+  , ISupportsValueRevealer<TVRevealBase>, IKeyedCollectionMoldScaffold
     where TKey : struct
     where TValue : TVRevealBase?
     where TVRevealBase : notnull
 {
+    public abstract Type KeyedCollectionType { get; }
     public Delegate KeyRevealerDelegate { get; set; } = null!;
 
     public PalantírReveal<TKey> KeyRevealer

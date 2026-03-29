@@ -23,6 +23,9 @@ public class FieldKeyValueDictionaryWhenPopulatedWithFilterStringBearer<TKey, TV
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBoth?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBoth);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -48,6 +51,9 @@ public class FieldKeyValueArrayWhenPopulatedWithFilterStringBearer<TKey, TValue,
         get => Value?.ToArray();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBoth?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBoth);
 
@@ -75,6 +81,9 @@ public class FieldKeyValueListWhenPopulatedWithFilterStringBearer<TKey, TValue, 
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBoth?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBoth);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -100,6 +109,9 @@ public class FieldKeyValueEnumerableWhenPopulatedWithFilterStringBearer<TKey, TV
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBoth?.GetType() ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBoth);
 
@@ -142,6 +154,9 @@ public class FieldKeyValueEnumeratorWhenPopulatedWithFilterStringBearer<TKey, TV
         }
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBoth?.GetType() ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBoth);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -169,6 +184,10 @@ public class FieldKeyValueRevealerDictionaryWhenPopulatedWithFilterStringBearer<
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -195,6 +214,10 @@ public class FieldKeyStructValueRevealerDictionaryWhenPopulatedWithFilterStringB
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryValueRevealerKeyFormatString);
 
@@ -224,6 +247,10 @@ public class FieldKeyValueRevealerArrayWhenPopulatedWithFilterStringBearer<TKey,
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(KeyValuePair<TKey, TValue>[]);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -250,6 +277,10 @@ public class FieldKeyStructValueRevealerArrayWhenPopulatedWithFilterStringBearer
         get => Value?.ToArray();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(KeyValuePair<TKey, TValue?>[]);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayValueRevealerKeyFormatString);
 
@@ -279,6 +310,10 @@ public class FieldKeyValueRevealerListWhenPopulatedWithFilterStringBearer<TKey, 
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -305,6 +340,10 @@ public class FieldKeyStructValueRevealerListWhenPopulatedWithFilterStringBearer<
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue?>>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListValueRevealerKeyFormatString);
 
@@ -334,6 +373,10 @@ public class FieldKeyValueRevealerEnumerableWhenPopulatedWithFilterStringBearer<
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -360,6 +403,10 @@ public class FieldKeyStructValueRevealerEnumerableWhenPopulatedWithFilterStringB
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableValueRevealerKeyFormatString);
 
@@ -404,6 +451,10 @@ public class FieldKeyValueRevealerEnumeratorWhenPopulatedWithFilterStringBearer<
         }
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -446,6 +497,10 @@ public class FieldKeyStructValueRevealerEnumeratorWhenPopulatedWithFilterStringB
         }
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorValueRevealerKeyFormatString?.GetType() 
+     ?? typeof(IEnumerator<KeyValuePair<TKey, TValue?>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorValueRevealerKeyFormatString);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -476,6 +531,10 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenPopulatedWithFilterStrin
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothRevealers?.GetType() 
+     ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -503,6 +562,10 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenPopulatedWithFilte
         get => Value?.ToDictionary();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothRevealers?.GetType() 
+     ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterDictionaryBothRevealers);
 
@@ -534,6 +597,10 @@ public class FieldKeyRevealerValueRevealerArrayWhenPopulatedWithFilterStringBear
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers?.GetType() 
+     ?? typeof(KeyValuePair<TKey, TValue>[]);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -561,6 +628,10 @@ public class FieldStructKeyRevealerValueRevealerArrayWhenPopulatedWithFilterStri
         get => Value?.ToArray();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers?.GetType() 
+     ?? typeof(KeyValuePair<TKey?, TValue>[]);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers);
 
@@ -590,6 +661,10 @@ public class FieldKeyRevealerStructValueRevealerArrayWhenPopulatedWithFilterStri
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers?.GetType() 
+     ?? typeof(KeyValuePair<TKey, TValue?>[]);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -616,6 +691,10 @@ public class FieldStructKeyRevealerStructValueRevealerArrayWhenPopulatedWithFilt
         get => Value?.ToArray();
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers?.GetType() 
+     ?? typeof(KeyValuePair<TKey?, TValue?>[]);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterArrayBothRevealers);
 
@@ -647,6 +726,10 @@ public class FieldKeyRevealerValueRevealerListWhenPopulatedWithFilterStringBeare
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers?.GetType() 
+     ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -674,6 +757,10 @@ public class FieldStructKeyRevealerValueRevealerListWhenPopulatedWithFilterStrin
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers?.GetType() 
+     ?? typeof(IReadOnlyList<KeyValuePair<TKey?, TValue>>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers);
 
@@ -703,6 +790,10 @@ public class FieldKeyRevealerStructValueRevealerListWhenPopulatedWithFilterStrin
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers?.GetType() 
+     ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue?>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -729,6 +820,10 @@ public class FieldStructKeyRevealerStructValueRevealerListWhenPopulatedWithFilte
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers?.GetType() 
+     ?? typeof(IReadOnlyList<KeyValuePair<TKey?, TValue?>>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterListBothRevealers);
 
@@ -760,6 +855,10 @@ public class FieldKeyRevealerValueRevealerEnumerableWhenPopulatedWithFilterStrin
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers?.GetType() 
+     ?? typeof(IEnumerable<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -787,6 +886,10 @@ public class FieldStructKeyRevealerValueRevealerEnumerableWhenPopulatedWithFilte
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers?.GetType() 
+     ?? typeof(IEnumerable<KeyValuePair<TKey?, TValue>>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers);
 
@@ -816,6 +919,10 @@ public class FieldKeyRevealerStructValueRevealerEnumerableWhenPopulatedWithFilte
         set => Value = value?.ToList();
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers?.GetType() 
+     ?? typeof(IEnumerable<KeyValuePair<TKey, TValue?>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -842,6 +949,10 @@ public class FieldStructKeyRevealerStructValueRevealerEnumerableWhenPopulatedWit
         get => Value;
         set => Value = value?.ToList();
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers?.GetType() 
+     ?? typeof(IEnumerable<KeyValuePair<TKey?, TValue?>>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumerableBothRevealers);
 
@@ -888,6 +999,10 @@ public class FieldKeyRevealerValueRevealerEnumeratorWhenPopulatedWithFilterStrin
         }
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers?.GetType() 
+     ?? typeof(IEnumerator<KeyValuePair<TKey, TValue>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -930,6 +1045,10 @@ public class FieldStructKeyRevealerValueRevealerEnumeratorWhenPopulatedWithFilte
             Value = newValue;
         }
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers?.GetType() 
+     ?? typeof(IEnumerator<KeyValuePair<TKey?, TValue>>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers);
 
@@ -974,6 +1093,10 @@ public class FieldKeyRevealerStructValueRevealerEnumeratorWhenPopulatedWithFilte
         }
     }
 
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers?.GetType() 
+     ?? typeof(IEnumerator<KeyValuePair<TKey, TValue?>>);
+
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -1015,6 +1138,10 @@ public class FieldStructKeyRevealerStructValueRevealerEnumeratorWhenPopulatedWit
             Value = newValue;
         }
     }
+
+    public override Type KeyedCollectionType => 
+        ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers?.GetType() 
+     ?? typeof(IEnumerator<KeyValuePair<TKey?, TValue?>>);
 
     public override string PropertyName => nameof(ComplexTypeKeyedCollectionFieldWhenPopulatedWithFilterEnumeratorBothRevealers);
 

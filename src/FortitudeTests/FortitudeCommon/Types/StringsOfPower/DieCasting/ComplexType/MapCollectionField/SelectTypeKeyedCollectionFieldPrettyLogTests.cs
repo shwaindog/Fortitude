@@ -5,6 +5,7 @@ using System.Reflection;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
@@ -74,11 +75,12 @@ public class SelectTypeKeyedCollectionFieldPrettyLogTests : SelectTypeKeyedColle
         (IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod] 
+    [TestMethod] 
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations[2], ScaffoldingRegistry.AllScaffoldingTypes[622]);
+        ExecuteIndividualScaffoldExpectation(BothRevealersDictTestData.AllPredicateFilteredKeyedCollectionsExpectations[16]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[589], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
@@ -93,14 +95,25 @@ public class SelectTypeKeyedCollectionFieldPrettyLogTests : SelectTypeKeyedColle
         {
             maybeNewLine = "\n";
             maybeIndent  = "  ";
-            if (!expectValue.SequenceMatches("null")
-             && expectation is IOrderedListExpect orderedListExpectation
-             && orderedListExpectation.ElementCallType.IsEnumOrNullable())
+            var notNull = !expectValue.SequenceMatches("null");
+            if (notNull && expectation is IOrderedListExpect orderedListExpectation
+                        && orderedListExpectation.ElementCallType.IsEnumOrNullable())
             {
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
                 nextExpect.Append(propertyName).Append(": (");
-                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(")")
-                                      .Append(expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle));
+                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(")").Append(expectValue);
+                expectValue.DecrementRefCount();
+                expectValue = nextExpect;
+            }
+            if (notNull && expectation is IKeyedCollectionExpect mapExpectation 
+                        && tos.Settings.ShouldDisplayKeyedCollectionTypeName(mapExpectation.KeyedCollectionType))
+            {
+                var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+                nextExpect.Append(propertyName).Append(": ");
+                mapExpectation
+                    .KeyedCollectionType
+                    .AppendShortNameInCSharpFormat(nextExpect).Append(" ")
+                    .Append(expectValue.IndentSubsequentLines(tos.Settings.NewLineStyle));
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
             }
