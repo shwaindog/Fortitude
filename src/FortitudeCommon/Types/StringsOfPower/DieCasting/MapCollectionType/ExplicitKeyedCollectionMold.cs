@@ -27,29 +27,18 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
     }
 
     public override bool IsComplexType => true;
-
-    public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    {
-        var keyValueTypes   = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
-        var typeCreateFlags = stb.CreateMoldFormatFlags;
-        usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key
-                                                , keyValueTypes.Value.Value, formatFlags | typeCreateFlags);
-    }
-
-    public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
-    {
-        usingFormatter.FinishKeyedCollectionOpen(MoldStateField);
-    }
-
-    public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
-    {
-        var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount, formatFlags);
-    }
+    //
+    // public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
+    // {
+    //     var keyValueTypes   = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
+    //     var typeCreateFlags = Mws.CreateMoldFormatFlags;
+    //     usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key
+    //                                             , keyValueTypes.Value.Value, formatFlags | typeCreateFlags);
+    // }
 
     protected override void InheritedStateReset()
     {
-        stb = null!;
+        Mws = null!;
 
         base.InheritedStateReset();
     }
@@ -61,8 +50,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueFormatString, keyFormatString);
+        if (Mws.SkipBody) return this;
+        Mws.StyleFormatter.AppendKeyValuePair(Mws, Mws.TypeBeingBuilt, key, value, ItemCount++, valueFormatString, keyFormatString);
         return this;
     }
 
@@ -77,8 +66,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
+        if (Mws.SkipBody) return this;
+        Mws.StyleFormatter.AppendKeyValuePair(Mws, Mws.TypeBeingBuilt, key, value, ItemCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
         return this;
     }
 
@@ -93,8 +82,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
+        if (Mws.SkipBody) return this;
+        Mws.StyleFormatter.AppendKeyValuePair(Mws, Mws.TypeBeingBuilt, key, value, ItemCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
         return this;
     }
 
@@ -109,8 +98,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TV : struct, TValue, TVRevealBase
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
+        if (Mws.SkipBody) return this;
+        Mws.StyleFormatter.AppendKeyValuePair(Mws, Mws.TypeBeingBuilt, key, value, ItemCount++,  valueStyler, keyFormatString, valueFormatString, formatFlags);
         return this;
     }
 
@@ -124,8 +113,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
+        if (Mws.SkipBody) return this;
+        Mws.StyleFormatter.AppendKeyValuePair(Mws, Mws.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
@@ -139,8 +128,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
+        if (Mws.SkipBody) return this;
+        Mws.StyleFormatter.AppendKeyValuePair(Mws, Mws.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
@@ -154,8 +143,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
+        if (Mws.SkipBody) return this;
+        Mws.StyleFormatter.AppendKeyValuePair(Mws, Mws.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
 
@@ -169,8 +158,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
-        stb.StyleFormatter.AppendKeyValuePair(stb, stb.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
+        if (Mws.SkipBody) return this;
+        Mws.StyleFormatter.AppendKeyValuePair(Mws, Mws.TypeBeingBuilt, key, value, ItemCount++, valueStyler, keyStyler, valueFormatString, formatFlags);
         return this;
     }
     
@@ -196,7 +185,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
+        if (Mws.SkipBody) return this;
         AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
@@ -212,7 +201,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TV : TValue?, TVRevealBase?
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
+        if (Mws.SkipBody) return this;
         AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
@@ -229,7 +218,7 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
         where TV : struct, TValue, TVRevealBase
         where TVRevealBase : notnull
     {
-        if (stb.SkipBody) return this;
+        if (Mws.SkipBody) return this;
         AddKeyValueMatchEntry(key, value, valueStyler, keyFormatString, valueFormatString, formatFlags);
         return AppendNextKeyedCollectionEntrySeparator();
     }
@@ -300,8 +289,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
 
     public ExplicitKeyedCollectionMold<TKey, TValue> AppendNextKeyedCollectionEntrySeparator()
     {
-        if (stb.SkipBody) return this;
-        stb.StyleFormatter.AddToNextFieldSeparatorAndPadding();
+        if (Mws.SkipBody) return this;
+        Mws.StyleFormatter.AddToNextFieldSeparatorAndPadding();
         return this;
     }
     
