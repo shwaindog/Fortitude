@@ -1,5 +1,6 @@
 ﻿using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
 using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
 
@@ -444,7 +445,7 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysEnumerableStrin
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysEnumerate
+           .AddWithSelectKeysEnumerateValueRevealer
                (AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
                 // ReSharper disable once RedundantCast
               , ((IEnumerable<TKey>?)(DisplayKeys))!
@@ -476,7 +477,7 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysEnumerabl
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysEnumerate
+           .AddWithSelectKeysEnumerateNullValueRevealer
                (AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
                 // ReSharper disable once RedundantCast
               , ((IEnumerable<TKey>?)(DisplayKeys))!
@@ -509,7 +510,7 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysEnumeratorStrin
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysIterate
+           .AddWithSelectKeysIterateValueRevealer
                (AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
                 // ReSharper disable once GenericEnumeratorNotDisposed
               , (IEnumerator<TKey>)DisplayKeys?.GetEnumerator()!
@@ -541,7 +542,7 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysEnumerato
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysIterate
+           .AddWithSelectKeysIterateNullValueRevealer
                (AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
                 // ReSharper disable once GenericEnumeratorNotDisposed
               , (IEnumerator<TKey>)DisplayKeys?.GetEnumerator()!
@@ -829,7 +830,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysEnumera
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysEnumerate
+           .AddWithSelectKeysEnumerateBothRevealers
                (AddWithSelectKeysKeyValuePairEnumerableBothRevealers
                 // ReSharper disable once RedundantCast
               , ((IEnumerable<TKey>?)(DisplayKeys))!
@@ -861,7 +862,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysE
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysEnumerate
+           .AddWithSelectKeysEnumerateBothWithNullValueRevealers
                (AddWithSelectKeysKeyValuePairEnumerableBothRevealers
                 // ReSharper disable once RedundantCast
               , ((IEnumerable<TKey>?)(DisplayKeys))!
@@ -895,7 +896,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysEnumera
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysIterate
+           .AddWithSelectKeysIterateBothRevealers
                (AddWithSelectKeysKeyValuePairEnumeratorBothRevealers
               , (IEnumerator<TKey>)DisplayKeys?.GetEnumerator()!
               , ValueRevealer
@@ -926,7 +927,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysE
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysIterate
+           .AddWithSelectKeysIterateBothWithNullValueRevealers
                (AddWithSelectKeysKeyValuePairEnumeratorBothRevealers
               , (IEnumerator<TKey>)DisplayKeys?.GetEnumerator()!
               , ValueRevealer
