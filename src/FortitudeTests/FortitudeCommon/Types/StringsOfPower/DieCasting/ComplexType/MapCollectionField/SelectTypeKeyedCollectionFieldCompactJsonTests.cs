@@ -80,8 +80,8 @@ public class SelectTypeKeyedCollectionFieldCompactJsonTests : SelectTypeKeyedCol
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(ValueRevealerDictTestData.AllValueRevealerUnfilteredDictExpectations[16]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[676], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(SimpleDictTestData.AllPredicateFilteredSimpleDictExpectations[2]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[720], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

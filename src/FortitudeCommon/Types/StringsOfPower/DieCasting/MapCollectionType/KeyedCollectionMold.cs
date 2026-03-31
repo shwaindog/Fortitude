@@ -8,34 +8,40 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 
+public interface IKeyedCollectionExtendFunctionality
+{
+    public void BeforeFirstElementWriteFieldName(string fieldName);
+}
 
-public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionMold>
+public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionMold>, IKeyedCollectionExtendFunctionality
 {
     private ComplexType.CollectionField.SelectTypeCollectionField<KeyedCollectionMold>?         logOnlyInternalCollectionField;
     private ComplexType.UnitField.SelectTypeField<KeyedCollectionMold>?                         logOnlyInternalField;
     private ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<KeyedCollectionMold>? logOnlyInternalMapCollectionField;
-    
-    protected IMoldWriteState<KeyedCollectionMold> stb = null!;
+
+    protected IMoldWriteState<KeyedCollectionMold> Mws = null!;
 
     public int ItemCount = 0;
 
-    public KeyedCollectionMold InitializeKeyValueCollectionBuilder 
-    (   object instanceOrContainer
+    private string? beforeFirstItemFieldName;
+
+    public KeyedCollectionMold InitializeKeyValueCollectionBuilder
+    (object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower vesselOfStringOfPower
       , Type typeVisitedAs
       , string? typeName
       , int remainingGraphDepth
       , VisitResult moldGraphVisit
-      , WrittenAsFlags writeMethodType  
-      , CallerContext callerContext  
-      , CreateContext createContext )
+      , WrittenAsFlags writeMethodType
+      , CallerContext callerContext
+      , CreateContext createContext)
     {
         InitializeMultiValueTypeBuilder(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName
                                       , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createContext);
         WrittenAs = WrittenAsFlags.AsMapCollection;
 
-        stb = MoldStateField;
+        Mws = MoldStateField;
 
         return this;
     }
@@ -65,13 +71,30 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
                 .Recycler
                 .Borrow<ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<KeyedCollectionMold>>()
                 .Initialize(MoldStateField);
-    
+
+    void IKeyedCollectionExtendFunctionality.BeforeFirstElementWriteFieldName(string fieldName)
+    {
+        beforeFirstItemFieldName ??= fieldName;
+    }
+
+    public virtual void BeforeFirstElement(IMoldWriteState mws)
+    {
+        if (beforeFirstItemFieldName != null)
+        {
+            mws.FieldNameJoin(beforeFirstItemFieldName);
+            var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
+            mws.StyleFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
+            mws.StyleFormatter.FinishKeyedCollectionOpen(MoldStateField);
+            beforeFirstItemFieldName = null;
+        }
+    }
+
     public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
-        var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
+        var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
         usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, formatFlags);
     }
-    
+
     public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
         usingFormatter.FinishKeyedCollectionOpen(MoldStateField);
@@ -79,13 +102,19 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
     public override void AppendClosing(FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
-        var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!; 
-        MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount, formatFlags);
+        if (beforeFirstItemFieldName == null)
+        {
+            var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
+            MoldStateField.StyleFormatter.AppendKeyedCollectionClose(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, ItemCount
+                                                                   , formatFlags);
+        }
     }
 
     protected override void InheritedStateReset()
     {
-        stb  = null!;
+        Mws = null!;
+
+        beforeFirstItemFieldName = null;
 
         base.InheritedStateReset();
     }

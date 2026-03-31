@@ -140,7 +140,7 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysEnumerableStringBearer<
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysFromEnumerableBothFormatStrings
                 // ReSharper disable once RedundantCast
-              , ((IEnumerable<TKSelectDerived>?)(DisplayKeys))!
+              , ((IEnumerable<TKey>?)(DisplayKeys))!
               , ValueFormatString
               , KeyFormatString, FormattingFlags)
            .Complete();
@@ -166,10 +166,10 @@ public class KeyedFromKeyValueDictionaryAddWithSelectKeysEnumeratorStringBearer<
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived>
+           .AddWithSelectKeysIterate
                (AddWithSelectKeysKeyValuePairEnumeratorBothFormatStrings
                 // ReSharper disable once GenericEnumeratorNotDisposed
-              , DisplayKeys?.GetEnumerator()!
+              , (IEnumerator<TKey>)DisplayKeys?.GetEnumerator()!
               , ValueFormatString
               , KeyFormatString, FormattingFlags)
            .Complete();
@@ -447,7 +447,7 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysEnumerableStrin
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
                 // ReSharper disable once RedundantCast
-              , ((IEnumerable<TKSelectDerived>?)(DisplayKeys))!
+              , ((IEnumerable<TKey>?)(DisplayKeys))!
               , ValueRevealer
               , KeyFormatString
               , ValueFormatString, FormattingFlags)
@@ -479,7 +479,7 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysEnumerabl
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
                 // ReSharper disable once RedundantCast
-              , ((IEnumerable<TKSelectDerived>?)(DisplayKeys))!
+              , ((IEnumerable<TKey>?)(DisplayKeys))!
               , ValueRevealer
               , KeyFormatString
               , ValueFormatString, FormattingFlags)
@@ -509,10 +509,10 @@ public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysEnumeratorStrin
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived, TVRevealBase>
+           .AddWithSelectKeysIterate
                (AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
                 // ReSharper disable once GenericEnumeratorNotDisposed
-              , DisplayKeys?.GetEnumerator()!
+              , (IEnumerator<TKey>)DisplayKeys?.GetEnumerator()!
               , ValueRevealer
               , KeyFormatString
               , ValueFormatString, FormattingFlags)
@@ -541,10 +541,10 @@ public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysEnumerato
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived>
+           .AddWithSelectKeysIterate
                (AddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
                 // ReSharper disable once GenericEnumeratorNotDisposed
-              , DisplayKeys?.GetEnumerator()!
+              , (IEnumerator<TKey>)DisplayKeys?.GetEnumerator()!
               , ValueRevealer
               , KeyFormatString
               , ValueFormatString, FormattingFlags)
@@ -832,7 +832,7 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysEnumera
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumerableBothRevealers
                 // ReSharper disable once RedundantCast
-              , ((IEnumerable<TKSelectDerived>?)(DisplayKeys))!
+              , ((IEnumerable<TKey>?)(DisplayKeys))!
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)
@@ -864,7 +864,7 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysE
            .AddWithSelectKeysEnumerate
                (AddWithSelectKeysKeyValuePairEnumerableBothRevealers
                 // ReSharper disable once RedundantCast
-              , ((IEnumerable<TKSelectDerived>?)(DisplayKeys))!
+              , ((IEnumerable<TKey>?)(DisplayKeys))!
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)
@@ -895,9 +895,9 @@ public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysEnumera
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+           .AddWithSelectKeysIterate
                (AddWithSelectKeysKeyValuePairEnumeratorBothRevealers
-              , DisplayKeys?.GetEnumerator()!
+              , (IEnumerator<TKey>)DisplayKeys?.GetEnumerator()!
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)
@@ -926,9 +926,9 @@ public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysE
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartKeyedCollectionType(this)
-           .AddWithSelectKeysIterate<IEnumerator<TKSelectDerived>, TKey, TValue, TKSelectDerived, TKRevealBase>
+           .AddWithSelectKeysIterate
                (AddWithSelectKeysKeyValuePairEnumeratorBothRevealers
-              , DisplayKeys?.GetEnumerator()!
+              , (IEnumerator<TKey>)DisplayKeys?.GetEnumerator()!
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)

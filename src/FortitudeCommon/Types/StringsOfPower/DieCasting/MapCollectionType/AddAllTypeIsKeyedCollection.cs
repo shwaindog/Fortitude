@@ -91,8 +91,8 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -100,15 +100,19 @@ public partial class KeyedCollectionMold
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
-            ItemCount = value.Length;
+            ItemCount += value.Length;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(
@@ -121,23 +125,27 @@ public partial class KeyedCollectionMold
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
-            ItemCount = value.Length;
+            ItemCount += value.Length;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(KeyValuePair<TKey, TValue?>[]? value
@@ -148,23 +156,27 @@ public partial class KeyedCollectionMold
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
@@ -179,22 +191,26 @@ public partial class KeyedCollectionMold
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(
@@ -208,22 +224,26 @@ public partial class KeyedCollectionMold
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue>[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase>(
@@ -237,22 +257,26 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue?>[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(
@@ -265,22 +289,26 @@ public partial class KeyedCollectionMold
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(KeyValuePair<TKey, TValue?>[]);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Length; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Length;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(
@@ -290,8 +318,8 @@ public partial class KeyedCollectionMold
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             valueFormatString ??= "";
@@ -299,15 +327,19 @@ public partial class KeyedCollectionMold
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.AppendMatchFormattedOrNull(kvp.Value, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>
@@ -319,23 +351,27 @@ public partial class KeyedCollectionMold
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue?>>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
             var kvpType = typeof(KeyValuePair<TKey, TValue?>);
             for (var i = 0; i < value.Count; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue> (
@@ -347,23 +383,27 @@ public partial class KeyedCollectionMold
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue?>>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             keyFormatString ??= "";
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.AppendMatchFormattedOrNull(kvp.Key, keyFormatString, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase, TVRevealBase>(
@@ -378,22 +418,26 @@ public partial class KeyedCollectionMold
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TVRevealBase>(
@@ -407,22 +451,26 @@ public partial class KeyedCollectionMold
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue, TKRevealBase>(
@@ -436,22 +484,26 @@ public partial class KeyedCollectionMold
         where TKRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.RevealCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 
     public KeyedCollectionMold AddAll<TKey, TValue>(
@@ -464,21 +516,25 @@ public partial class KeyedCollectionMold
         where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyList<KeyValuePair<TKey, TValue>>);
-        if (stb.HasSkipBody(actualType, "", formatFlags))
-            return stb.WasSkipped(actualType, "", formatFlags);
+        if (Mws.HasSkipBody(actualType, "", formatFlags))
+            return Mws.WasSkipped(actualType, "", formatFlags);
         if (value != null)
         {
             var kvpType = typeof(KeyValuePair<TKey, TValue>);
             for (var i = 0; i < value.Count; i++)
             {
+                if (i == 0 && ItemCount == 0)
+                {
+                    BeforeFirstElement(Mws);
+                }
                 var kvp = value[i];
-                stb.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
-                stb.FieldEnd();
-                stb.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
-                stb.GoToNextCollectionItemStart(kvpType, i);
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Key, keyStyler, null, formatFlags | IsFieldName);
+                Mws.FieldEnd();
+                Mws.RevealNullableCloakedBearerOrNull(kvp.Value, valueRevealer, valueFormatString, formatFlags);
+                Mws.GoToNextCollectionItemStart(kvpType, i);
             }
             ItemCount = value.Count;
         }
-        return stb.Mold;
+        return Mws.Mold;
     }
 }

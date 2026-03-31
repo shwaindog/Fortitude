@@ -90,7 +90,7 @@ public class SelectTypeKeyedCollectionFieldCompactLogTests : SelectTypeKeyedColl
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
         ExecuteIndividualScaffoldExpectation(BothRevealersDictTestData.AllBothRevealersUnfilteredDictExpectations[17]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[588], StringBuilderType.MutableString);
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[622], StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
