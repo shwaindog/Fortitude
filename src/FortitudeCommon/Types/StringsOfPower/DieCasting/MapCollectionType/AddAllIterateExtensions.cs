@@ -371,10 +371,11 @@ public static class KeyedCollectionAddAllIterateExtensions
                          
                          methodParamTypes[1] = key.enumtrParamType;
                          
-                         using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(3);
+                         using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
                          invokeReflectedArgs[0] = toInvokeOn;
-                         invokeReflectedArgs[1] = key.enumtrType;
-                         invokeReflectedArgs[2] = methodParamTypes.AsArray;
+                         invokeReflectedArgs[1] = key.enumtrParamType;
+                         invokeReflectedArgs[2] = key.enumtrType;
+                         invokeReflectedArgs[3] = methodParamTypes.AsArray;
                          
                          return (ValueRevealerNoNullableStructInvoker<TEnumtr, TVRevealerBase>)
                              concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
@@ -383,12 +384,12 @@ public static class KeyedCollectionAddAllIterateExtensions
     }
 
     internal static ValueRevealerNoNullableStructInvoker<TEnumtr, TVRevealerBase> BuildAddAllValueRevealerNoNullableStructInvoker
-        <TEnumtr, TKey, TValue, TVRevealerBase>(MethodInfo methodInfo, Type enumtrType, Type[] methodParamTypes)
+        <TEnumtr, TKey, TValue, TVRevealerBase>(MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] methodParamTypes)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue>>?
         where TValue : TVRevealerBase?
         where TVRevealerBase : notnull
     {
-        var shouldUnbox = !typeof(TEnumtr).IsValueType && enumtrType.IsValueType;
+        var shouldUnbox = !enumtrParamType.IsValueType && enumtrType.IsValueType;
         
         var helperMethod =
             new DynamicMethod
@@ -499,10 +500,11 @@ public static class KeyedCollectionAddAllIterateExtensions
                               
                               methodParamTypes[1] = key.enumtrParamType;
                          
-                              using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(3);
+                              using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
                               invokeReflectedArgs[0] = toInvokeOn;
-                              invokeReflectedArgs[1] = key.enumtrType;
-                              invokeReflectedArgs[2] = methodParamTypes.AsArray;
+                              invokeReflectedArgs[1] = key.enumtrParamType;
+                              invokeReflectedArgs[2] = key.enumtrType;
+                              invokeReflectedArgs[3] = methodParamTypes.AsArray;
                               
                               return (ValueRevealerNullableValueStructInvoker<TEnumtr, TValue>)
                                   concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
@@ -511,11 +513,11 @@ public static class KeyedCollectionAddAllIterateExtensions
     }
 
     internal static ValueRevealerNullableValueStructInvoker<TEnumtr, TValue> BuildAddAllValueRevealerNullableValueStructInvoker
-        <TEnumtr, TKey, TValue>(MethodInfo methodInfo, Type enumtrType, Type[] methodParamTypes)
+        <TEnumtr, TKey, TValue>(MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] methodParamTypes)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue?>>?
         where TValue : struct
     {
-        var shouldUnbox = !typeof(TEnumtr).IsValueType && enumtrType.IsValueType;
+        var shouldUnbox = !enumtrParamType.IsValueType && enumtrType.IsValueType;
         
         var helperMethod =
             new DynamicMethod
@@ -634,10 +636,11 @@ public static class KeyedCollectionAddAllIterateExtensions
 
                      methodParamTypes[1] = key.enumtrParamType;
                          
-                     using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(3);
+                     using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
                      invokeReflectedArgs[0] = toInvokeOn;
-                     invokeReflectedArgs[1] = key.enumtrType;
-                     invokeReflectedArgs[2] = methodParamTypes.AsArray;
+                     invokeReflectedArgs[1] = key.enumtrParamType;
+                     invokeReflectedArgs[2] = key.enumtrType;
+                     invokeReflectedArgs[3] = methodParamTypes.AsArray;
                      
                      return (BothRevealersNoNullableStructInvoker<TEnumtr, TKRevealerBase, TVRevealerBase>)
                          concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
@@ -648,14 +651,14 @@ public static class KeyedCollectionAddAllIterateExtensions
 
     internal static BothRevealersNoNullableStructInvoker<TEnumtr, TKRevealerBase, TVRevealerBase>
         BuildAddAllBothRevealersNoNullableStructInvoker<TEnumtr, TKey, TValue, TKRevealerBase, TVRevealerBase>
-        (MethodInfo methodInfo, Type enumtrType, Type[] parameterArgTypes)
+        (MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] parameterArgTypes)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue>>?
         where TKey : TKRevealerBase?
         where TValue : TVRevealerBase?
         where TKRevealerBase : notnull
         where TVRevealerBase : notnull
     {
-        var shouldUnbox = !typeof(TEnumtr).IsValueType && enumtrType.IsValueType;
+        var shouldUnbox = !enumtrParamType.IsValueType && enumtrType.IsValueType;
 
         var signatureName = $"{parameterArgTypes[2].Name}_{parameterArgTypes[3].Name}";
         var helperMethod =
@@ -912,10 +915,11 @@ public static class KeyedCollectionAddAllIterateExtensions
                          
                          methodParamTypes[1] = key.enumtrParamType;
                          
-                         using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(3);
+                         using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
                          invokeReflectedArgs[0] = toInvokeOn;
-                         invokeReflectedArgs[1] = key.enumtrType;
-                         invokeReflectedArgs[2] = methodParamTypes.AsArray;
+                         invokeReflectedArgs[1] = key.enumtrParamType;
+                         invokeReflectedArgs[2] = key.enumtrType;
+                         invokeReflectedArgs[3] = methodParamTypes.AsArray;
                          
                          return (BothRevealersNullableValueStructInvoker<TEnumtr, TValue, TKRevealerBase>)
                              concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
@@ -925,12 +929,12 @@ public static class KeyedCollectionAddAllIterateExtensions
 
     internal static BothRevealersNullableValueStructInvoker<TEnumtr, TValue, TKRevealerBase> BuildAddAllBothRevealersNullableValueStructInvoker
         <TEnumtr, TKey, TValue, TKRevealerBase>
-        (MethodInfo methodInfo, Type enumtrType, Type[] methodParamTypes)
+        (MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] methodParamTypes)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue?>>?
         where TValue : struct
         where TKRevealerBase : notnull
     {
-        var shouldUnbox = !typeof(TEnumtr).IsValueType && enumtrType.IsValueType;
+        var shouldUnbox = !enumtrParamType.IsValueType && enumtrType.IsValueType;
 
         var helperMethod =
             new DynamicMethod
@@ -1064,13 +1068,10 @@ public static class KeyedCollectionAddAllIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator?
+        where TEnumtr : struct, IEnumerator
     {
-        var actualType = value?.GetType() ?? typeof(TEnumtr);
-        var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var invoker = GetAddAllNoRevealersInvoker<TEnumtr?>(actualType);
-        return invoker(callOn, value, valueFormatString, keyFormatString, formatFlags);
+        if (value == null) return callOn;
+        return callOn.AddAllIterate(value.Value, valueFormatString, keyFormatString, formatFlags);
     }
 
     public static KeyedCollectionMold AddAllIterate<TEnumtr>(
@@ -1079,14 +1080,13 @@ public static class KeyedCollectionAddAllIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : struct, IEnumerator
+        where TEnumtr : IEnumerator?
     {
         var actualType = value?.GetType() ?? typeof(TEnumtr);
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        if (value == null) return callOn;
-        var invoker = GetAddAllNoRevealersInvoker<TEnumtr>(actualType);
-        return invoker(callOn, value.Value, valueFormatString, keyFormatString, formatFlags);
+        var invoker = GetAddAllNoRevealersInvoker<TEnumtr?>(actualType);
+        return invoker(callOn, value, valueFormatString, keyFormatString, formatFlags);
     }
 
     public static KeyedCollectionMold AddAllIterate<TEnumtr, TKey, TValue>(
@@ -1143,6 +1143,20 @@ public static class KeyedCollectionAddAllIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+        where TVRevealBase : notnull
+    {
+        if (value == null) return callOn;
+        return callOn.AddAllIterateValueRevealer(value.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+    }
+
+    public static KeyedCollectionMold AddAllIterateValueRevealer<TEnumtr, TVRevealBase>(
+        this KeyedCollectionMold callOn
+      , TEnumtr? value
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TVRevealBase : notnull
     {
@@ -1153,26 +1167,6 @@ public static class KeyedCollectionAddAllIterateExtensions
         if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
         var invoker = GetAddAllValueRevealerNoNullableStructInvoker<TEnumtr, TVRevealBase>(actualType);
         return invoker(callOn, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
-    }
-
-    public static KeyedCollectionMold AddAllIterateValueRevealer<TEnumtr, TVRevealBase>(
-        this KeyedCollectionMold callOn
-      , TEnumtr? value
-      , PalantírReveal<TVRevealBase> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : struct, IEnumerator
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(TEnumtr);
-        var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var keyValueTypes = actualType.GetKeyedCollectionTypes();
-        if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
-        if (value == null) return callOn;
-        var invoker = GetAddAllValueRevealerNoNullableStructInvoker<TEnumtr, TVRevealBase>(actualType);
-        return invoker(callOn, value.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
     }
 
     public static KeyedCollectionMold AddAllIterateValueRevealer<TEnumtr, TKey, TValue, TVRevealBase>(
@@ -1234,6 +1228,20 @@ public static class KeyedCollectionAddAllIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+        where TValue : struct
+    {
+        if (value == null) return callOn;
+        return callOn.AddAllIterateNullValueRevealer(value.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+    }
+
+    public static KeyedCollectionMold AddAllIterateNullValueRevealer<TEnumtr, TValue>(
+        this KeyedCollectionMold callOn
+      , TEnumtr? value
+      , PalantírReveal<TValue> valueRevealer
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TValue : struct
     {
@@ -1244,26 +1252,6 @@ public static class KeyedCollectionAddAllIterateExtensions
         if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
         var invoker = GetAddAllValueRevealerNullableValueStructInvoker<TEnumtr, TValue>(actualType);
         return invoker(callOn, value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
-    }
-
-    public static KeyedCollectionMold AddAllIterateNullValueRevealer<TEnumtr, TValue>(
-        this KeyedCollectionMold callOn
-      , TEnumtr? value
-      , PalantírReveal<TValue> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : struct, IEnumerator
-        where TValue : struct
-    {
-        var actualType = value?.GetType() ?? typeof(TEnumtr);
-        var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var keyValueTypes = actualType.GetKeyedCollectionTypes();
-        if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
-        if (value == null) return callOn;
-        var invoker = GetAddAllValueRevealerNullableValueStructInvoker<TEnumtr, TValue>(actualType);
-        return invoker(callOn, value.Value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
     }
 
     public static KeyedCollectionMold AddAllIterateNullValueRevealer<TEnumtr, TKey, TValue>(
@@ -1323,6 +1311,21 @@ public static class KeyedCollectionAddAllIterateExtensions
       , PalantírReveal<TKRevealBase> keyStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+        where TKRevealBase : notnull
+        where TVRevealBase : notnull
+    {
+        if (value == null) return callOn;
+        return callOn.AddAllIterateBothRevealers(value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
+    }
+
+    public static KeyedCollectionMold AddAllIterateBothRevealers<TEnumtr, TKRevealBase, TVRevealBase>(
+        this KeyedCollectionMold callOn
+      , TEnumtr? value
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TKRevealBase : notnull
         where TVRevealBase : notnull
@@ -1334,27 +1337,6 @@ public static class KeyedCollectionAddAllIterateExtensions
         if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
         var invoker = GetAddAllBothRevealersNoNullableStructInvoker<TEnumtr, TKRevealBase, TVRevealBase>(actualType);
         return invoker(callOn, value!, valueRevealer, keyStyler, valueFormatString, formatFlags);
-    }
-
-    public static KeyedCollectionMold AddAllIterateBothRevealers<TEnumtr, TKRevealBase, TVRevealBase>(
-        this KeyedCollectionMold callOn
-      , TEnumtr? value
-      , PalantírReveal<TVRevealBase> valueRevealer
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : struct, IEnumerator
-        where TKRevealBase : notnull
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(TEnumtr);
-        var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var keyValueTypes = actualType.GetKeyedCollectionTypes();
-        if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
-        if (value == null) return callOn;
-        var invoker = GetAddAllBothRevealersNoNullableStructInvoker<TEnumtr, TKRevealBase, TVRevealBase>(actualType);
-        return invoker(callOn, value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
     public static KeyedCollectionMold AddAllIterateBothRevealers<TEnumtr, TKey, TValue, TKRevealBase, TVRevealBase>(
@@ -1371,7 +1353,8 @@ public static class KeyedCollectionAddAllIterateExtensions
         where TVRevealBase : notnull
     {
         if (value == null) return callOn;
-        return callOn.AddAllIterateBothRevealers(value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
+        return callOn.AddAllIterateBothRevealers<TEnumtr, TKey, TValue, TKRevealBase, TVRevealBase>
+            (value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
     public static KeyedCollectionMold AddAllIterateBothRevealers<TEnumtr, TKey, TValue, TKRevealBase, TVRevealBase>(
@@ -1418,6 +1401,21 @@ public static class KeyedCollectionAddAllIterateExtensions
       , PalantírReveal<TKey> keyStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+        where TKey : struct
+        where TVRevealBase : notnull
+    {
+        if (value == null) return callOn;
+        return callOn.AddAllIterateBothWithNullKeyRevealers(value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
+    }
+
+    public static KeyedCollectionMold AddAllIterateBothWithNullKeyRevealers<TEnumtr, TKey, TVRevealBase>(
+        this KeyedCollectionMold callOn
+      , TEnumtr? value
+      , PalantírReveal<TVRevealBase> valueRevealer
+      , PalantírReveal<TKey> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TKey : struct
         where TVRevealBase : notnull
@@ -1429,27 +1427,6 @@ public static class KeyedCollectionAddAllIterateExtensions
         if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
         var invoker = GetAddAllBothRevealersNullableKeyStructInvoker<TEnumtr, TKey, TVRevealBase>(actualType);
         return invoker(callOn, value, valueRevealer, keyStyler, valueFormatString, formatFlags);
-    }
-
-    public static KeyedCollectionMold AddAllIterateBothWithNullKeyRevealers<TEnumtr, TKey, TVRevealBase>(
-        this KeyedCollectionMold callOn
-      , TEnumtr? value
-      , PalantírReveal<TVRevealBase> valueRevealer
-      , PalantírReveal<TKey> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : struct, IEnumerator
-        where TKey : struct
-        where TVRevealBase : notnull
-    {
-        var actualType = value?.GetType() ?? typeof(TEnumtr);
-        var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var keyValueTypes = actualType.GetKeyedCollectionTypes();
-        if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
-        if (value == null) return callOn;
-        var invoker = GetAddAllBothRevealersNullableKeyStructInvoker<TEnumtr, TKey, TVRevealBase>(actualType);
-        return invoker(callOn, value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
     public static KeyedCollectionMold AddAllIterateBothWithNullKeyRevealers<TEnumtr, TKey, TValue, TVRevealBase>(
@@ -1512,6 +1489,21 @@ public static class KeyedCollectionAddAllIterateExtensions
       , PalantírReveal<TKRevealBase> keyStyler
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+        where TKRevealBase : notnull
+        where TValue : struct
+    {
+        if (value == null) return callOn;
+        return callOn.AddAllIterateBothWithNullValueRevealers(value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
+    }
+
+    public static KeyedCollectionMold AddAllIterateBothWithNullValueRevealers<TEnumtr, TValue, TKRevealBase>(
+        this KeyedCollectionMold callOn
+      , TEnumtr? value
+      , PalantírReveal<TValue> valueRevealer
+      , PalantírReveal<TKRevealBase> keyStyler
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TKRevealBase : notnull
         where TValue : struct
@@ -1523,27 +1515,6 @@ public static class KeyedCollectionAddAllIterateExtensions
         if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
         var invoker = GetAddAllBothRevealersNullableValueStructInvoker<TEnumtr, TValue, TKRevealBase>(actualType);
         return invoker(callOn, value, valueRevealer, keyStyler, valueFormatString, formatFlags);
-    }
-
-    public static KeyedCollectionMold AddAllIterateBothWithNullValueRevealers<TEnumtr, TValue, TKRevealBase>(
-        this KeyedCollectionMold callOn
-      , TEnumtr? value
-      , PalantírReveal<TValue> valueRevealer
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : struct, IEnumerator
-        where TKRevealBase : notnull
-        where TValue : struct
-    {
-        var actualType = value?.GetType() ?? typeof(TEnumtr);
-        var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        var keyValueTypes = actualType.GetKeyedCollectionTypes();
-        if (!keyValueTypes.HasValue) throw new ArgumentException("Expected to receive a KeyValue enumerator");
-        if (value == null) return callOn;
-        var invoker = GetAddAllBothRevealersNullableValueStructInvoker<TEnumtr, TValue, TKRevealBase>(actualType);
-        return invoker(callOn, value.Value, valueRevealer, keyStyler, valueFormatString, formatFlags);
     }
 
     public static KeyedCollectionMold AddAllIterateBothWithNullValueRevealers<TEnumtr, TKey, TValue, TKRevealBase>(

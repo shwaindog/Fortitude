@@ -632,7 +632,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
          && (formatFlags.HasAddTypeNameFieldFlag() || mws.Settings.ShouldDisplayKeyedCollectionTypeName(keyedCollectionType)))
         {
             keyedCollectionType.AppendShortNameInCSharpFormat(sb);
-            mws.WroteTypeName = true;
+            mws.StartedTypeName = true;
             Gb.MarkContentEnd(sb.Length);
             return Gb.Complete(formatFlags);
         }
@@ -642,10 +642,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
     public virtual ContentSeparatorRanges FinishKeyedCollectionOpen(IMoldWriteState mws)
     {
-        if (mws.WroteTypeName)
+        if (mws.StartedTypeName)
         {
             Gb.AppendContent(Spc);
             Gb.AppendContent(BrcOpn);
+            mws.WroteTypeName = true;
             return AddNextFieldPadding(mws.CreateMoldFormatFlags);
         }
         return ContentSeparatorRanges.None;

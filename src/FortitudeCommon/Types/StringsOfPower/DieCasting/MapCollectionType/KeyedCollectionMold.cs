@@ -4,6 +4,7 @@
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
+using FortitudeCommon.Types.StringsOfPower.Options;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
@@ -84,7 +85,17 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
             mws.FieldNameJoin(beforeFirstItemFieldName);
             var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
             mws.StyleFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value);
+            if (mws.Style.IsLog() && mws.StartedTypeName)
+            {
+                MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, mws.StyleFormatter
+                                  , MoldStateField.CreateWriteMethod, MoldStateField.MoldWrittenFlags, mws.CreateMoldFormatFlags);
+            }
             mws.StyleFormatter.FinishKeyedCollectionOpen(MoldStateField);
+            if (mws.Style.IsNotLog())
+            {
+                MyAppendGraphFields(MoldStateField.InstanceOrType, MoldStateField.MoldGraphVisit, mws.StyleFormatter
+                                  , MoldStateField.CreateWriteMethod, MoldStateField.MoldWrittenFlags, mws.CreateMoldFormatFlags);
+            }
             beforeFirstItemFieldName = null;
         }
     }
