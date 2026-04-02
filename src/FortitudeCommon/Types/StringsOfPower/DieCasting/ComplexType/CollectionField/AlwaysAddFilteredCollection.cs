@@ -1186,7 +1186,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         stb.FieldNameJoin(fieldName);
         if (value != null)
             stb.Master.StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags).Complete();
+               .AddFilteredEnumerateBool(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(elementType, actualType, null, null, formatString, formatFlags
@@ -1206,7 +1206,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredEnumerateNullable(value, filterPredicate, formatString, formatFlags).Complete();
+               .AddFilteredEnumerateNullableBool(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(elementType, actualType, null, null, formatString, formatFlags
@@ -1218,7 +1218,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TFmt?>?
+        where TEnumbl : IEnumerable<TFmt>?
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(TEnumbl);
@@ -1264,7 +1264,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysRevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCloaked?>?
+        where TEnumbl : IEnumerable<TCloaked>?
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
@@ -1308,7 +1308,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysRevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TBearer?>?
+        where TEnumbl : IEnumerable<TBearer>?
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(TEnumbl);
@@ -1371,7 +1371,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCharSeq?>?
+        where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = value?.GetType() ?? typeof(TEnumbl);
@@ -1416,7 +1416,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(string fieldName, TEnumbl? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TAny?>?
+        where TEnumbl : IEnumerable<TAny>?
         where TAny : TAnyBase?
     {
         var actualType = value?.GetType() ?? typeof(TEnumbl);
@@ -1503,7 +1503,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddFilteredIterate<TEnumtr, TFmt, TFmtBase>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TFmt?>?
+        where TEnumtr : IEnumerator<TFmt>?
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt>);
@@ -1548,7 +1548,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysRevealFilteredIterate<TEnumtr, TCloaked, TFilterBase, TRevealBase>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TCloaked?>?
+        where TEnumtr : IEnumerator<TCloaked>?
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
@@ -1592,7 +1592,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysRevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TBearer?>?
+        where TEnumtr : IEnumerator<TBearer>?
         where TBearer : IStringBearer?, TBearerBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer?>);
@@ -1654,7 +1654,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddFilteredCharSeqIterate<TEnumtr, TCharSeq, TCharSeqBase>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TCharSeq?>?
+        where TEnumtr : IEnumerator<TCharSeq>?
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCharSeq?>);

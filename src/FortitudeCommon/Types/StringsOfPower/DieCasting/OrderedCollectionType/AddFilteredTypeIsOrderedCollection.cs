@@ -393,176 +393,31 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<bool> filterPredicate
+    public TOCMold AddFilteredEnumerateBool<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<bool>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(bool);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredEnumerateBool(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerateNullable<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TOCMold AddFilteredEnumerateNullableBool<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool?>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<bool?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(bool?);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredEnumerateNullableBool(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<bool>?
-    
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<bool>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(bool);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredIterateBool(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFilteredIterateNullable<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
@@ -570,62 +425,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<bool?>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<bool?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(bool?);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredIterateNullableBool(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFiltered<TFmt, TFmtBase>(TFmt[]? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
@@ -1014,56 +815,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     public TOCMold AddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(TEnumbl? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TFmt?>?
+        where TEnumbl : IEnumerable<TFmt>?
         where TFmt : ISpanFormattable?, TFmtBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TFmt>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TFmt);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(TEnumbl value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
@@ -1072,117 +828,18 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TEnumbl : IEnumerable<TFmtStruct?>?
         where TFmtStruct : struct, ISpanFormattable
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TFmtStruct?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TFmtStruct?);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredEnumerateNullable(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFilteredIterate<TEnumtr, TFmt, TFmtBase>(TEnumtr? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TFmt?>?
+        where TEnumtr : IEnumerator<TFmt>?
         where TFmt : ISpanFormattable?, TFmtBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<TFmt?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TFmt);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredIterate<TEnumtr, TFmt, TFmtBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFilteredIterateNullable<TEnumtr, TFmtStruct>(TEnumtr? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
@@ -1191,62 +848,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TEnumtr : IEnumerator<TFmtStruct?>?
         where TFmtStruct : struct, ISpanFormattable
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<TFmtStruct?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TFmtStruct?);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredIterateNullable(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold RevealFiltered<TCloaked, TFilterBase, TRevealBase>(TCloaked[]? value
@@ -1643,56 +1246,12 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCloaked?>?
+        where TEnumbl : IEnumerable<TCloaked>?
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TCloaked?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TCloaked);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerateNullable<TEnumbl, TCloakedStruct>(TEnumbl? value
@@ -1702,117 +1261,21 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TEnumbl : IEnumerable<TCloakedStruct?>?
         where TCloakedStruct : struct
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TCloakedStruct?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TCloakedStruct);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.RevealFilteredEnumerateNullable(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold RevealFilteredIterate<TEnumtr, TCloaked, TCloakedFilterBase, TCloakedRevealBase>(TEnumtr? value
       , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TCloaked?>?
+        where TEnumtr : IEnumerator<TCloaked>?
         where TCloaked : TCloakedFilterBase?, TCloakedRevealBase?
         where TCloakedRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<TCloaked?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TCloaked);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.RevealFilteredIterate<TEnumtr, TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+            (value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold RevealFilteredIterateNullable<TEnumtr, TCloakedStruct>(TEnumtr? value
@@ -1822,61 +1285,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TEnumtr : IEnumerator<TCloakedStruct?>?
         where TCloakedStruct : struct
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<TCloakedStruct?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TCloakedStruct);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.RevealFilteredIterateNullable(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold RevealFiltered<TBearer, TBearerBase>(TBearer[]? value, OrderedCollectionPredicate<TBearerBase> filterPredicate
@@ -2257,55 +1667,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     public TOCMold RevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(TEnumbl? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TBearer?>?
+        where TEnumbl : IEnumerable<TBearer>?
         where TBearer : IStringBearer?, TBearerBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TBearer>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TBearer);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.RevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold RevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(TEnumbl? value
@@ -2314,115 +1680,18 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TEnumbl : IEnumerable<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TBearerStruct?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TBearerStruct);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.RevealFilteredEnumerateNullable(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold RevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(TEnumtr? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TBearer?>?
+        where TEnumtr : IEnumerator<TBearer>?
         where TBearer : IStringBearer?, TBearerBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TBearer);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.RevealFilteredIterateStringBearer<TEnumtr, TBearer, TBearerBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold RevealFilteredIterateNullable<TEnumtr, TBearerStruct>(TEnumtr? value
@@ -2431,61 +1700,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TEnumtr : IEnumerator<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<TBearerStruct?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TBearerStruct);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.RevealFilteredIterateNullableStringBearer(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFiltered(string?[]? value, OrderedCollectionPredicate<string> filterPredicate
@@ -2767,53 +1983,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<string?>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<string?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(string);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredStringEnumerate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
 
@@ -2822,62 +1993,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<string?>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<string?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(string);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredIterateString(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFilteredCharSeq<TCharSeq, TCharSeqBase>(TCharSeq[]? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
@@ -3077,56 +2194,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCharSeq?>?
+        where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TCharSeq);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
 
@@ -3134,65 +2206,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TCharSeq?>?
+        where TEnumtr : IEnumerator<TCharSeq>?
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<TCharSeq?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TCharSeq);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                hasValue = value.MoveNext();
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFiltered(StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
@@ -3484,53 +2502,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<StringBuilder?>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<StringBuilder?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(StringBuilder);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredStringBuilderEnumerate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
 
@@ -3539,62 +2512,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<StringBuilder?>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<StringBuilder?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(StringBuilder);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredIterateStringBuilder(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFilteredMatch<TAny, TAnyBase>(TAny[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -3792,56 +2711,11 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     public TOCMold AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(TEnumbl? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TAny?>?
+        where TEnumbl : IEnumerable<TAny>?
         where TAny : TAnyBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<TAny?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TAny);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     public TOCMold AddFilteredMatchIterate<TEnumtr, TAny, TAnyBase>(TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
@@ -3850,62 +2724,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TEnumtr : IEnumerator<TAny?>?
         where TAny : TAnyBase?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<TAny?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(TAny);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredMatchIterate<TEnumtr, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     [CallsObjectToString]
@@ -4201,53 +3021,8 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<object?>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerable<object?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(object);
-        var  any             = false;
-        var  itemCount       = 0;
-        int? collectionItems = null;
-
-        TrackedInstanceMold? valueMold = null;
-        if (value != null)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            foreach (var item in value)
-            {
-                count++;
-                if (skipCount-- > 0) continue;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 
     [CallsObjectToString]
@@ -4256,61 +3031,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<object?>?
     {
-        var actualType = value?.GetType() ?? typeof(IEnumerator<object?>);
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var  elementType     = typeof(object);
-        var  any             = false;
-        var  hasValue        = value?.MoveNext() ?? false;
-        var  itemCount       = 0;
-        int? collectionItems = value == null ? null : 0;
-
-        TrackedInstanceMold? valueMold = null;
-        if (hasValue)
-        {
-            formatString ??= "";
-            var count     = 0;
-            var skipCount = 0;
-            while (hasValue)
-            {
-                count++;
-                if (skipCount-- > 0)
-                {
-                    hasValue = value!.MoveNext();
-                    continue;
-                }
-                var item         = value!.Current;
-                var filterResult = filterPredicate?.Invoke(count, item!) ?? IncludedContinueToNext;
-                if (filterResult is { IncludeItem: false })
-                {
-                    if (filterResult is { KeepProcessing: true })
-                    {
-                        skipCount = filterResult.SkipNextCount;
-                        hasValue  = value.MoveNext();
-                        continue;
-                    }
-                    break;
-                }
-                if (!any)
-                {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
-                    any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
-                }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
-                if (filterResult is { KeepProcessing: false }) break;
-                skipCount = filterResult.SkipNextCount;
-                hasValue  = value.MoveNext();
-            }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-            collectionItems = count;
-        }
-        value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
-        return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
+        mws.AddFilteredObjectIterate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
     }
 }

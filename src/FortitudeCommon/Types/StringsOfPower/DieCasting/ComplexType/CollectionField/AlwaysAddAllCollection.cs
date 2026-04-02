@@ -1211,7 +1211,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(string fieldName, TEnumbl? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCloaked?>?
+        where TEnumbl : IEnumerable<TCloaked>?
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1323,7 +1323,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddAllCharSeqEnumerate<TEnumbl, TCharSeq>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCharSeq?>?
+        where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : ICharSequence?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq>);
@@ -1368,7 +1368,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddAllMatchEnumerate<TEnumbl, TAny>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TAny?>?
+        where TEnumbl : IEnumerable<TAny>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<TAny>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);

@@ -202,7 +202,7 @@ public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBe
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateBool
                (OrderedCollectionAddFilteredBoolEnumerable
                , ElementPredicate
                , ValueFormatString, FormattingFlags)
@@ -225,7 +225,7 @@ public class OrderedFromNullableBoolEnumerableAddFilteredSimpleOrderedCollection
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerateNullable
+           .AddFilteredEnumerateNullableBool
                (OrderedCollectionAddFilteredNullableBoolEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)

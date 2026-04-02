@@ -298,7 +298,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullAddAllEnumerate<TEnumbl, TFmt>(string fieldName, TEnumbl? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-      where TEnumbl : IEnumerable<TFmt?>?
+      where TEnumbl : IEnumerable<TFmt>?
       where TFmt : ISpanFormattable? =>
         WhenConditionMetAddAllEnumerate<TEnumbl, TFmt>(value != null, fieldName, value, formatString, formatFlags);
 
@@ -311,7 +311,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(string fieldName, TEnumbl? value
     , PalantírReveal<TRevealBase> palantírReveal
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-      where TEnumbl : IEnumerable<TCloaked?>?
+      where TEnumbl : IEnumerable<TCloaked>?
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         WhenConditionMetRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(value != null, fieldName, value, palantírReveal, formatString, formatFlags);
@@ -342,7 +342,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullAddAllCharSeqEnumerate<TEnumbl, TCharSeq>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-      where TEnumbl : IEnumerable<TCharSeq?>?
+      where TEnumbl : IEnumerable<TCharSeq>?
       where TCharSeq : ICharSequence? =>
         WhenConditionMetAddAllCharSeqEnumerate<TEnumbl, TCharSeq>(value != null, fieldName, value, formatString, formatFlags);
 

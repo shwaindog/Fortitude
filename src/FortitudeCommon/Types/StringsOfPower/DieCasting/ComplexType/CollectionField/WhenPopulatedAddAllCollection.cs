@@ -408,7 +408,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedAddAllEnumerate<TEnumbl, TFmt>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TFmt?>?
+        where TEnumbl : IEnumerable<TFmt>?
         where TFmt : ISpanFormattable? =>
         (value?.Any() ?? false)
             ? AlwaysAddAllEnumerate<TEnumbl, TFmt>(fieldName, value, formatString, formatFlags)
@@ -425,7 +425,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenPopulatedRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(string fieldName, TEnumbl? value
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCloaked?>?
+        where TEnumbl : IEnumerable<TCloaked>?
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         (value?.Any() ?? false)
@@ -443,7 +443,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedRevealAllEnumerate<TEnumbl, TBearer>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TBearer?>?
+        where TEnumbl : IEnumerable<TBearer>?
         where TBearer : IStringBearer? =>
         (value?.Any() ?? false)
             ? AlwaysRevealAllEnumerate<TEnumbl, TBearer>(fieldName, value, formatString, formatFlags)
@@ -466,7 +466,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedAddAllCharSeqEnumerate<TEnumbl, TCharSeq>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCharSeq?>?
+        where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : ICharSequence? =>
         (value?.Any() ?? false)
             ? AlwaysAddAllCharSeqEnumerate<TEnumbl, TCharSeq>(fieldName, value, formatString, formatFlags)
@@ -481,7 +481,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenPopulatedAddAllMatchEnumerate<TEnumbl, TAny>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TAny?>? =>
+        where TEnumbl : IEnumerable<TAny>? =>
         (value?.Any() ?? false)
             ? AlwaysAddAllMatchEnumerate<TEnumbl, TAny>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IEnumerable<TAny?>), fieldName, formatFlags);

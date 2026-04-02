@@ -500,7 +500,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     (string fieldName, TEnumtr value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
-      where TEnumtr : IEnumerator<TFmt?>? 
+      where TEnumtr : IEnumerator<TFmt>? 
       where TFmt : ISpanFormattable?, TFmtBase? =>
         WhenConditionMetAddFilteredIterate<TEnumtr, TFmt, TFmtBase>(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 

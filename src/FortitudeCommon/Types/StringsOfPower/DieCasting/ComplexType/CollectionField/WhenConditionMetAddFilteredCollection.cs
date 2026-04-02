@@ -718,7 +718,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TFmt?>? 
+        where TEnumbl : IEnumerable<TFmt>? 
         where TFmt : ISpanFormattable?, TFmtBase? =>
         condition
             ? AlwaysAddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(fieldName, value, filterPredicate, formatString, formatFlags)
@@ -745,7 +745,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCloaked?>?
+        where TEnumbl : IEnumerable<TCloaked>?
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull =>
         condition
@@ -774,7 +774,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TBearer?>?
+        where TEnumbl : IEnumerable<TBearer>?
         where TBearer : IStringBearer?, TBearerBase? =>
         condition
             ? AlwaysRevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(fieldName, value, filterPredicate, formatString, formatFlags)
@@ -812,7 +812,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<TCharSeq?>?
+        where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : ICharSequence?, TCharSeqBase? =>
         !stb.SkipFields && condition
             ? AlwaysAddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(fieldName, value, filterPredicate, formatString, formatFlags)
@@ -837,7 +837,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
-        where TEnumbl : IEnumerable<TAny?>? 
+        where TEnumbl : IEnumerable<TAny>? 
         where TAny : TAnyBase? =>
         !stb.SkipFields && condition
             ? AlwaysAddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(fieldName, value, filterPredicate, formatString, formatFlags)
@@ -885,7 +885,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
-        where TEnumtr : IEnumerator<TFmt?>?
+        where TEnumtr : IEnumerator<TFmt>?
         where TFmt : ISpanFormattable?, TFmtBase? =>
         condition
             ? AlwaysAddFilteredIterate<TEnumtr, TFmt, TFmtBase>(fieldName, value, filterPredicate, formatString, formatFlags)
@@ -912,7 +912,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TCloaked?>?
+        where TEnumtr : IEnumerator<TCloaked>?
         where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull =>
         condition
@@ -941,7 +941,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TBearer?>?
+        where TEnumtr : IEnumerator<TBearer>?
         where TBearer : IStringBearer?, TBearerBase? =>
         condition
             ? AlwaysRevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(fieldName, value, filterPredicate, formatString, formatFlags)
@@ -979,7 +979,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TCharSeq?>?
+        where TEnumtr : IEnumerator<TCharSeq>?
         where TCharSeq : ICharSequence?, TCharSeqBase? =>
         !stb.SkipFields && condition
             ? AlwaysAddFilteredCharSeqIterate<TEnumtr, TCharSeq, TCharSeqBase>(fieldName, value, filterPredicate, formatString, formatFlags)

@@ -13,6 +13,7 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 using static System.Reflection.BindingFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
+#pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
