@@ -96,12 +96,12 @@ public class SelectTypeCollectionFieldCompactJsonTests : SelectTypeCollectionFie
     public void FilteredCompactJsonStringBearerList(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[3]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[317], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(NumberCollectionsTestData.AllNumberCollectionsExpectations[2]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[354], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory,  ITheOneString tos, Type? className, string propertyName

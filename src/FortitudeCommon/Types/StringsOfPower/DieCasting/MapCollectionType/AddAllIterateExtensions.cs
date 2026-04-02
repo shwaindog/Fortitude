@@ -44,16 +44,16 @@ public static class KeyedCollectionAddAllIterateExtensions
     internal delegate KeyedCollectionMold NoRevealersNoNullableStructInvoker<in TEnumtr>(
         KeyedCollectionMold callOn
       , TEnumtr? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , string? valueFormatString = null
+      , string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator;
 
     internal delegate KeyedCollectionMold NoRevealersNoNullableStructInvoker<in TEnumtr, TKey, TValue>(
         KeyedCollectionMold callOn
       , TEnumtr? value
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , string? valueFormatString = null
+      , string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue>>?;
 
@@ -61,8 +61,8 @@ public static class KeyedCollectionAddAllIterateExtensions
         KeyedCollectionMold callOn
       , TEnumtr? value
       , PalantírReveal<TVRevealBase> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? keyFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TVRevealBase : notnull;
@@ -71,8 +71,8 @@ public static class KeyedCollectionAddAllIterateExtensions
         KeyedCollectionMold callOn
       , TEnumtr? value
       , PalantírReveal<TVRevealBase> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? keyFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue>>?
         where TValue : TVRevealBase?
@@ -83,8 +83,8 @@ public static class KeyedCollectionAddAllIterateExtensions
         KeyedCollectionMold callOn
       , TEnumtr? value
       , PalantírReveal<TValue> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? keyFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TValue : struct;
@@ -94,8 +94,8 @@ public static class KeyedCollectionAddAllIterateExtensions
         KeyedCollectionMold callOn
       , TEnumtr? value
       , PalantírReveal<TValue> valueRevealer
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? keyFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue?>>?
         where TValue : struct;
@@ -106,7 +106,7 @@ public static class KeyedCollectionAddAllIterateExtensions
       , TEnumtr value
       , PalantírReveal<TVRevealBase> valueRevealer
       , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TKRevealBase : notnull
@@ -117,7 +117,7 @@ public static class KeyedCollectionAddAllIterateExtensions
       , TEnumtr value
       , PalantírReveal<TVRevealBase> valueRevealer
       , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue>>?
         where TKey : TKRevealBase?
@@ -131,7 +131,7 @@ public static class KeyedCollectionAddAllIterateExtensions
       , TEnumtr? value
       , PalantírReveal<TVRevealBase> valueRevealer
       , PalantírReveal<TKey> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TKey : struct
@@ -143,7 +143,7 @@ public static class KeyedCollectionAddAllIterateExtensions
       , TEnumtr? value
       , PalantírReveal<TVRevealBase> valueRevealer
       , PalantírReveal<TKey> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<KeyValuePair<TKey?, TValue>>?
         where TKey : struct
@@ -156,7 +156,7 @@ public static class KeyedCollectionAddAllIterateExtensions
       , TEnumtr? value
       , PalantírReveal<TValue> valueRevealer
       , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
         where TValue : struct
@@ -168,7 +168,7 @@ public static class KeyedCollectionAddAllIterateExtensions
       , TEnumtr? value
       , PalantírReveal<TValue> valueRevealer
       , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue?>>?
         where TValue : struct

@@ -231,7 +231,7 @@ public abstract partial class FLogEntryMessageBuilder
         (ITheOneString? toAppendTo, IEnumerator<TFmt>? value, string? formatString = null) where TFmt : ISpanFormattable
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllIterate<IEnumerator<TFmt>?, TFmt>(value, null, formatString).Complete();
+                  .AddAllIterate<IEnumerator<TFmt>?, TFmt>(value, formatString).Complete();
         return toAppendTo;
     }
 
@@ -250,7 +250,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllIterate<IEnumerator<TFmt>?, TFmt>(value, null, formatString).Complete();
+                .AddAllIterate<IEnumerator<TFmt>?, TFmt>(value, formatString).Complete();
         return appender;
     }
 
@@ -429,7 +429,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllMatchIterate<IEnumerator<T>?, T>(value, null, formatString).Complete();
+                  .AddAllMatchIterate<IEnumerator<T>?, T>(value, formatString).Complete();
         return toAppendTo;
     }
 
@@ -448,7 +448,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllMatchIterate<IEnumerator<T>?, T>(value, null, formatString).Complete();
+                .AddAllMatchIterate<IEnumerator<T>?, T>(value, formatString).Complete();
         return appender;
     }
 

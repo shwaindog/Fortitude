@@ -1,11 +1,12 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Globalization;
 using System.Reflection;
 using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
 using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
@@ -108,16 +109,12 @@ public class OrderedCollectionMoldPrettyLogTests : OrderedCollectionMoldTests
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
-        var collFullName    = className?.FullName ?? "";
-        var elementFullName = elementType?.FullName ?? "";
+        var settings = tos.Settings;
 
-        var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
-        var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
-
-        var prettyLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName)
-            ? "{1}"
-            : "({0}) {1}";
+        var shouldDisplayName = settings.ShouldDisplayTypeName(className ?? typeof(object));
+        var prettyLogTemplate = className != null &&  shouldDisplayName
+            ? "({0}) {1}"
+            : "{1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue))
@@ -133,17 +130,12 @@ public class OrderedCollectionMoldPrettyLogTests : OrderedCollectionMoldTests
     protected override IStringBuilder BuildExpectedChildOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
       , ScaffoldingStringBuilderInvokeFlags condition, IFormatExpectation expectation) 
     {
-        var elementType     = className?.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? className;
-        var collFullName    = className?.FullName ?? "";
-        var elementFullName = elementType?.FullName ?? "";
+        var settings = tos.Settings;
 
-        var collectionShouldSuppressName = tos.Settings.LogSuppressDisplayCollectionNames.Any(s => collFullName.StartsWith(s));
-        var elementShouldSuppressName    = tos.Settings.LogSuppressDisplayCollectionElementNames.Any(s => elementFullName.StartsWith(s));
-
-        var prettyLogTemplate = (collectionShouldSuppressName && elementShouldSuppressName) 
-                              || className == null
-            ? "{1}"
-            : "({0}) {1}";
+        var shouldDisplayName = settings.ShouldDisplayCollectionTypeName(className ?? typeof(object));
+        var prettyLogTemplate = className != null &&  shouldDisplayName
+            ? "({0}) {1}"
+            : "{1}";
 
         var expectValue = expectation.GetExpectedOutputFor(sbFactory, condition, tos, expectation.ValueFormatString);
         if (expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue)) { expectValue.Clear(); }

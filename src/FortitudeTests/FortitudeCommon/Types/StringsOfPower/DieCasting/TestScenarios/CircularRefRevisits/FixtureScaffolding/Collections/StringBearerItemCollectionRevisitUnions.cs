@@ -2737,8 +2737,7 @@ public readonly struct StringBearerOrEnumeratorStructUnion<TBearer, TBearerRevea
                                   ReusableWrappingEnumerator<TBearer>?
                                 , TBearer
                                 , TBearerRevealer
-                              >(itemCollectionEnumerator, itemRevealer, null, null
-                              , isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -2758,7 +2757,8 @@ public readonly struct StringBearerOrEnumeratorStructUnion<TBearer, TBearerRevea
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAllIterate<ReusableWrappingEnumerator<TBearer>?, TBearer>(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       .RevealAllIterate<ReusableWrappingEnumerator<TBearer>?, TBearer>
+                           (itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -2791,7 +2791,8 @@ public readonly struct StringBearerOrEnumeratorStructUnion<TBearer, TBearerRevea
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .RevealAllIterate<ReusableWrappingEnumerator<TBearer>?, TBearer>(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .RevealAllIterate<ReusableWrappingEnumerator<TBearer>?, TBearer>
+                   (itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
@@ -2959,7 +2960,7 @@ public readonly struct NullableStructStringBearerOrEnumeratorStructUnion<TBearer
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
                     return tos.StartSimpleCollectionType(this)
-                              .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, null
+                              .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null
                                                       , isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
@@ -2980,7 +2981,7 @@ public readonly struct NullableStructStringBearerOrEnumeratorStructUnion<TBearer
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, null
+                       .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null
                                                , isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
@@ -3017,7 +3018,7 @@ public readonly struct NullableStructStringBearerOrEnumeratorStructUnion<TBearer
                .RevealAllIterateNullable<
                    ReusableWrappingEnumerator<TBearerStruct?>?
                  , TBearerStruct
-               >(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               >(itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
@@ -3156,7 +3157,7 @@ public class StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer> : IStr
                                   ReusableWrappingEnumerator<TBearer>?
                                 , TBearer
                                 , TBearerRevealer
-                              >(itemCollectionEnumerator, itemRevealer, null, null
+                              >(itemCollectionEnumerator, itemRevealer, null
                               , isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
@@ -3181,7 +3182,7 @@ public class StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer> : IStr
                            ReusableWrappingEnumerator<TBearer>?
                          , TBearer
                          , TBearerRevealer
-                       >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
@@ -3217,7 +3218,7 @@ public class StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer> : IStr
                .RevealAllIterate<
                    ReusableWrappingEnumerator<TBearer>?
                  , TBearer
-               >(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               >(itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .Complete();
@@ -3350,7 +3351,7 @@ public class NullableStructStringBearerOrEnumeratorClassUnion<TBearerStruct> : I
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
                     return tos.StartSimpleCollectionType(this)
-                              .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, null
+                              .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null
                                                       , isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
@@ -3371,7 +3372,7 @@ public class NullableStructStringBearerOrEnumeratorClassUnion<TBearerStruct> : I
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, null
+                       .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null
                                                , isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
@@ -3408,7 +3409,7 @@ public class NullableStructStringBearerOrEnumeratorClassUnion<TBearerStruct> : I
                .RevealAllIterateNullable<
                    ReusableWrappingEnumerator<TBearerStruct?>?
                  , TBearerStruct
-               >(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               >(itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();

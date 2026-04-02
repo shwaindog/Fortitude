@@ -465,7 +465,8 @@ public static class ScaffoldingRegistry
         subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct | AcceptsNullableClass));
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsAllButNullStructs(this IEnumerable<ScaffoldingPartEntry> subSet) =>
-        subSet.Where(spe => spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct | AcceptsNullableClass)
+        subSet.Where(spe => spe.ScaffoldingFlags.HasAllOf(AcceptsNullableClass)
+                         && spe.ScaffoldingFlags.HasAnyOf(AcceptsClass | AcceptsStruct | AcceptsNullableClass)
                          && spe.ScaffoldingFlags.HasNoneOf(AcceptsNullableStruct));
 
     public static IEnumerable<ScaffoldingPartEntry> AcceptsNonNullClasses(this IEnumerable<ScaffoldingPartEntry> subSet) =>

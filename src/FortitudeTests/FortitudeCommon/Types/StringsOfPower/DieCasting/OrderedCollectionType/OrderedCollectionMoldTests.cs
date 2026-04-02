@@ -75,7 +75,7 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
         spanFormattableUnfilteredScaffoldingExpectations ??=
         // Non nullables and classes
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-            where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
+            where fe is { ElementTypeIsNullableStruct: false, ContainsNullElements: false, HasRestrictingFilter: false }   
             from scaffoldToCall in 
                 ScafReg
                     .IsAnOrderedCollectionType()
@@ -85,9 +85,22 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
                     .AcceptsNonNullables()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
+                // classes
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements: true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    ScafReg
+                        .IsAnOrderedCollectionType()
+                        .NoFilterPredicate()
+                        .HasSpanFormattable()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
                 // Nullable structs
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: false }   
+                where fe is { ElementTypeIsNullableStruct: true, ElementTypeIsStruct: true, HasRestrictingFilter: false }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsAnOrderedCollectionType()
@@ -95,25 +108,13 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
                         .AcceptsNullableStructs()
-                select new object[] { fe, scaffoldToCall })
-        .Concat( 
-                // classes
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
-                from scaffoldToCall in 
-                    ScafReg
-                        .IsAnOrderedCollectionType()
-                        .NoFilterPredicate()
-                        .HasSpanFormattable()
-                        .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
                 select new object[] { fe, scaffoldToCall }).ToList();
     
 
     public static IEnumerable<object[]> FilteredFmtCollectionsExpect =>
         spanFormattableFilteredScaffoldingExpectations ??=
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-            where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: true }   
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements: false, HasRestrictingFilter: true }   
             from scaffoldToCall in 
                 ScafReg
                     .IsAnOrderedCollectionType()
@@ -124,7 +125,19 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: true }   
+                where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements: true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    ScafReg
+                        .IsAnOrderedCollectionType()
+                        .HasFilterPredicate()
+                        .HasSpanFormattable()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullableClasses()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                where fe is { ElementTypeIsNullableStruct: true, ElementTypeIsStruct: true, HasRestrictingFilter: true }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsAnOrderedCollectionType()
@@ -132,27 +145,16 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
                         .AcceptsNullableStructs()
-                select new object[] { fe, scaffoldToCall })
-        .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
-                from scaffoldToCall in 
-                    ScafReg
-                        .IsAnOrderedCollectionType()
-                        .HasFilterPredicate()
-                        .HasSpanFormattable()
-                        .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
                 select new object[] { fe, scaffoldToCall }).ToList();
     
     public static IEnumerable<object[]> UnfilteredStringCollectionExpect =>
         stringUnfilteredScaffoldingExpectations ??=
         (from fe in StringCollectionsTestData.AllStringCollectionExpectations
-            where fe is {ContainsNullElements : false,  HasRestrictingFilter: false } 
+            where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
                 ScafReg
                     .IsAnOrderedCollectionType()
-                    .AcceptsNonNullables()
+                    .AcceptsOnlyNonNullables()
                     .NoFilterPredicate()
                     .AcceptsString()
                     .NotHasSupportsValueRevealer()
@@ -267,48 +269,49 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
 
     public static IEnumerable<object[]> FilteredStringBuilderCollectionExpect =>
         stringBuilderFilteredScaffoldingExpectations ??=
-        (from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
-            where fe is {ContainsNullElements : false,  HasRestrictingFilter: true } 
-            from scaffoldToCall in 
-                ScafReg
-                    .IsAnOrderedCollectionType()
-                    .AcceptsNonNullables()
-                    .HasFilterPredicate()
-                    .AcceptsStringBuilder()
-                    .NotHasSupportsValueRevealer()
-            select new object[] { fe, scaffoldToCall })
-        .Concat( 
-                from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
-                where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
+            (from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
+                where fe is {ContainsNullElements : false,  HasRestrictingFilter: true } 
                 from scaffoldToCall in 
                     ScafReg
                         .IsAnOrderedCollectionType()
+                        .AcceptsNonNullables()
                         .HasFilterPredicate()
                         .AcceptsStringBuilder()
                         .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
-                select new object[] { fe, scaffoldToCall }).ToList();
+                select new object[] { fe, scaffoldToCall })
+            .Concat( 
+                    from fe in StringBuilderCollectionsTestData.AllStringBuilderCollectionExpectations
+                    where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
+                    from scaffoldToCall in 
+                        ScafReg
+                            .IsAnOrderedCollectionType()
+                            .HasFilterPredicate()
+                            .AcceptsStringBuilder()
+                            .NotHasSupportsValueRevealer()
+                            .AcceptsNullableClasses()
+                    select new object[] { fe, scaffoldToCall }).ToList();
     
     public static IEnumerable<object[]> UnfilteredCloakedBearerCollectionExpect =>
         cloakedBearerUnfilteredScaffoldingExpectations ??=
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-            where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
                 ScafReg
                     .IsAnOrderedCollectionType()
-                    .AcceptsNonNullables()
+                    .AcceptsOnlyNonNullables()
                     .NoFilterPredicate()
                     .HasSupportsValueRevealer()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
+                where fe is {ElementTypeIsNullableStruct: false, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
@@ -324,7 +327,7 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
     public static IEnumerable<object[]> FilteredCloakedBearerCollectionExpect =>
         cloakedBearerFilteredScaffoldingExpectations ??=
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-            where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
                 ScafReg
                     .IsAnOrderedCollectionType()
@@ -334,13 +337,14 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
+                where fe is {ElementTypeIsNullableStruct: false, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
@@ -356,7 +360,7 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
     public static IEnumerable<object[]> UnfilteredStringBearerCollectionExpect =>
         stringBearerUnfilteredScaffoldingExpectations ??=
         (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
-            where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
                 ScafReg
                     .IsAnOrderedCollectionType()
@@ -367,14 +371,15 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
-                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
+                where fe is {ElementTypeIsNullableStruct: false, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsAnOrderedCollectionType()
                         .NoFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
@@ -391,7 +396,7 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
     public static IEnumerable<object[]> FilteredStringBearerCollectionExpect =>
         stringBearerFilteredScaffoldingExpectations ??=
         (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
-            where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
                 ScafReg
                     .IsAnOrderedCollectionType()
@@ -402,14 +407,15 @@ public abstract class OrderedCollectionMoldTests : CommonScaffoldExpectationTest
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
-                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
+                where fe is {ElementTypeIsNullableStruct: false, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsAnOrderedCollectionType()
                         .HasFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations

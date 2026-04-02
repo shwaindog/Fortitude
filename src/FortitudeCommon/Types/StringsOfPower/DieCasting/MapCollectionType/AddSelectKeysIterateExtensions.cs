@@ -1032,6 +1032,7 @@ public static class AddSelectKeysIterateExtensions
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
+        selectKeys?.Dispose();
         return mws.Mold;
     }
 
@@ -1133,6 +1134,7 @@ public static class AddSelectKeysIterateExtensions
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
+        selectKeys?.Dispose();
         return mws.Mold;
     }
 
@@ -1227,6 +1229,7 @@ public static class AddSelectKeysIterateExtensions
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
+        selectKeys?.Dispose();
         return mws.Mold;
     }
 
@@ -1331,6 +1334,7 @@ public static class AddSelectKeysIterateExtensions
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
+        selectKeys?.Dispose();
         return mws.Mold;
     }
 
@@ -1430,6 +1434,7 @@ public static class AddSelectKeysIterateExtensions
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
+        selectKeys?.Dispose();
         return mws.Mold;
     }
 }

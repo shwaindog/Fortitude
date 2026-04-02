@@ -756,21 +756,21 @@ public class CloakedBearerCollectionsTestData
           , new CloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>>
                 ([], StringBearerStructListRevealer, name: "StructEmpty")
             {
-                { new EK(IsOrderedCollectionType | AcceptsStruct), "[]" }
-              , { new EK(AcceptsStruct | AlwaysWrites | NonNullWrites, CompactLog), "[]" }
-              , { new EK(AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites, CompactLog), "[]" }
-               ,
-                {
-                    new EK(CollectionCardinality | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
-                         , CompactJson)
-                  , "[]"
-                }
-               ,
-                {
-                    new EK(CollectionCardinality | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites | NonNullWrites
-                         , Pretty)
-                  , "[]"
-                }
+                { new EK(IsOrderedCollectionType | CallsAsSpan | CallsAsReadOnlySpan | AcceptsStruct), "[]" }
+              , { new EK(CollectionCardinality | AcceptsStruct | AlwaysWrites | NonNullWrites), "[]" }
+              , { new EK(CollectionCardinality | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites), "[]" }
+               // ,
+               //  {
+               //      new EK(CollectionCardinality | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites
+               //           , CompactJson)
+               //    , "[]"
+               //  }
+               // ,
+               //  {
+               //      new EK(CollectionCardinality | AcceptsStruct | CallsAsSpan | CallsAsReadOnlySpan | AlwaysWrites
+               //           , Pretty)
+               //    , "[]"
+               //  }
             }
           , new CloakedOrderedListExpect<FieldSpanFormattableAlwaysAddStructStringBearer<decimal>>
                 (null, StringBearerStructListRevealer, name: "NullNonNullableStruct")
@@ -786,16 +786,16 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, CompactLog)
                   , """
                     [
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 },
-                     FieldSpanFormattableAlwaysAddStructStringBearer<decimal> { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 32.6193819415085 }
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775 },
+                     (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) { ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 32.6193819415085 }
                      ]
                     """.RemoveLineEndings()
                 }
@@ -822,34 +822,34 @@ public class CloakedBearerCollectionsTestData
                     new EK(AcceptsStruct | CallsAsReadOnlySpan | CallsAsSpan | AllOutputConditionsMask, PrettyLog)
                   , """
                     [
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 3.14159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 2.71828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 12.5663706143592
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 10.8731273138362
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 21.9911485751286
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 19.0279727992133
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 31.4159265358979
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 27.1828182845904
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 37.6991118430775
                       },
-                      FieldSpanFormattableAlwaysAddStructStringBearer<decimal> {
+                      (FieldSpanFormattableAlwaysAddStructStringBearer<decimal>) {
                         ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: 32.6193819415085
                       }
                     ]

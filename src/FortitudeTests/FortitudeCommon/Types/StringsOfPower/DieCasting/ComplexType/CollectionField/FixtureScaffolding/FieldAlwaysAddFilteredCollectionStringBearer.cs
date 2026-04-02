@@ -566,7 +566,7 @@ public class FieldSpanFormattableReadOnlySpanAlwaysAddFilteredStringBearer<TFmt,
                 | AcceptsOnlyNullableClassSpanFormattable | SupportsValueFormatString)]
 public class FieldSpanFormattableNullableClassReadOnlySpanAlwaysAddFilteredStringBearer<TFmt, TFmtBase>
     : FormattedFilteredCollectionFieldMoldScaffold<TFmt?, TFmt?[]>
-    where TFmt : class, ISpanFormattable, TFmtBase
+    where TFmt : ISpanFormattable?, TFmtBase?
 {
     public TFmt?[]? ComplexTypeCollectionFieldAlwaysAddFilteredSpanFormattableNullableReadOnlySpan
     {

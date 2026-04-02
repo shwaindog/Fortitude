@@ -80,7 +80,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
     public static IEnumerable<object[]> UnfilteredFmtCollectionsExpect =>
         spanFormattableUnfilteredScaffoldingExpectations ??=
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-            where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: false }   
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements: false, HasRestrictingFilter: false }   
             from scaffoldToCall in 
                 ScafReg
                     .IsJustComplexType()
@@ -92,7 +92,20 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: false }   
+                where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements: true, HasRestrictingFilter : false }   
+                from scaffoldToCall in 
+                    ScafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .NoFilterPredicate()
+                        .HasSpanFormattable()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                where fe is { ElementTypeIsNullableStruct: true, HasRestrictingFilter: false }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsJustComplexType()
@@ -101,25 +114,13 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
                         .AcceptsNullableStructs()
-                select new object[] { fe, scaffoldToCall })
-        .Concat( 
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
-                from scaffoldToCall in 
-                    ScafReg
-                        .IsJustComplexType()
-                        .ProcessesCollection()
-                        .NoFilterPredicate()
-                        .HasSpanFormattable()
-                        .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
                 select new object[] { fe, scaffoldToCall }).ToList();
 
     public static IEnumerable<object[]> FilteredFmtCollectionsExpect =>
         spanFormattableFilteredScaffoldingExpectations ??=
         // Non nullables and classes
         (from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-            where fe is {ElementTypeIsNullable: false, HasRestrictingFilter: true }   
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements: false, HasRestrictingFilter: true }   
             from scaffoldToCall in 
                 ScafReg
                     .IsJustComplexType()
@@ -130,9 +131,23 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
                     .AcceptsNonNullables()
             select new object[] { fe, scaffoldToCall })
         .Concat( 
+                // classes
+                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
+                where fe is {ElementTypeIsNullableStruct : false, ContainsNullElements : true, HasRestrictingFilter : true }   
+                from scaffoldToCall in 
+                    ScafReg
+                        .IsJustComplexType()
+                        .ProcessesCollection()
+                        .HasFilterPredicate()
+                        .HasSpanFormattable()
+                        .NotHasSupportsValueRevealer()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
+                select new object[] { fe, scaffoldToCall })
+        .Concat( 
                 // Nullable structs
                 from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe is { ElementTypeIsNullable: true, ElementTypeIsStruct: true, HasRestrictingFilter: true }   
+                where fe is { ElementTypeIsNullableStruct: true, HasRestrictingFilter: true }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsJustComplexType()
@@ -141,19 +156,6 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
                         .HasSpanFormattable()
                         .NotHasSupportsValueRevealer()
                         .AcceptsNullableStructs()
-                select new object[] { fe, scaffoldToCall })
-        .Concat( 
-                // classes
-                from fe in SpanFormattableCollectionTestData.AllSpanFormattableCollectionExpectations.Value
-                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
-                from scaffoldToCall in 
-                    ScafReg
-                        .IsJustComplexType()
-                        .ProcessesCollection()
-                        .HasFilterPredicate()
-                        .HasSpanFormattable()
-                        .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
                 select new object[] { fe, scaffoldToCall }).ToList();
 
     public static IEnumerable<object[]> UnfilteredStringCollectionExpect =>
@@ -179,20 +181,8 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
                         .NoFilterPredicate()
                         .AcceptsString()
                         .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
-                select new object[] { fe, scaffoldToCall })
-        .Concat( 
-                // classes
-                from fe in StringCollectionsTestData.AllStringCollectionExpectations
-                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
-                from scaffoldToCall in 
-                    ScafReg
-                        .IsJustComplexType()
-                        .ProcessesCollection()
-                        .NoFilterPredicate()
-                        .AcceptsString()
-                        .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall }).ToList();
 
     public static IEnumerable<object[]> FilteredStringCollectionExpect =>
@@ -218,20 +208,8 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
                         .HasFilterPredicate()
                         .AcceptsString()
                         .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
-                select new object[] { fe, scaffoldToCall })
-        .Concat( 
-                // classes
-                from fe in StringCollectionsTestData.AllStringCollectionExpectations
-                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
-                from scaffoldToCall in 
-                    ScafReg
-                        .IsJustComplexType()
-                        .ProcessesCollection()
-                        .HasFilterPredicate()
-                        .AcceptsString()
-                        .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall }).ToList();
 
     public static IEnumerable<object[]> UnfilteredCharSequenceCollectionExpect =>
@@ -257,20 +235,8 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
                         .NoFilterPredicate()
                         .AcceptsCharSequence()
                         .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
-                select new object[] { fe, scaffoldToCall })
-        .Concat( 
-                // classes
-                from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
-                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : false }   
-                from scaffoldToCall in 
-                    ScafReg
-                        .IsJustComplexType()
-                        .ProcessesCollection()
-                        .NoFilterPredicate()
-                        .AcceptsCharSequence()
-                        .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall }).ToList();
 
     public static IEnumerable<object[]> FilteredCharSequenceCollectionExpect =>
@@ -289,19 +255,6 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
         .Concat( 
                 from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
                 where fe is {ContainsNullElements : true, HasRestrictingFilter : true }   
-                from scaffoldToCall in 
-                    ScafReg
-                        .IsJustComplexType()
-                        .ProcessesCollection()
-                        .HasFilterPredicate()
-                        .AcceptsCharSequence()
-                        .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
-                select new object[] { fe, scaffoldToCall })
-        .Concat( 
-                // classes
-                from fe in CharSequenceCollectionsTestData.AllCharSequenceCollectionExpectations
-                where fe is {ElementTypeIsClass : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsJustComplexType()
@@ -367,7 +320,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
     public static IEnumerable<object[]> UnfilteredCloakedBearerCollectionExpect =>
         cloakedBearerUnfilteredScaffoldingExpectations ??=
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-            where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
                 ScafReg
                     .IsJustComplexType()
@@ -378,14 +331,15 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
+                where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .NoFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
@@ -402,7 +356,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
     public static IEnumerable<object[]> FilteredCloakedBearerCollectionExpect =>
         cloakedBearerFilteredScaffoldingExpectations ??=
         (from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-            where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
                 ScafReg
                     .IsJustComplexType()
@@ -413,14 +367,15 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
-                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
+                where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsJustComplexType()
                         .ProcessesCollection()
                         .HasFilterPredicate()
                         .HasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations
@@ -437,7 +392,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
     public static IEnumerable<object[]> UnfilteredStringBearerCollectionExpect =>
         stringBearerUnfilteredScaffoldingExpectations ??=
         (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
-            where fe is {ElementTypeIsClass: true, ContainsNullElements : false,  HasRestrictingFilter: false } 
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : false,  HasRestrictingFilter: false } 
             from scaffoldToCall in 
                 ScafReg
                     .IsJustComplexType()
@@ -449,7 +404,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
-                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : false }   
+                where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : true, HasRestrictingFilter : false }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsJustComplexType()
@@ -457,7 +412,8 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
                         .NoFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
@@ -475,7 +431,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
     public static IEnumerable<object[]> FilteredStringBearerCollectionExpect =>
         stringBearerFilteredScaffoldingExpectations ??=
         (from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
-            where fe is {ElementTypeIsNullable: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
+            where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : false,  HasRestrictingFilter: true } 
             from scaffoldToCall in 
                 ScafReg
                     .IsJustComplexType()
@@ -487,7 +443,7 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
             select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations
-                where fe is {ElementTypeIsClass: true, HasRestrictingFilter : true }   
+                where fe is {ElementTypeIsNullableStruct: false, ContainsNullElements : true, HasRestrictingFilter : true }   
                 from scaffoldToCall in 
                     ScafReg
                         .IsJustComplexType()
@@ -495,7 +451,8 @@ public abstract class SelectTypeCollectionFieldTests : CommonScaffoldExpectation
                         .HasFilterPredicate()
                         .HasAcceptsStringBearer()
                         .NotHasSupportsValueRevealer()
-                        .AcceptsNullableClasses()
+                        .AcceptsAllButNullStructs()
+                        .AcceptsNullables()
                 select new object[] { fe, scaffoldToCall })
         .Concat( 
                 from fe in StringBearerCollectionsTestData.AllStringBearerCollectionExpectations

@@ -24,7 +24,7 @@ public static class OrderedCollectionExtensions
 
             shouldShowTypeName =
                 !(styleOptions.LogSuppressDisplayCollectionNames.Any(s => collectionFullName.StartsWith(s))
-               && styleOptions.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s)));
+               && (elementType.IsEnum || styleOptions.LogSuppressDisplayCollectionElementNames.Any(s => elementTypeFullName.StartsWith(s))));
         }
         return shouldShowTypeName;
     }
