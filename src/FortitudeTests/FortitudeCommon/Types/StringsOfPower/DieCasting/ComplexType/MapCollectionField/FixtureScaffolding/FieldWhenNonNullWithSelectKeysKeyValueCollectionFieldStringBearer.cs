@@ -166,10 +166,11 @@ public class FieldKeyValueDictionaryWhenNonNullAddWithSelectKeysEnumeratorString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
+           .KeyedCollectionField.WhenNonNullAddWithSelectKeysIterate
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerator)
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumerator
-              , DisplayKeys?.GetEnumerator()!
+                // ReSharper disable once GenericEnumeratorNotDisposed
+              , DisplayKeys?.GetEnumerator()
               , ValueFormatString
               , KeyFormatString, FormattingFlags)
            .Complete();
@@ -451,11 +452,11 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysEnumerab
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
+           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerateValueRevealer
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
                 // ReSharper disable once RedundantCast
-              , ((IEnumerable<TKSelectDerived>?)DisplayKeys)!
+              , DisplayKeys
               , ValueRevealer
               , KeyFormatString
               , ValueFormatString, FormattingFlags)
@@ -483,7 +484,7 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysEn
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
+           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerateNullValueRevealer
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
                 // ReSharper disable once RedundantCast
@@ -516,9 +517,10 @@ public class FieldKeyValueRevealerDictionaryWhenNonNullAddWithSelectKeysEnumerat
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
+           .KeyedCollectionField.WhenNonNullAddWithSelectKeysIterateValueRevealer
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
+                // ReSharper disable once GenericEnumeratorNotDisposed
               , DisplayKeys?.GetEnumerator()!
               , ValueRevealer
               , KeyFormatString
@@ -547,9 +549,10 @@ public class FieldKeyStructValueRevealerDictionaryWhenNonNullAddWithSelectKeysEn
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
+           .KeyedCollectionField.WhenNonNullAddWithSelectKeysIterateNullValueRevealer
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
+                // ReSharper disable once GenericEnumeratorNotDisposed
               , DisplayKeys?.GetEnumerator()!
               , ValueRevealer
               , KeyFormatString
@@ -842,7 +845,7 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
+           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerateBothRevealers
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers)
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers
                 // ReSharper disable once RedundantCast
@@ -875,7 +878,7 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
+           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerateBothWithNullValueRevealers
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers)
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumerableBothRevealers
                 // ReSharper disable once RedundantCast
@@ -909,10 +912,11 @@ public class FieldKeyRevealerValueRevealerDictionaryWhenNonNullAddWithSelectKeys
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
+           .KeyedCollectionField.WhenNonNullAddWithSelectKeysIterateBothRevealers
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers)
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers
-              , DisplayKeys?.GetEnumerator()!
+                // ReSharper disable once GenericEnumeratorNotDisposed
+              , DisplayKeys?.GetEnumerator()
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)
@@ -941,10 +945,11 @@ public class FieldKeyRevealerStructValueRevealerDictionaryWhenNonNullAddWithSele
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddWithSelectKeysEnumerate
+           .KeyedCollectionField.WhenNonNullAddWithSelectKeysIterateBothWithNullValueRevealers
                (nameof(WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers)
               , WhenNonNullAddWithSelectKeysKeyValuePairEnumeratorBothRevealers
-              , DisplayKeys?.GetEnumerator()!
+                // ReSharper disable once GenericEnumeratorNotDisposed
+              , DisplayKeys?.GetEnumerator()
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)

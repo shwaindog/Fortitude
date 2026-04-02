@@ -171,10 +171,11 @@ public class FieldKeyValueDictionaryAlwaysWithSelectKeysEnumeratorStringBearer<T
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
+           .KeyedCollectionField.AlwaysWithSelectKeysIterate
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerator)
               , AlwaysWithSelectKeysKeyValuePairEnumerator
-              , DisplayKeys?.GetEnumerator()!
+                // ReSharper disable once GenericEnumeratorNotDisposed
+              , DisplayKeys?.GetEnumerator()
               , ValueFormatString
               , KeyFormatString, FormattingFlags)
            .Complete();
@@ -454,7 +455,7 @@ public class FieldKeyValueRevealerDictionaryAlwaysWithSelectKeysEnumerableString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
+           .KeyedCollectionField.AlwaysWithSelectKeysEnumerateValueRevealer
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
               , AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
                 // ReSharper disable once RedundantCast
@@ -486,7 +487,7 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysEnumerable
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
+           .KeyedCollectionField.AlwaysWithSelectKeysEnumerateNullValueRevealer
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings)
               , AlwaysWithSelectKeysKeyValuePairEnumerableValueRevealerKeyFormatStrings
                 // ReSharper disable once RedundantCast
@@ -519,9 +520,10 @@ public class FieldKeyValueRevealerDictionaryAlwaysWithSelectKeysEnumeratorString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
+           .KeyedCollectionField.AlwaysWithSelectKeysIterateValueRevealer
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
               , AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
+                // ReSharper disable once GenericEnumeratorNotDisposed
               , DisplayKeys?.GetEnumerator()
               , ValueRevealer
               , KeyFormatString
@@ -550,10 +552,11 @@ public class FieldKeyStructValueRevealerDictionaryAlwaysWithSelectKeysEnumerator
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
+           .KeyedCollectionField.AlwaysWithSelectKeysIterateNullValueRevealer
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings)
               , AlwaysWithSelectKeysKeyValuePairEnumeratorValueRevealerKeyFormatStrings
-              , DisplayKeys?.GetEnumerator()!
+                // ReSharper disable once GenericEnumeratorNotDisposed
+              , DisplayKeys?.GetEnumerator()
               , ValueRevealer
               , KeyFormatString
               , ValueFormatString, FormattingFlags)
@@ -845,11 +848,11 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysWithSelectKeysEnumerab
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
+           .KeyedCollectionField.AlwaysWithSelectKeysEnumerateBothRevealers
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers)
               , AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers
                 // ReSharper disable once RedundantCast
-              , ((IEnumerable<TKSelectDerived>?)DisplayKeys)!
+              , DisplayKeys
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)
@@ -878,11 +881,11 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysWithSelectKeysEn
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
+           .KeyedCollectionField.AlwaysWithSelectKeysEnumerateBothWithNullValueRevealers
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers)
               , AlwaysWithSelectKeysKeyValuePairEnumerableBothRevealers
                 // ReSharper disable once RedundantCast
-              , ((IEnumerable<TKSelectDerived>?)DisplayKeys)!
+              , DisplayKeys
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)
@@ -912,10 +915,11 @@ public class FieldKeyRevealerValueRevealerDictionaryAlwaysWithSelectKeysEnumerat
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
+           .KeyedCollectionField.AlwaysWithSelectKeysIterateBothRevealers
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers)
               , AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers
-              , DisplayKeys?.GetEnumerator()!
+                // ReSharper disable once GenericEnumeratorNotDisposed
+              , DisplayKeys?.GetEnumerator()
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)
@@ -944,9 +948,10 @@ public class FieldKeyRevealerStructValueRevealerDictionaryAlwaysWithSelectKeysEn
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.AlwaysWithSelectKeysEnumerate
+           .KeyedCollectionField.AlwaysWithSelectKeysIterateBothWithNullValueRevealers
                (nameof(AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers), AlwaysWithSelectKeysKeyValuePairEnumeratorBothRevealers
-              , DisplayKeys?.GetEnumerator()!
+                // ReSharper disable once GenericEnumeratorNotDisposed
+              , DisplayKeys?.GetEnumerator()
               , ValueRevealer
               , KeyRevealer
               , ValueFormatString, FormattingFlags)

@@ -161,7 +161,7 @@ public class FieldKeyValueEnumeratorWhenNonNullAddFilteredStringBearer<TKey, TVa
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredIterate
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBoth)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBoth
               , KeyValuePredicate
@@ -381,7 +381,7 @@ public class FieldKeyValueRevealerEnumerableWhenNonNullAddFilteredStringBearer<T
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredEnumerateValueRevealer
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableValueRevealerKeyFormatString
               , KeyValuePredicate
@@ -412,7 +412,7 @@ public class FieldKeyStructValueRevealerEnumerableWhenNonNullAddFilteredStringBe
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredEnumerateNullValueRevealer
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableValueRevealerKeyFormatString
               , KeyValuePredicate
@@ -459,7 +459,7 @@ public class FieldKeyValueRevealerEnumeratorWhenNonNullAddFilteredStringBearer<T
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredIterateValueRevealer
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorValueRevealerKeyFormatString
               , KeyValuePredicate
@@ -505,7 +505,7 @@ public class FieldKeyStructValueRevealerEnumeratorWhenNonNullAddFilteredStringBe
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredIterateNullValueRevealer
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorValueRevealerKeyFormatString)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorValueRevealerKeyFormatString
               , KeyValuePredicate
@@ -852,7 +852,7 @@ public class FieldKeyRevealerValueRevealerEnumerableWhenNonNullAddFilteredString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredEnumerateBothRevealers
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableBothRevealers)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableBothRevealers
               , KeyValuePredicate
@@ -883,7 +883,7 @@ public class FieldStructKeyRevealerValueRevealerEnumerableWhenNonNullAddFiltered
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredEnumerateBothWithNullKeyRevealers
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableBothRevealers)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableBothRevealers
               , KeyValuePredicate
@@ -914,7 +914,7 @@ public class FieldKeyRevealerStructValueRevealerEnumerableWhenNonNullAddFiltered
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredEnumerateBothWithNullValueRevealers
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableBothRevealers)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableBothRevealers
               , KeyValuePredicate
@@ -944,7 +944,7 @@ public class FieldStructKeyRevealerStructValueRevealerEnumerableWhenNonNullAddFi
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredEnumerateBothNullRevealers
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableBothRevealers)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumerableBothRevealers
               , KeyValuePredicate
@@ -991,7 +991,7 @@ public class FieldKeyRevealerValueRevealerEnumeratorWhenNonNullAddFilteredString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredIterateBothRevealers
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBothRevealers)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBothRevealers
               , KeyValuePredicate
@@ -1037,7 +1037,7 @@ public class FieldStructKeyRevealerValueRevealerEnumeratorWhenNonNullAddFiltered
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredIterateBothWithNullKeyRevealers
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBothRevealers)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBothRevealers
               , KeyValuePredicate
@@ -1083,7 +1083,7 @@ public class FieldKeyRevealerStructValueRevealerEnumeratorWhenNonNullAddFiltered
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredIterateBothWithNullValueRevealers
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBothRevealers)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBothRevealers
               , KeyValuePredicate
@@ -1128,7 +1128,7 @@ public class FieldStructKeyRevealerStructValueRevealerEnumeratorWhenNonNullAddFi
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .KeyedCollectionField.WhenNonNullAddFilteredEnumerate
+           .KeyedCollectionField.WhenNonNullAddFilteredIterateBothNullRevealers
                (nameof(ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBothRevealers)
               , ComplexTypeKeyedCollectionFieldWhenNonNullAddFilteredEnumeratorBothRevealers
               , KeyValuePredicate
