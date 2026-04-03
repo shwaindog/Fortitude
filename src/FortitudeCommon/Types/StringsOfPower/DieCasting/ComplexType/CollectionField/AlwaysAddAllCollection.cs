@@ -1310,7 +1310,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllStringEnumerate(value, formatString, formatFlags)
+               .AddAllEnumerateString(value, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1333,7 +1333,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllCharSeqEnumerate<TEnumbl, TCharSeq>(value, formatString, formatFlags)
+               .AddAllEnumerateCharSeq<TEnumbl, TCharSeq>(value, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1355,7 +1355,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllStringBuilderEnumerate(value, formatString, formatFlags)
+               .AddAllEnumerateStringBuilder(value, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1377,7 +1377,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllMatchEnumerate<TEnumbl, TAny>(value, formatString, formatFlags)
+               .AddAllEnumerateMatch<TEnumbl, TAny>(value, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1400,7 +1400,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllMatchEnumerate<TEnumbl, object?>(value, formatString, formatFlags)
+               .AddAllEnumerateMatch<TEnumbl, object?>(value, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1514,7 +1514,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(string fieldName, TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TCloaked?>? 
+        where TEnumtr : IEnumerator<TCloaked>? 
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1565,7 +1565,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt AlwaysRevealAllIterate<TEnumtr, TBearer>(string fieldName, TEnumtr? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TBearer?>? 
+        where TEnumtr : IEnumerator<TBearer>? 
         where TBearer : IStringBearer?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TBearer?>);
@@ -1627,7 +1627,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllStringIterate(value, formatString, formatFlags, hasValue)
+               .AddAllIterateString(value, formatString, formatFlags, hasValue)
                .Complete();
         }
         else
@@ -1641,7 +1641,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddAllCharSeqIterate<TEnumtr, TCharSeq>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TCharSeq?>? 
+        where TEnumtr : IEnumerator<TCharSeq>? 
         where TCharSeq : ICharSequence?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TCharSeq>);
@@ -1653,7 +1653,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllCharSeqIterate<TEnumtr, TCharSeq>(value, formatString, formatFlags, hasValue)
+               .AddAllIterateCharSeq<TEnumtr, TCharSeq>(value, formatString, formatFlags, hasValue)
                .Complete();
         }
         else
@@ -1678,7 +1678,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllStringBuilderIterate(value, formatString, formatFlags, hasValue)
+               .AddAllIterateStringBuilder(value, formatString, formatFlags, hasValue)
                .Complete();
         }
         else
@@ -1692,7 +1692,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt AlwaysAddAllMatchIterate<TEnumtr, TAny>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TAny?>?
+        where TEnumtr : IEnumerator<TAny>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerator<TAny>);
         if (stb.HasSkipField(actualType, fieldName, formatFlags)) return stb.WasSkipped(actualType, fieldName, formatFlags);
@@ -1703,7 +1703,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllMatchIterate<TEnumtr, TAny>(value, formatString, formatFlags, hasValue)
+               .AddAllIterateMatch<TEnumtr, TAny>(value, formatString, formatFlags, hasValue)
                .Complete();
         }
         else
@@ -1729,7 +1729,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         {
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddAllMatchIterate<TEnumtr, object?>(value, formatString, formatFlags, hasValue)
+               .AddAllIterateMatch<TEnumtr, object?>(value, formatString, formatFlags, hasValue)
                .Complete();
         }
         else

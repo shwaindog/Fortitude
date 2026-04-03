@@ -71,10 +71,12 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         where TElement : struct;
 
 
-    private static InputTypeInvoke<TEnumbl> CreateInputTypeInvokerDelegate<TEnumbl>(Type enumblParamType, Type enumblType, Type itemType
+    private static InputTypeInvoke<TEnumbl> CreateInputTypeInvokerDelegate<TEnumbl>(Type enumblParamType, Type enumblType, Type elementType
       , string toInvokeMethodName)
         where TEnumbl : IEnumerable?
     {
+        var itemType = elementType.IfNullableGetUnderlyingTypeOrThis();
+        
         using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
         genericParamTypes[0] = enumblType;
         genericParamTypes[1] = itemType;
@@ -87,8 +89,9 @@ public static class OrderedCollectionAddAllEnumerateExtensions
 
         var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddAllSingleGenericEnumerableInvoker)));
+        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddAllSingleToDoubleGenericEnumerableInvoker)));
         genericParamTypes[0] = enumblParamType;
+        genericParamTypes[1] = elementType;
         var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
 
         methodParamTypes[1] = enumblParamType;
@@ -102,7 +105,79 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         return (InputTypeInvoke<TEnumbl>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
     }
 
-    private static InputTypeInvoke<TEnumbl> BuildAddAllSingleGenericEnumerableInvoker<TEnumbl, TElement>(MethodInfo methodInfo, Type enumblParamType
+    private static InputTypeInvoke<TEnumbl> BuildAddAllSingleToDoubleGenericEnumerableInvoker<TEnumbl, TElement>(MethodInfo methodInfo, Type enumblParamType
+      , Type enumblType, Type[] methodParamTypes)
+        where TEnumbl : IEnumerable<TElement>?
+    {
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var helperMethod =
+            new DynamicMethod
+                ($"{methodInfo.Name}_DynamicEnumeratorInvoke", null,
+                 methodParamTypes, typeof(OrderedCollectionAddAllEnumerateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
+
+        // call AddAllEnumerate(KeyedCollectionMold, TEnumbl, valueFmtStr, keyFmtStr, valueFmtStr, FormatFlags)
+        ilGenerator.Emit(OpCodes.Ldarg_0);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
+        ilGenerator.Emit(OpCodes.Ldarg_2);
+        ilGenerator.Emit(OpCodes.Ldarg_3);
+        ilGenerator.Emit(OpCodes.Call, methodInfo);
+        ilGenerator.Emit(OpCodes.Ret);
+        var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeInvoke<TEnumbl>));
+        var createInvoker = (InputTypeInvoke<TEnumbl>)methodInvoker;
+
+        return Wrapped;
+
+        void Wrapped(ICollectionMoldWriteState mws, TEnumbl? enumbl, string? valueFmtStr, FormatFlags flags) =>
+            createInvoker(mws, enumbl, valueFmtStr, flags);
+    }
+
+    private static InputTypeInvoke<TEnumbl> CreateSingleInputTypeInvokerDelegate<TEnumbl>(Type enumblParamType, Type enumblType, Type itemType
+      , string toInvokeMethodName)
+        where TEnumbl : IEnumerable?
+    {
+        using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(1);
+        genericParamTypes[0] = enumblType;
+
+        using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(4);
+        methodParamTypes[0] = typeof(ICollectionMoldWriteState);
+        methodParamTypes[1] = enumblType;
+        methodParamTypes[2] = typeof(string);
+        methodParamTypes[3] = typeof(FormatFlags);
+
+        var toInvokeOn              = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
+        
+        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddAllSingleToSingleGenericEnumerableInvoker)));
+        using var invokeGenericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
+        invokeGenericParamTypes[0] = enumblParamType;
+        invokeGenericParamTypes[1] = itemType;
+        var concreteGenMethod = genGenMethod.MakeGenericMethod(invokeGenericParamTypes.AsArray);
+
+        methodParamTypes[1]  = enumblParamType;
+
+        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
+        invokeReflectedArgs[0] = toInvokeOn;
+        invokeReflectedArgs[1] = enumblParamType;
+        invokeReflectedArgs[2] = enumblType;
+        invokeReflectedArgs[3] = methodParamTypes.AsArray;
+
+        return (InputTypeInvoke<TEnumbl>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+    }
+
+    private static InputTypeInvoke<TEnumbl> BuildAddAllSingleToSingleGenericEnumerableInvoker<TEnumbl, TElement>(MethodInfo methodInfo, Type enumblParamType
       , Type enumblType, Type[] methodParamTypes)
         where TEnumbl : IEnumerable<TElement>?
     {
@@ -153,7 +228,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
 
          string toInvokeMethodName = isNullable ? nameof(AddAllEnumerateNullableBool) : nameof(AddAllEnumerateBool);
 
-         return CreateInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, toInvokeMethodName);
+         return CreateSingleInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, toInvokeMethodName);
     }
 
     internal static InputTypeInvoke<TEnumbl> GetAddAllSpanFormattable<TEnumbl>(Type enumblType)
@@ -178,7 +253,8 @@ public static class OrderedCollectionAddAllEnumerateExtensions
          bool isNullable  = elementType.IsNullable();
          var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
          
-         if (!itemType.IsSpanFormattableCached()) throw new ArgumentException("Expected to receive a ISpanFormattable collection");
+         if (!itemType.IsSpanFormattableCached()) 
+             throw new ArgumentException($"Expected to receive a ISpanFormattable collection. Got {itemType.Name}");
 
          string toInvokeMethodName = isNullable ? nameof(AddAllEnumerateNullable) : nameof(AddAllEnumerate);
 
@@ -312,7 +388,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
 
          string toInvokeMethodName = isNullable ? nameof(RevealAllEnumerateNullable) : nameof(RevealAllEnumerate);
 
-         return CreateInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, itemType, toInvokeMethodName);
+         return CreateInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, toInvokeMethodName);
     }
 
     private static InputTypeInvoke<TEnumbl> CreateAddAllStringDelegate<TEnumbl>(Type enumblParamType, Type enumblType) 
@@ -322,7 +398,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
          
         if (!elementType.IsString()) throw new ArgumentException("Expected to receive a string collection");
 
-        return CreateInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, nameof(AddAllStringEnumerate));
+        return CreateSingleInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, nameof(AddAllEnumerateString));
     }
 
     internal static InputTypeInvoke<TEnumbl> GetAddAllCharSequence<TEnumbl>(Type enumblType)
@@ -340,16 +416,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         return invoker;
     }
 
-    private static InputTypeInvoke<TEnumbl> CreateAddAllStringBuilderDelegate<TEnumbl>(Type enumblParamType, Type enumblType) 
-        where TEnumbl : IEnumerable?
-    {
-        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-         
-        if (!elementType.IsStringBuilder()) throw new ArgumentException("Expected to receive a StringBuilder collection");
-
-        return CreateInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, nameof(AddAllStringBuilderEnumerate));
-    }
-
     private static InputTypeInvoke<TEnumbl> CreateAddAllCharSequenceDelegate<TEnumbl>(Type enumblParamType, Type enumblType) 
         where TEnumbl : IEnumerable?
     {
@@ -357,7 +423,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                          
         if (!elementType.IsCharSequence()) throw new ArgumentException("Expected to receive a ICharSequence collection");
 
-        return CreateInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, nameof(AddAllCharSeqEnumerate));
+        return CreateInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, nameof(AddAllEnumerateCharSeq));
+    }
+
+    private static InputTypeInvoke<TEnumbl> CreateAddAllStringBuilderDelegate<TEnumbl>(Type enumblParamType, Type enumblType) 
+        where TEnumbl : IEnumerable?
+    {
+        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+         
+        if (!elementType.IsStringBuilder()) throw new ArgumentException("Expected to receive a StringBuilder collection");
+
+        return CreateSingleInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, nameof(AddAllEnumerateStringBuilder));
     }
 
     internal static InputTypeInvoke<TEnumbl> GetAddAllMatch<TEnumbl>(Type enumblType)
@@ -383,11 +459,11 @@ public static class OrderedCollectionAddAllEnumerateExtensions
 
         if (itemType.IsSpanFormattable())
         {
-            return AddAllEnumerate;
+            return GetAddAllSpanFormattable<TEnumbl>(enumblType);
         }
         if (itemType.IsStringBearer())
         {
-            return RevealAllEnumerate;
+            return GetAddAllStringBearer<TEnumbl>(enumblType);
         }
         if (itemType.IsString())
         {
@@ -399,14 +475,14 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         if (itemType.IsCharSequence())
         {
-            return AddAllCharSeqEnumerate<TEnumbl>;
+            return GetAddAllCharSequence<TEnumbl>(enumblType);
         }
         if (itemType.IsBool())
         {
             return CreateAddAllBoolDelegate<TEnumbl>(enumblParamType, enumblType);
         }
 
-        return CreateInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, nameof(AddAllMatchEnumerate));
+        return CreateInputTypeInvokerDelegate<TEnumbl>(enumblParamType, enumblType, elementType, nameof(AddAllEnumerateMatch));
     }
 
     private static InputTypeInvoke<TEnumbl, TElement> GetAddAllBoolCallStructEnumtrInvoker<TEnumbl, TElement>
@@ -823,6 +899,23 @@ public static class OrderedCollectionAddAllEnumerateExtensions
       , TEnumbl? value
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<bool>
+    {
+        if (value != null)
+        {
+            mws.AddAllEnumerateBool(value.Value, formatString, formatFlags);
+            return;
+        }
+        var elementType = typeof(bool);
+        var valueMold   = mws.ConditionalCollectionPrefix(value, elementType, null, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
+    }
+
+    public static void AddAllEnumerateBool<TEnumbl>(
+        this ICollectionMoldWriteState mws
+      , TEnumbl? value
+      , string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool>);
@@ -882,6 +975,23 @@ public static class OrderedCollectionAddAllEnumerateExtensions
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
+    }
+
+    public static void AddAllEnumerateNullableBool<TEnumbl>(
+        this ICollectionMoldWriteState mws
+      , TEnumbl? value
+      , string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<bool?>
+    {
+        if (value != null)
+        {
+            mws.AddAllEnumerateNullableBool(value.Value, formatString, formatFlags);
+            return;
+        }
+        var elementType = typeof(bool?);
+        var valueMold   = mws.ConditionalCollectionPrefix(value, elementType, null, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
     public static void AddAllEnumerateNullableBool<TEnumbl>(
@@ -1580,7 +1690,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
-    public static void AddAllStringEnumerate<TEnumbl>(
+    public static void AddAllEnumerateString<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1589,7 +1699,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddAllStringEnumerate(value.Value, formatString, formatFlags);
+            mws.AddAllEnumerateString(value.Value, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -1597,7 +1707,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddAllStringEnumerate<TEnumbl>(
+    public static void AddAllEnumerateString<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1664,7 +1774,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
-    public static void AddAllCharSeqEnumerate<TEnumbl>(
+    public static void AddAllEnumerateCharSeq<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1673,7 +1783,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddAllCharSeqEnumerate(value.Value, formatString, formatFlags);
+            mws.AddAllEnumerateCharSeq(value.Value, formatString, formatFlags);
             return;
         }
         var elementType = typeof(ISpanFormattable);
@@ -1681,7 +1791,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddAllCharSeqEnumerate<TEnumbl>(
+    public static void AddAllEnumerateCharSeq<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1693,7 +1803,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         callGenericInvoker(mws, value, formatString, formatFlags);
     }
 
-    public static void AddAllCharSeqEnumerate<TEnumbl, TCharSeq>(
+    public static void AddAllEnumerateCharSeq<TEnumbl, TCharSeq>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1703,7 +1813,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddAllCharSeqEnumerate<TEnumbl, TCharSeq>(value.Value, formatString, formatFlags);
+            mws.AddAllEnumerateCharSeq<TEnumbl, TCharSeq>(value.Value, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -1711,7 +1821,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddAllCharSeqEnumerate<TEnumbl, TCharSeq>(
+    public static void AddAllEnumerateCharSeq<TEnumbl, TCharSeq>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1779,7 +1889,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
-    public static void AddAllStringBuilderEnumerate<TEnumbl>(
+    public static void AddAllEnumerateStringBuilder<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1788,7 +1898,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddAllStringBuilderEnumerate(value.Value, formatString, formatFlags);
+            mws.AddAllEnumerateStringBuilder(value.Value, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -1796,7 +1906,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddAllStringBuilderEnumerate<TEnumbl>(
+    public static void AddAllEnumerateStringBuilder<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1863,7 +1973,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
-    public static void AddAllMatchEnumerate<TEnumbl>(
+    public static void AddAllEnumerateMatch<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1872,7 +1982,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddAllMatchEnumerate(value.Value, formatString, formatFlags);
+            mws.AddAllEnumerateMatch(value.Value, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -1880,7 +1990,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddAllMatchEnumerate<TEnumbl>(
+    public static void AddAllEnumerateMatch<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1892,7 +2002,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         callGenericInvoker(mws, value, formatString, formatFlags);
     }
 
-    public static void AddAllMatchEnumerate<TEnumbl, TAny>(
+    public static void AddAllEnumerateMatch<TEnumbl, TAny>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1901,7 +2011,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddAllMatchEnumerate<TEnumbl, TAny>(value.Value, formatString, formatFlags);
+            mws.AddAllEnumerateMatch<TEnumbl, TAny>(value.Value, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -1909,7 +2019,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddAllMatchEnumerate<TEnumbl, TAny>(
+    public static void AddAllEnumerateMatch<TEnumbl, TAny>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1977,7 +2087,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
     }
     
     [CallsObjectToString]
-    public static void AddAllObjectEnumerate<TEnumbl>(
+    public static void AddAllEnumerateObject<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null
@@ -1986,7 +2096,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddAllObjectEnumerate(value.Value, formatString, formatFlags);
+            mws.AddAllEnumerateObject(value.Value, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -1995,7 +2105,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
     }
 
     [CallsObjectToString]
-    public static void AddAllObjectEnumerate<TEnumbl>(
+    public static void AddAllEnumerateObject<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , string? formatString = null

@@ -80,13 +80,15 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
 
     private static InputTypeInvoke<TEnumbl, TFilterBase> CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(
-        Type enumblParamType, Type enumblType, Type itemType, Type filterType, string toInvokeMethodName)
+        Type enumblParamType, Type enumblType, Type elementType, Type filterType, string toInvokeMethodName)
         where TEnumbl : IEnumerable?
     {
+        var itemType = elementType.IfNullableGetUnderlyingTypeOrThis();
+        
         using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(3);
         genericParamTypes[0] = enumblType;
         genericParamTypes[1] = itemType;
-        genericParamTypes[1] = filterType;
+        genericParamTypes[2] = filterType;
 
         using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
         methodParamTypes[0] = typeof(ICollectionMoldWriteState);
@@ -99,6 +101,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddFilteredSingleGenericEnumerableInvoker)));
         genericParamTypes[0] = enumblParamType;
+        genericParamTypes[1] = elementType;
         var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
 
         methodParamTypes[1] = enumblParamType;
@@ -155,7 +158,83 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags);
     }
 
-    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredBoolDelegate<TEnumbl, TFilterBase>(Type enumblParamType, Type enumblType, Type filterType) 
+    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateSingleAnyToGenericeInputTypeInvokerDelegate<TEnumbl, TFilterBase>(
+        Type enumblParamType, Type enumblType, Type itemType, string toInvokeMethodName)
+        where TEnumbl : IEnumerable?
+    {
+        using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(1);
+        genericParamTypes[0] = enumblType;
+
+        using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
+        methodParamTypes[0] = typeof(ICollectionMoldWriteState);
+        methodParamTypes[1] = enumblType;
+        methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase>);
+        methodParamTypes[3] = typeof(string);
+        methodParamTypes[4] = typeof(FormatFlags);
+
+        var toInvokeOn              = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
+        
+        var       genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddAllSingleAnyToGenericEnumerableInvoker)));
+        using var invokeGenericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
+        invokeGenericParamTypes[0] = enumblParamType;
+        invokeGenericParamTypes[1] = itemType;
+        var concreteGenMethod = genGenMethod.MakeGenericMethod(invokeGenericParamTypes.AsArray);
+
+        methodParamTypes[1]  = enumblParamType;
+
+        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
+        invokeReflectedArgs[0] = toInvokeOn;
+        invokeReflectedArgs[1] = enumblParamType;
+        invokeReflectedArgs[2] = enumblType;
+        invokeReflectedArgs[3] = methodParamTypes.AsArray;
+
+        return (InputTypeInvoke<TEnumbl, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+    }
+
+    private static InputTypeInvoke<TEnumbl, TFilterBase> BuildAddAllSingleAnyToGenericEnumerableInvoker<TEnumbl, TFilterBase>(
+        MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
+        where TEnumbl : IEnumerable?
+    {
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var helperMethod =
+            new DynamicMethod
+                ($"{methodInfo.Name}_DynamicEnumeratorInvoke", null,
+                 methodParamTypes, typeof(OrderedCollectionAddFilteredEnumerateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
+
+        // call AddAllEnumerate(KeyedCollectionMold, TEnumbl, valueFmtStr, keyFmtStr, valueFmtStr, FormatFlags)
+        ilGenerator.Emit(OpCodes.Ldarg_0);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
+        ilGenerator.Emit(OpCodes.Ldarg_2);
+        ilGenerator.Emit(OpCodes.Ldarg_3);
+        ilGenerator.Emit(OpCodes.Ldarg_S, 4);
+        ilGenerator.Emit(OpCodes.Call, methodInfo);
+        ilGenerator.Emit(OpCodes.Ret);
+        var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeInvoke<TEnumbl, TFilterBase>));
+        var createInvoker = (InputTypeInvoke<TEnumbl, TFilterBase>)methodInvoker;
+
+        return Wrapped;
+
+        void Wrapped(ICollectionMoldWriteState mws, TEnumbl? enumbl, OrderedCollectionPredicate<TFilterBase> filterPredicate
+          , string? valueFmtStr, FormatFlags flags) =>
+            createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags);
+    }
+
+    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredBoolDelegate<TEnumbl, TFilterBase>(Type enumblParamType
+      , Type enumblType, Type filterType) 
         where TEnumbl : IEnumerable?
     {
          var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
@@ -166,7 +245,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
          string toInvokeMethodName = isNullable ? nameof(AddFilteredEnumerateNullableBool) : nameof(AddFilteredEnumerateBool);
 
-         return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType, filterType, toInvokeMethodName);
+         return CreateSingleAnyToGenericeInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType, toInvokeMethodName);
     }
 
     internal static InputTypeInvoke<TEnumbl, TFilterBase> GetAddFilteredSpanFormattable<TEnumbl, TFilterBase>(Type enumblType)
@@ -181,7 +260,8 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 .GetOrAdd
                     ((enumblParamType, enumblType, filterType)
                    , static ((Type enumblParamType, Type enumblType, Type filterType) key, bool _) => 
-                         CreateAddFilteredSpanFormattableDelegate<TEnumbl, TFilterBase>(key.enumblParamType, key.enumblType, key.filterType), callAsFactory);
+                         CreateAddFilteredSpanFormattableDelegate<TEnumbl, TFilterBase>
+                             (key.enumblParamType, key.enumblType, key.filterType), callAsFactory);
         return invoker;
     }
 
@@ -200,7 +280,8 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
          return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType, filterType, toInvokeMethodName);
     }
 
-    private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase> GetAddFilteredCloakedRevealer<TEnumbl, TFilterBase, TRevealBase>(Type enumblType)
+    private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase> GetAddFilteredCloakedRevealer<TEnumbl, TFilterBase, TRevealBase>(
+        Type enumblType)
         where TEnumbl : IEnumerable?
         where TRevealBase : notnull
     {
@@ -220,7 +301,8 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         return invoker;
     }
 
-    private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase> CreateAddFilteredCloakedRevealerDelegate<TEnumbl, TFilterBase, TRevealBase>
+    private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase> 
+        CreateAddFilteredCloakedRevealerDelegate<TEnumbl, TFilterBase, TRevealBase>
         (Type enumblParamType, Type enumblType, Type filterType, Type revealType) 
         where TEnumbl : IEnumerable? 
         where TRevealBase : notnull
@@ -336,7 +418,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
          string toInvokeMethodName = isNullable ? nameof(RevealFilteredEnumerateNullable) : nameof(RevealFilteredEnumerate);
 
-         return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, itemType, filterType, toInvokeMethodName);
+         return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType, filterType, toInvokeMethodName);
     }
 
     private static InputTypeInvoke<TEnumbl, TFilter> CreateAddFilteredStringDelegate<TEnumbl, TFilter>(Type enumblParamType, Type enumblType) 
@@ -346,7 +428,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
          
         if (!elementType.IsString()) throw new ArgumentException("Expected to receive a string collection");
 
-        return CreateInputTypeInvokerDelegate<TEnumbl, TFilter>(enumblParamType, enumblType, elementType, typeof(string), nameof(AddFilteredStringEnumerate));
+        return CreateSingleAnyToGenericeInputTypeInvokerDelegate<TEnumbl, TFilter>(enumblParamType, enumblType, typeof(string), nameof(AddFilteredEnumerateString));
     }
 
     internal static InputTypeInvoke<TEnumbl, TFilterBase> GetAddFilteredCharSequence<TEnumbl, TFilterBase>(Type enumblType)
@@ -374,18 +456,19 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         if (!elementType.IsCharSequence()) throw new ArgumentException("Expected to receive a ICharSequence collection");
 
         return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType
-                                                                  , filterType, nameof(AddFilteredCharSeqEnumerate));
+                                                                  , filterType, nameof(AddFilteredEnumerateCharSeq));
     }
 
-    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredStringBuilderDelegate<TEnumbl, TFilterBase>(Type enumblParamType, Type enumblType) 
+    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredStringBuilderDelegate<TEnumbl, TFilterBase>(
+        Type enumblParamType, Type enumblType) 
         where TEnumbl : IEnumerable?
     {
         var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
          
         if (!elementType.IsStringBuilder()) throw new ArgumentException("Expected to receive a StringBuilder collection");
 
-        return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType
-                                                                  , typeof(StringBuilder), nameof(AddFilteredStringBuilderEnumerate));
+        return CreateSingleAnyToGenericeInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, typeof(StringBuilder)
+                                                                                  , nameof(AddFilteredEnumerateStringBuilder));
     }
 
     internal static InputTypeInvoke<TEnumbl, TFilterBase> GetAddFilteredMatch<TEnumbl, TFilterBase>(Type enumblType)
@@ -413,11 +496,11 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         if (itemType.IsSpanFormattable())
         {
-            return AddFilteredEnumerate;
+            return CreateAddFilteredSpanFormattableDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType);
         }
         if (itemType.IsStringBearer())
         {
-            return RevealFilteredEnumerate<TEnumbl, TFilterBase>;
+            return CreateAddFilteredStringBearerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType);
         }
         if (itemType.IsString())
         {
@@ -429,14 +512,15 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         }
         if (itemType.IsCharSequence())
         {
-            return AddFilteredCharSeqEnumerate<TEnumbl, TFilterBase>;
+            return CreateAddFilteredCharSequenceDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType);
         }
         if (itemType.IsBool())
         {
             return CreateAddFilteredBoolDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType);
         }
 
-        return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType, filterType, nameof(AddFilteredMatchEnumerate));
+        return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType
+                                                                  , elementType, filterType, nameof(AddFilteredEnumerateMatch));
     }
 
     private static InputTypeInvoke<TEnumbl, TElement, TFilterBase> GetAddFilteredBoolCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>
@@ -614,7 +698,8 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         return enumblType.GetAddFilteredCloakedRevealerCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>(enumtrType, callEnumtrInvokeMethInf);
     }
 
-    private static CloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase> GetAddFilteredCloakedRevealerCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>
+    private static CloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase> 
+        GetAddFilteredCloakedRevealerCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>
         (this Type enumblType, Type enumtrType, MethodInfo enumeratorMethodInf)
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?, TRevealBase?
@@ -877,6 +962,24 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
       , OrderedCollectionPredicate<bool> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<bool>
+    {
+        if (value != null)
+        {
+            mws.AddFilteredEnumerateBool(value.Value, filterPredicate, formatString, formatFlags);
+            return;
+        }
+        var elementType = typeof(bool);
+        var valueMold   = mws.ConditionalCollectionPrefix(value, elementType, null, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
+    }
+
+    public static void AddFilteredEnumerateBool<TEnumbl>(
+        this ICollectionMoldWriteState mws
+      , TEnumbl? value
+      , OrderedCollectionPredicate<bool> filterPredicate
+      , string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool>?
     {
         var actualType = value?.GetType() ?? typeof(IEnumerable<bool>);
@@ -956,6 +1059,24 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         }
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
+    }
+
+    public static void AddFilteredEnumerateNullableBool<TEnumbl>(
+        this ICollectionMoldWriteState mws
+      , TEnumbl? value
+      , OrderedCollectionPredicate<bool?> filterPredicate
+      , string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<bool?>
+    {
+        if (value != null)
+        {
+            mws.AddFilteredEnumerateNullableBool(value.Value, filterPredicate, formatString, formatFlags);
+            return;
+        }
+        var elementType = typeof(bool);
+        var valueMold   = mws.ConditionalCollectionPrefix(value, elementType, null, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
     public static void AddFilteredEnumerateNullableBool<TEnumbl>(
@@ -1625,8 +1746,10 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             {
                 if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
-                                                                , formatFlags.RemoveEmbeddedContentFlags());
+                    valueMold = 
+                        mws.Master
+                           .GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection 
+                                                 , formatFlags.RemoveEmbeddedContentFlags());
 
                     if (valueMold.ShouldSuppressBody)
                     {
@@ -1786,7 +1909,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
-    public static void AddFilteredStringEnumerate<TEnumbl>(
+    public static void AddFilteredEnumerateString<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<string> filterPredicate  
@@ -1796,7 +1919,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddFilteredStringEnumerate(value.Value, filterPredicate, formatString, formatFlags);
+            mws.AddFilteredEnumerateString(value.Value, filterPredicate, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -1804,7 +1927,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddFilteredStringEnumerate<TEnumbl>(
+    public static void AddFilteredEnumerateString<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<string> filterPredicate  
@@ -1889,7 +2012,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
-    public static void AddFilteredCharSeqEnumerate<TEnumbl, TCharSeqBase>(
+    public static void AddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate  
@@ -1899,7 +2022,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddFilteredCharSeqEnumerate(value.Value, filterPredicate, formatString, formatFlags);
+            mws.AddFilteredEnumerateCharSeq(value.Value, filterPredicate, formatString, formatFlags);
             return;
         }
         var elementType = typeof(ISpanFormattable);
@@ -1907,7 +2030,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddFilteredCharSeqEnumerate<TEnumbl, TCharSeqBase>(
+    public static void AddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate  
@@ -1920,18 +2043,18 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         callGenericInvoker(mws, value, filterPredicate, formatString, formatFlags);
     }
 
-    public static void AddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(
+    public static void AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate  
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TCharSeq>
-        where TCharSeq : ICharSequence?
+        where TCharSeq : TCharSeqBase?, ICharSequence?
     {
         if (value != null)
         {
-            mws.AddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(value.Value, filterPredicate, formatString, formatFlags);
+            mws.AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(value.Value, filterPredicate, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -1939,7 +2062,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(
+    public static void AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate  
@@ -2027,7 +2150,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
-    public static void AddFilteredStringBuilderEnumerate<TEnumbl>(
+    public static void AddFilteredEnumerateStringBuilder<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate  
@@ -2037,7 +2160,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddFilteredStringBuilderEnumerate(value.Value, filterPredicate, formatString, formatFlags);
+            mws.AddFilteredEnumerateStringBuilder(value.Value, filterPredicate, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -2045,7 +2168,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddFilteredStringBuilderEnumerate<TEnumbl>(
+    public static void AddFilteredEnumerateStringBuilder<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate  
@@ -2130,7 +2253,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
-    public static void AddFilteredMatchEnumerate<TEnumbl, TAnyBase>(
+    public static void AddFilteredEnumerateMatch<TEnumbl, TAnyBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate  
@@ -2140,7 +2263,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddFilteredMatchEnumerate(value.Value, filterPredicate, formatString, formatFlags);
+            mws.AddFilteredEnumerateMatch(value.Value, filterPredicate, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -2148,7 +2271,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddFilteredMatchEnumerate<TEnumbl, TAnyBase>(
+    public static void AddFilteredEnumerateMatch<TEnumbl, TAnyBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate  
@@ -2161,7 +2284,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         callGenericInvoker(mws, value, filterPredicate, formatString, formatFlags);
     }
 
-    public static void AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(
+    public static void AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate  
@@ -2172,7 +2295,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(value.Value, filterPredicate, formatString, formatFlags);
+            mws.AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(value.Value, filterPredicate, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -2180,7 +2303,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
     }
 
-    public static void AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(
+    public static void AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate  
@@ -2267,7 +2390,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     }
     
     [CallsObjectToString]
-    public static void AddFilteredObjectEnumerate<TEnumbl>(
+    public static void AddFilteredEnumerateObject<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<object> filterPredicate  
@@ -2277,7 +2400,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     {
         if (value != null)
         {
-            mws.AddFilteredObjectEnumerate(value.Value, filterPredicate, formatString, formatFlags);
+            mws.AddFilteredEnumerateObject(value.Value, filterPredicate, formatString, formatFlags);
             return;
         }
         var elementType = typeof(string);
@@ -2286,7 +2409,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     }
 
     [CallsObjectToString]
-    public static void AddFilteredObjectEnumerate<TEnumbl>(
+    public static void AddFilteredEnumerateObject<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
       , OrderedCollectionPredicate<object> filterPredicate

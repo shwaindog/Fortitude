@@ -387,7 +387,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     public TExt WhenNonNullRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(string fieldName, TEnumtr? value
     , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<TCloaked?>? 
+        where TEnumtr : IEnumerator<TCloaked>? 
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         WhenConditionMetRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(value != null, fieldName, value, palantírReveal, formatString, formatFlags);
@@ -418,7 +418,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullAddAllCharSeqIterate<TEnumtr, TCharSeq>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-      where TEnumtr : IEnumerator<TCharSeq?>? 
+      where TEnumtr : IEnumerator<TCharSeq>? 
       where TCharSeq : ICharSequence? =>
         WhenConditionMetAddAllCharSeqIterate<TEnumtr, TCharSeq>(value != null, fieldName, value, formatString, formatFlags);
 
@@ -429,7 +429,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
     public TExt WhenNonNullAddAllMatchIterate<TEnumtr, TAny>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-      where TEnumtr : IEnumerator<TAny?>? =>
+      where TEnumtr : IEnumerator<TAny>? =>
         WhenConditionMetAddAllMatchIterate<TEnumtr, TAny>(value != null, fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]

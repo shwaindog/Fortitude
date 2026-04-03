@@ -1381,7 +1381,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags)
+               .AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1403,7 +1403,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags)
+               .AddFilteredEnumerateStringBuilder(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1426,7 +1426,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags)
+               .AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1449,7 +1449,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags)
+               .AddFilteredEnumerateObject(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1470,7 +1470,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredIterate(value, filterPredicate, formatString, formatFlags)
+               .AddFilteredIterateBool(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1491,7 +1491,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredIterateNullable(value, filterPredicate, formatString, formatFlags).Complete();
+               .AddFilteredIterateNullableBool(value, filterPredicate, formatString, formatFlags).Complete();
         else
         {
             stb.AppendEmptyCollectionOrNull(elementType, actualType, null, null, formatString, formatFlags
@@ -1664,7 +1664,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredCharSeqIterate<TEnumtr, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags)
+               .AddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1685,7 +1685,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredIterate(value, filterPredicate, formatString, formatFlags)
+               .AddFilteredIterateStringBuilder(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1708,7 +1708,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredMatchIterate<TEnumtr, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags)
+               .AddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {
@@ -1731,7 +1731,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         if (value != null)
             stb.Master
                .StartSimpleCollectionType(value, formatFlags)
-               .AddFilteredObjectIterate(value, filterPredicate, formatString, formatFlags)
+               .AddFilteredIterateObject(value, filterPredicate, formatString, formatFlags)
                .Complete();
         else
         {

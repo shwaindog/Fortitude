@@ -3250,27 +3250,27 @@ public class NullableStructBoolOrEnumeratorClassUnion : IStringBearer
                            .StartSimpleCollectionType(this)
                            .RevealAllIterate<
                                    ReusableWrappingEnumerator<NullableStructBoolOrEnumeratorClassUnion?>?
-                                 , NullableStructBoolOrEnumeratorClassUnion
+                                 , NullableStructBoolOrEnumeratorClassUnion?
                                  , NullableStructBoolOrEnumeratorClassUnion
                                > (nodeCollectionEnumerator, nodeRevealer).Complete();
                 else
                     return tos.StartComplexCollectionType(this)
                               .RevealAllIterate<
                                   ReusableWrappingEnumerator<NullableStructBoolOrEnumeratorClassUnion?>?
-                                , NullableStructBoolOrEnumeratorClassUnion
+                                , NullableStructBoolOrEnumeratorClassUnion?
                                 , NullableStructBoolOrEnumeratorClassUnion
                               >(nodeCollectionEnumerator, nodeRevealer).Complete();
             else if (isSimple)
                 return tos.StartSimpleCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<NullableStructBoolOrEnumeratorClassUnion?>?
-                            , NullableStructBoolOrEnumeratorClassUnion
+                            , NullableStructBoolOrEnumeratorClassUnion?
                           >(nodeCollectionEnumerator).Complete();
             else
                 return tos.StartComplexCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<NullableStructBoolOrEnumeratorClassUnion?>?
-                            , NullableStructBoolOrEnumeratorClassUnion
+                            , NullableStructBoolOrEnumeratorClassUnion?
                           >(nodeCollectionEnumerator).Complete();
         if (itemRevealer != null)
             if (isSimple)

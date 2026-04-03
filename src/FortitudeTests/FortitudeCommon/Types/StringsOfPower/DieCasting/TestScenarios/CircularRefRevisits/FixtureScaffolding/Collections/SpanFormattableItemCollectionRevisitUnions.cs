@@ -3308,7 +3308,7 @@ public class NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct> : I
                     return tos.StartSimpleCollectionType(this)
                               .RevealAllIterate<
                                   ReusableWrappingEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?>?
-                                , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
+                                , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?
                                 , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
                               >(nodeCollectionEnumerator, nodeRevealer)
                               .Complete();
@@ -3316,7 +3316,7 @@ public class NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct> : I
                     return tos.StartComplexCollectionType(this)
                               .RevealAllIterate<
                                   ReusableWrappingEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?>?
-                                , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
+                                , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?
                                 , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
                               >(nodeCollectionEnumerator, nodeRevealer)
                               .Complete();
@@ -3324,13 +3324,13 @@ public class NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct> : I
                 return tos.StartSimpleCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?>?
-                            , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
+                            , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?
                           >(nodeCollectionEnumerator).Complete();
             else
                 return tos.StartComplexCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?>?
-                            , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
+                            , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?
                           >(nodeCollectionEnumerator).Complete();
         if (itemRevealer != null)
             if (isSimple)

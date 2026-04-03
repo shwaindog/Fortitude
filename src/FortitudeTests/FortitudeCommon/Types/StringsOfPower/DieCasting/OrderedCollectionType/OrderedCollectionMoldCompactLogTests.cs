@@ -118,8 +118,8 @@ public class OrderedCollectionMoldCompactLogTests : OrderedCollectionMoldTests
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[1]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[1025], StringBuilderType.CharArrayStringBuilder);
+        ExecuteIndividualScaffoldExpectation(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[2], 
+                                             ScaffoldingRegistry.AllScaffoldingTypes[1042], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

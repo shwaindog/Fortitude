@@ -18,23 +18,23 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
     private const string AddAllMethodName                               = $"{nameof(SimpleOrderedCollectionMold.AddAll)}";
     private const string AddAllEnumerateMethodName                      = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerateBool)}";
     private const string AddAllIterateMethodName                        = $"{nameof(SimpleOrderedCollectionMold.AddAllIterateBool)}";
-    private const string AddAllStringEnumerateMethodName        = $"{nameof(SimpleOrderedCollectionMold.AddAllStringEnumerate)}";
-    private const string AddAllStringIterateMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllStringIterate)}";
-    private const string AddAllStringBuilderEnumerateMethodName = $"{nameof(SimpleOrderedCollectionMold.AddAllStringBuilderEnumerate)}";
-    private const string AddAllStringBuilderIterateMethodName   = $"{nameof(SimpleOrderedCollectionMold.AddAllStringBuilderIterate)}";
+    private const string AddAllStringEnumerateMethodName        = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerateString)}";
+    private const string AddAllStringIterateMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllIterateString)}";
+    private const string AddAllStringBuilderEnumerateMethodName = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerateStringBuilder)}";
+    private const string AddAllStringBuilderIterateMethodName   = $"{nameof(SimpleOrderedCollectionMold.AddAllIterateStringBuilder)}";
     private const string AddAllEnumerateNullableMethodName              = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerateNullableBool)}";
     private const string AddAllIterateNullableMethodName                = $"{nameof(SimpleOrderedCollectionMold.AddAllIterateNullableBool)}";
     private const string AddAllCharSequenceMethodName                   = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeq)}";
-    private const string AddAllCharSequenceEnumerateMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeqEnumerate)}";
-    private const string AddAllCharSequenceIterateMethodName            = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeqIterate)}";
+    private const string AddAllCharSequenceEnumerateMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerateCharSeq)}";
+    private const string AddAllCharSequenceIterateMethodName            = $"{nameof(SimpleOrderedCollectionMold.AddAllIterateCharSeq)}";
     private const string RevealAllMethodName                            = $"{nameof(SimpleOrderedCollectionMold.RevealAll)}";
     private const string RevealAllEnumerateMethodName                   = $"{nameof(SimpleOrderedCollectionMold.RevealAllEnumerate)}";
     private const string RevealAllIterateMethodName                     = $"{nameof(SimpleOrderedCollectionMold.RevealAllIterate)}";
     private const string RevealAllEnumerateNullableMethodName           = $"{nameof(SimpleOrderedCollectionMold.RevealAllEnumerateNullable)}";
     private const string RevealAllIterateNullableMethodName             = $"{nameof(SimpleOrderedCollectionMold.RevealAllIterateNullable)}";
     private const string AddAllMatchMethodName                          = $"{nameof(SimpleOrderedCollectionMold.AddAllMatch)}";
-    private const string AddAllMatchEnumerateMethodName                 = $"{nameof(SimpleOrderedCollectionMold.AddAllMatchEnumerate)}";
-    private const string AddAllMatchIterateMethodName                   = $"{nameof(SimpleOrderedCollectionMold.AddAllMatchIterate)}";
+    private const string AddAllMatchEnumerateMethodName                 = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerateMatch)}";
+    private const string AddAllMatchIterateMethodName                   = $"{nameof(SimpleOrderedCollectionMold.AddAllIterateMatch)}";
 
     private const string MyCallAddAllMethodName = $"{nameof(CallAddAll)}";
 

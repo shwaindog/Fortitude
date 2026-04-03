@@ -7,6 +7,10 @@ using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpecta
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField.FixtureScaffolding;
 
+public interface IOrderedCollectionMoldScaffold
+{
+    Type OrderedCollectionType { get; }
+}
 
 public abstract class CollectionFieldMoldScaffold<TValue, TCollection> : MoldScaffoldBase<TCollection?>
     where TCollection : IEnumerable<TValue> { }

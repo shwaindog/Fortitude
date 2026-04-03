@@ -1084,7 +1084,7 @@ public readonly struct CharSeqOrEnumerableStructUnion : IStringBearer
                     return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
             else
                 return tos.StartSimpleCollectionType(this)
-                          .AddAllCharSeqEnumerate<List<ICharSequence?>?, ICharSequence?>(itemCollection).Complete();
+                          .AddAllEnumerateCharSeq<List<ICharSequence?>?, ICharSequence?>(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
@@ -1102,7 +1102,7 @@ public readonly struct CharSeqOrEnumerableStructUnion : IStringBearer
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllCharSeqEnumerate<List<ICharSequence?>?, ICharSequence?>(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .AddAllEnumerateCharSeq<List<ICharSequence?>?, ICharSequence?>(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyCollectionField.AlwaysAddAllCharSeq(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
@@ -1263,7 +1263,7 @@ public class CharSeqOrEnumerableClassUnion : IStringBearer
                 else
                     return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
             else
-                return tos.StartSimpleCollectionType(this).AddAllCharSeqEnumerate<List<ICharSequence?>?, ICharSequence?>(itemCollection).Complete();
+                return tos.StartSimpleCollectionType(this).AddAllEnumerateCharSeq<List<ICharSequence?>?, ICharSequence?>(itemCollection).Complete();
         if (isItem)
             if (isValue)
                 return tos
@@ -1281,7 +1281,7 @@ public class CharSeqOrEnumerableClassUnion : IStringBearer
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllCharSeqEnumerate<List<ICharSequence?>?, ICharSequence?>(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .AddAllEnumerateCharSeq<List<ICharSequence?>?, ICharSequence?>(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticSpanInstance), LogComplexOnlyStaticSpanInstance.AsSpan())
                .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
@@ -1496,7 +1496,7 @@ public readonly struct CharSeqOrEnumeratorStructUnion : IStringBearer
                     return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
             else
                 return tos.StartSimpleCollectionType(this)
-                          .AddAllCharSeqIterate<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>(itemCollectionEnumerator).Complete();
+                          .AddAllIterateCharSeq<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>(itemCollectionEnumerator).Complete();
         if (isItem)
             if (isValue)
                 return tos
@@ -1514,7 +1514,7 @@ public readonly struct CharSeqOrEnumeratorStructUnion : IStringBearer
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllCharSeqIterate<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>
+               .AddAllIterateCharSeq<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>
                    (itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
@@ -1612,27 +1612,27 @@ public class CharSeqOrEnumeratorClassUnion : IStringBearer
                     return tos.StartSimpleCollectionType(this)
                               .RevealAllIterate<
                                   ReusableWrappingEnumerator<CharSeqOrEnumeratorClassUnion?>?
-                                , CharSeqOrEnumeratorClassUnion
+                                , CharSeqOrEnumeratorClassUnion?
                                 , CharSeqOrEnumeratorClassUnion
                               >(nodeCollectionEnumerator, nodeRevealer).Complete();
                 else
                     return tos.StartComplexCollectionType(this)
                               .RevealAllIterate<
                                   ReusableWrappingEnumerator<CharSeqOrEnumeratorClassUnion?>?
-                                , CharSeqOrEnumeratorClassUnion
+                                , CharSeqOrEnumeratorClassUnion?
                                 , CharSeqOrEnumeratorClassUnion
                               >(nodeCollectionEnumerator, nodeRevealer).Complete();
             else if (isSimple)
                 return tos.StartSimpleCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<CharSeqOrEnumeratorClassUnion?>?
-                            , CharSeqOrEnumeratorClassUnion
+                            , CharSeqOrEnumeratorClassUnion?
                           >(nodeCollectionEnumerator).Complete();
             else
                 return tos.StartComplexCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<CharSeqOrEnumeratorClassUnion?>?
-                            , CharSeqOrEnumeratorClassUnion
+                            , CharSeqOrEnumeratorClassUnion?
                           >(nodeCollectionEnumerator).Complete();
         if (itemRevealer != null)
             if (isSimple)
@@ -1683,7 +1683,7 @@ public class CharSeqOrEnumeratorClassUnion : IStringBearer
                     return tos.StartSimpleContentType(this).AsStringOrNull(item).Complete();
             else
                 return tos.StartSimpleCollectionType(this)
-                          .AddAllCharSeqIterate<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>(itemCollectionEnumerator).Complete();
+                          .AddAllIterateCharSeq<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>(itemCollectionEnumerator).Complete();
         if (isItem)
             if (isValue)
                 return tos
@@ -1701,7 +1701,7 @@ public class CharSeqOrEnumeratorClassUnion : IStringBearer
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllCharSeqIterate<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>
+               .AddAllIterateCharSeq<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>
                    (itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)

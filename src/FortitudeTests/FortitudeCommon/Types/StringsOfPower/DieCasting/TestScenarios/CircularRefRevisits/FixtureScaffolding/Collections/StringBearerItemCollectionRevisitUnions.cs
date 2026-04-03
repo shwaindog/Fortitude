@@ -3120,7 +3120,7 @@ public class StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer> : IStr
                     return tos.StartSimpleCollectionType(this)
                               .RevealAllIterate<
                                   ReusableWrappingEnumerator<StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>?>?
-                                , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>
+                                , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>?
                                 , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>
                               >(nodeCollectionEnumerator, nodeRevealer)
                               .Complete();
@@ -3128,7 +3128,7 @@ public class StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer> : IStr
                     return tos.StartComplexCollectionType(this)
                               .RevealAllIterate<
                                   ReusableWrappingEnumerator<StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>?>?
-                                , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>
+                                , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>?
                                 , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>
                               >(nodeCollectionEnumerator, nodeRevealer)
                               .Complete();
@@ -3136,13 +3136,13 @@ public class StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer> : IStr
                 return tos.StartSimpleCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>?>?
-                            , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>
+                            , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>?
                           >(nodeCollectionEnumerator).Complete();
             else
                 return tos.StartComplexCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>?>?
-                            , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>
+                            , StringBearerOrEnumeratorClassUnion<TBearer, TBearerRevealer>?
                           >(nodeCollectionEnumerator).Complete();
         if (itemRevealer != null)
             if (isSimple)

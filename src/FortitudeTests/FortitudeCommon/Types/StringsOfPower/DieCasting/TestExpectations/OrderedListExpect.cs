@@ -3,12 +3,15 @@
 
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField.FixtureScaffolding;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
@@ -24,7 +27,7 @@ public interface IOrderedListExpect : IFormatExpectation
     Type ElementType { get; }
     Type ElementCallType { get; }
 
-    Type CollectionCallType { get; }
+    Type? CollectionCallType { get; }
     
     bool IsTwoInARowTypes { get; }
 
@@ -48,7 +51,7 @@ public class OrderedListExpect<TInputElement>
         (inputList, valueFormatString, elementFilterExpression, formatFlags
        , name, srcFile, srcLine);
 
-public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TInputElement>?>, IOrderedListExpect
+public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TInputElement>?>, IComplexOrderedListExpect
 {
     private readonly string? filterName;
 
@@ -79,7 +82,16 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
         else { ElementPredicate = ISupportsOrderedCollectionPredicate<TFilterBase?>.GetNoFilterPredicate; }
         ElementCallType    = ElementType;
         CollectionCallType = inputList?.GetType() ?? typeof(List<TInputElement>);
+        
+        
+        FieldValueExpectation =
+            new FieldExpect<TInputElement?>
+                (default, ValueFormatString, false, default, formatFlags, name, srcFile, srcLine);
     }
+
+    public ITypedFormatExpectation<TInputElement?> FieldValueExpectation { get; protected set; }
+
+    public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
     public override bool InputIsEmpty => (Input?.Count ?? 0) >= 0;
 
@@ -104,7 +116,7 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
 
     public override Type CoreType => typeof(TInputElement).IfNullableGetUnderlyingTypeOrThis();
 
-    public Type CollectionCallType { get; protected set; }
+    public Type? CollectionCallType { get; protected set; }
     
     public Type ElementCallType { get; protected set; }
 
@@ -238,7 +250,36 @@ public class OrderedListExpect<TInputElement, TFilterBase> : ExpectBase<List<TIn
         if (ValueFormatString != null && createdStringBearer is ISupportsValueFormatString supportsValueFormatString)
             supportsValueFormatString.ValueFormatString = ValueFormatString;
 
+        if (createdStringBearer is IOrderedCollectionMoldScaffold hasCollectionType)
+        {
+            CollectionCallType = hasCollectionType.OrderedCollectionType;
+        }
+
         return createdStringBearer;
+    }
+    
+    public override IStringBuilder GetExpectedOutputFor(IRecycler sbFactory, ScaffoldingStringBuilderInvokeFlags condition, ITheOneString tos
+      , string? formatString = null)
+    {
+        FieldValueExpectation.ClearExpectations();
+        foreach (var expectedResult in ExpectedResults) { FieldValueExpectation.Add(expectedResult); }
+        var expectValue = FieldValueExpectation.GetExpectedOutputFor(sbFactory, condition, tos, formatString);
+        if (!expectValue.SequenceMatches(IFormatExpectation.NoResultExpectedValue)
+         && !expectValue.SequenceMatches("null") && !expectValue.SequenceMatches(""))
+        {
+            CollectionCallType ??= typeof(object); 
+            if (tos.Settings.Style.IsLog() && tos.Settings.ShouldDisplayCollectionTypeName(CollectionCallType))
+            {
+                var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
+                nextExpect.Append("(");
+                CollectionCallType!.AppendShortNameInCSharpFormat(nextExpect);
+                nextExpect.Append(") ");
+                nextExpect.Append(expectValue);
+                expectValue.DecrementRefCount();
+                expectValue = nextExpect;
+            }
+        }
+        return expectValue;
     }
 
     protected override void AdditionalToStringExpectFields(IStringBuilder sb, ScaffoldingStringBuilderInvokeFlags forThisScaffold)

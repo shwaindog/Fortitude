@@ -9,6 +9,32 @@ using FortitudeCommon.Types;
 
 namespace FortitudeCommon.Extensions;
 
+public readonly struct StructEnumerable<TEnumbl, T>(TEnumbl wrapped) : IEnumerable<T>
+where TEnumbl : IEnumerable<T>
+{
+    IEnumerator IEnumerable.GetEnumerator() => wrapped.GetEnumerator();
+    public IEnumerator<T>   GetEnumerator() => wrapped.GetEnumerator();
+}
+public readonly struct StructEnumerator<TEnumtr, T>(TEnumtr wrapped) : IEnumerator<T>
+where TEnumtr : IEnumerator<T>
+{
+    public bool MoveNext() => wrapped.MoveNext();
+
+    public void Reset()
+    {
+        wrapped.MoveNext();
+    }
+    
+    object? IEnumerator.Current => Current;
+
+    public void Dispose()
+    {
+        wrapped.Dispose();
+    }
+
+    public T Current => wrapped.Current;
+}
+
 public static class EnumerableExtensions
 {
     private static readonly ConcurrentDictionary<Type, MethodInfo?> EnumerableToEnumeratorMethodInfoCache = new();
@@ -17,6 +43,17 @@ public static class EnumerableExtensions
     
     private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> CompileEnumerableCount = new();
 
+    public static StructEnumerable<TEnumbl, T> ToStructEnumerable<TEnumbl, T>(this TEnumbl wrapped) where TEnumbl : IEnumerable<T> => 
+        new (wrapped);
+    
+    public static StructEnumerable<TEnumbl, T>? ToNullableStructEnumerable<TEnumbl, T>(this TEnumbl? wrapped) where TEnumbl : IEnumerable<T> => 
+        wrapped != null ? new StructEnumerable<TEnumbl, T>(wrapped) : null;
+
+    public static StructEnumerator<TEnumtr, T> ToStructEnumerator<TEnumtr, T>(this TEnumtr wrapped) where TEnumtr : IEnumerator<T> => 
+        new (wrapped);
+    
+    public static StructEnumerator<TEnumtr, T>? ToNullableStructEnumerator<TEnumtr, T>(this TEnumtr? wrapped) where TEnumtr : IEnumerator<T> => 
+        wrapped != null ? new StructEnumerator<TEnumtr, T>(wrapped) : null;
 
     public static Type? GetEnumeratorType(this Type enumerableType) =>
         EnumerableToEnumeratorTypeCache

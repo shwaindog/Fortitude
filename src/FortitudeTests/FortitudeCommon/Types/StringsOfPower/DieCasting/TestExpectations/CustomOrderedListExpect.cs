@@ -28,7 +28,7 @@ public class CustomOrderedListExpect<TInputElement>
         (inputList, valueFormatString, elementFilterExpression, formatFlags
        , name, srcFile, srcLine);
 
-public class CustomOrderedListExpect<TInputElement, TFilterBase> : OrderedListExpect<TInputElement, TFilterBase>, IComplexOrderedListExpect
+public class CustomOrderedListExpect<TInputElement, TFilterBase> : OrderedListExpect<TInputElement, TFilterBase>
 {
     // ReSharper disable once ConvertToPrimaryConstructor
     // ReSharper disable twice ExplicitCallerInfoArgument
@@ -44,10 +44,6 @@ public class CustomOrderedListExpect<TInputElement, TFilterBase> : OrderedListEx
             new FieldExpect<TInputElement?>
                 (default, ValueFormatString, false, default, formatFlags, name, srcFile, srcLine);
     }
-
-    public ITypedFormatExpectation<TInputElement?> FieldValueExpectation { get; }
-
-    public BuildExpectedOutput WhenValueExpectedOutput { get; set; } = null!;
 
     public override bool IsTwoInARowTypes =>
         FieldValueExpectation.InputType == ElementType;

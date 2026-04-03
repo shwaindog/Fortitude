@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification;
@@ -396,9 +397,27 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     public TOCMold AddFilteredEnumerateBool<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<bool>
+    {
+        mws.AddFilteredEnumerateBool(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateBool<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<bool> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool>?
     {
         mws.AddFilteredEnumerateBool(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateNullableBool<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<bool?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<bool?>
+    {
+        mws.AddFilteredEnumerateNullableBool(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -411,7 +430,16 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.Mold;
     }
 
-    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
+    public TOCMold AddFilteredIterateBool<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<bool>
+    {
+        mws.AddFilteredIterateBool(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredIterateBool<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<bool>?
@@ -420,7 +448,16 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.Mold;
     }
 
-    public TOCMold AddFilteredIterateNullable<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TOCMold AddFilteredIterateNullableBool<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<bool?>
+    {
+        mws.AddFilteredIterateNullableBool(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredIterateNullableBool<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<bool?>?
@@ -812,6 +849,34 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
+    public TOCMold AddFilteredEnumerate<TEnumbl, TFmtBase>(TEnumbl? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable
+    {
+        mws.AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerate<TEnumbl, TFmtBase>(TEnumbl? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable?
+    {
+        mws.AddFilteredEnumerate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(TEnumbl? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<TFmt>
+        where TFmt : ISpanFormattable?, TFmtBase?
+    {
+        mws.AddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
     public TOCMold AddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(TEnumbl? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -822,13 +887,51 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(TEnumbl value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
+    public TOCMold AddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(TEnumbl? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<TFmtStruct?>
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        mws.AddFilteredEnumerateNullable(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(TEnumbl? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TFmtStruct?>?
         where TFmtStruct : struct, ISpanFormattable
     {
         mws.AddFilteredEnumerateNullable(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredIterate<TEnumtr, TFmtBase>(TEnumtr? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+    {
+        mws.AddFilteredIterate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredIterate<TEnumtr, TFmtBase>(TEnumtr? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator?
+    {
+        mws.AddFilteredIterate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredIterate<TEnumtr, TFmt, TFmtBase>(TEnumtr? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<TFmt>
+        where TFmt : ISpanFormattable?, TFmtBase?
+    {
+        mws.AddFilteredIterate<TEnumtr, TFmt, TFmtBase>(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -839,6 +942,16 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TFmt : ISpanFormattable?, TFmtBase?
     {
         mws.AddFilteredIterate<TEnumtr, TFmt, TFmtBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredIterateNullable<TEnumtr, TFmtStruct>(TEnumtr? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<TFmtStruct?>
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        mws.AddFilteredIterateNullable(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -1242,6 +1355,40 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
+    public TOCMold RevealFilteredEnumerate<TEnumbl, TFilterBase, TRevealBase>(TEnumbl? value
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable
+        where TRevealBase : notnull
+    {
+        mws.RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredEnumerate<TEnumbl, TFilterBase, TRevealBase>(TEnumbl? value
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable?
+        where TRevealBase : notnull
+    {
+        mws.RevealFilteredEnumerate(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(TEnumbl? value
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<TCloaked>
+        where TCloaked : TFilterBase?, TRevealBase?
+        where TRevealBase : notnull
+    {
+        mws.RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
+    }
+
     public TOCMold RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(TEnumbl? value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate, PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -1258,10 +1405,56 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<TCloakedStruct?>
+        where TCloakedStruct : struct
+    {
+        mws.RevealFilteredEnumerateNullable(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredEnumerateNullable<TEnumbl, TCloakedStruct>(TEnumbl? value
+      , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TCloakedStruct?>?
         where TCloakedStruct : struct
     {
         mws.RevealFilteredEnumerateNullable(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredIterate<TEnumtr, TCloakedFilterBase, TCloakedRevealBase>(TEnumtr? value
+      , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+        where TCloakedRevealBase : notnull
+    {
+        mws.RevealFilteredIterate(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredIterate<TEnumtr, TCloakedFilterBase, TCloakedRevealBase>(TEnumtr? value
+      , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator?
+        where TCloakedRevealBase : notnull
+    {
+        mws.RevealFilteredIterate(value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredIterate<TEnumtr, TCloaked, TCloakedFilterBase, TCloakedRevealBase>(TEnumtr? value
+      , OrderedCollectionPredicate<TCloakedFilterBase> filterPredicate, PalantírReveal<TCloakedRevealBase> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<TCloaked>
+        where TCloaked : TCloakedFilterBase?, TCloakedRevealBase?
+        where TCloakedRevealBase : notnull
+    {
+        mws.RevealFilteredIterate<TEnumtr, TCloaked, TCloakedFilterBase, TCloakedRevealBase>
+            (value, filterPredicate, palantírReveal, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -1275,6 +1468,17 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     {
         mws.RevealFilteredIterate<TEnumtr, TCloaked, TCloakedFilterBase, TCloakedRevealBase>
             (value, filterPredicate, palantírReveal, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredIterateNullable<TEnumtr, TCloakedStruct>(TEnumtr? value
+      , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate, PalantírReveal<TCloakedStruct> palantírReveal
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<TCloakedStruct?>
+        where TCloakedStruct : struct
+    {
+        mws.RevealFilteredIterateNullable(value, filterPredicate, palantírReveal, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -1664,6 +1868,37 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
+    public TOCMold RevealFilteredEnumerate<TEnumbl, TBearerBase>(TEnumbl? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable
+    {
+        mws.RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredEnumerate<TEnumbl, TBearerBase>(TEnumbl? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable?
+    {
+        mws.RevealFilteredEnumerate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(TEnumbl? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<TBearer>
+        where TBearer : IStringBearer?, TBearerBase?
+    {
+        mws.RevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
     public TOCMold RevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(TEnumbl? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1677,10 +1912,48 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     public TOCMold RevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(TEnumbl? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<TBearerStruct?>
+        where TBearerStruct : struct, IStringBearer
+    {
+        mws.RevealFilteredEnumerateNullable(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(TEnumbl? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer
     {
         mws.RevealFilteredEnumerateNullable(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredIterate<TEnumtr, TBearerBase>(TEnumtr? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+    {
+        mws.RevealFilteredIterate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredIterate<TEnumtr, TBearerBase>(TEnumtr? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator?
+    {
+        mws.RevealFilteredIterate(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(TEnumtr? value
+      , OrderedCollectionPredicate<TBearerBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<TBearer>
+        where TBearer : IStringBearer?, TBearerBase?
+    {
+        mws.RevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -1690,7 +1963,17 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TEnumtr : IEnumerator<TBearer>?
         where TBearer : IStringBearer?, TBearerBase?
     {
-        mws.RevealFilteredIterateStringBearer<TEnumtr, TBearer, TBearerBase>(value, filterPredicate, formatString, formatFlags);
+        mws.RevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealFilteredIterateNullable<TEnumtr, TBearerStruct>(TEnumtr? value
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<TBearerStruct?>
+        where TBearerStruct : struct, IStringBearer
+    {
+        mws.RevealFilteredIterateNullable(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -1700,7 +1983,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         where TEnumtr : IEnumerator<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer
     {
-        mws.RevealFilteredIterateNullableStringBearer(value, filterPredicate, formatString, formatFlags);
+        mws.RevealFilteredIterateNullable(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -1981,13 +2264,29 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
 
     public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<string?>?
+        where TEnumbl : struct, IEnumerable<string?>
     {
-        mws.AddFilteredStringEnumerate(value, filterPredicate, formatString, formatFlags);
+        mws.AddFilteredEnumerateString(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
-
+    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<string> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<string?>?
+    {
+        mws.AddFilteredEnumerateString(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+    
+    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<string?>
+    {
+        mws.AddFilteredIterateString(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+    
     public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -2190,19 +2489,80 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(TEnumbl? value
+    public TOCMold AddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(TEnumbl? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable
+    {
+        mws.AddFilteredEnumerateCharSeq(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(TEnumbl? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable?
+    {
+        mws.AddFilteredEnumerateCharSeq(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(TEnumbl? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<TCharSeq>
+        where TCharSeq : ICharSequence?, TCharSeqBase?
+    {
+        mws.AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(TEnumbl? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : ICharSequence?, TCharSeqBase?
     {
-        mws.AddFilteredCharSeqEnumerate<TEnumbl, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags);
+        mws.AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+    
+    public TOCMold AddFilteredIterateCharSeq<TEnumtr, TCharSeqBase>(TEnumtr? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+    {
+        mws.AddFilteredIterateCharSeq(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
-
-    public TOCMold AddFilteredCharSeqIterate<TEnumtr, TCharSeq, TCharSeqBase>(TEnumtr? value
+    public TOCMold AddFilteredIterateCharSeq<TEnumtr, TCharSeqBase>(TEnumtr? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator?
+    {
+        mws.AddFilteredIterateCharSeq(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+    
+    public TOCMold AddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>(TEnumtr? value
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<TCharSeq>
+        where TCharSeq : ICharSequence?, TCharSeqBase?
+    {
+        mws.AddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+    
+    public TOCMold AddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>(TEnumtr? value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -2497,17 +2857,34 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+    public TOCMold AddFilteredEnumerateStringBuilder<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<StringBuilder?>
+    {
+        mws.AddFilteredEnumerateStringBuilder(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateStringBuilder<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<StringBuilder?>?
     {
-        mws.AddFilteredStringBuilderEnumerate(value, filterPredicate, formatString, formatFlags);
+        mws.AddFilteredEnumerateStringBuilder(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
-
-
-    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+    
+    public TOCMold AddFilteredIterateStringBuilder<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<StringBuilder?>
+    {
+        mws.AddFilteredIterateStringBuilder(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+    
+    public TOCMold AddFilteredIterateStringBuilder<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<StringBuilder?>?
@@ -2708,23 +3085,79 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(TEnumbl? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+    public TOCMold AddFilteredEnumerateMatch<TEnumbl, TAnyBase>(TEnumbl? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable
+    {
+        mws.AddFilteredEnumerateMatch(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateMatch<TEnumbl, TAnyBase>(TEnumbl? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable?
+    {
+        mws.AddFilteredEnumerateMatch(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(TEnumbl? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<TAny>
+        where TAny : TAnyBase?
+    {
+        mws.AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(TEnumbl? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TAny>?
         where TAny : TAnyBase?
     {
-        mws.AddFilteredMatchEnumerate<TEnumbl, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags);
+        mws.AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddFilteredMatchIterate<TEnumtr, TAny, TAnyBase>(TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+    public TOCMold AddFilteredIterateMatch<TEnumtr, TAnyBase>(TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator
+    {
+        mws.AddFilteredIterateMatch(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredIterateMatch<TEnumtr, TAnyBase>(TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : IEnumerator?
+    {
+        mws.AddFilteredIterateMatch(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>(TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<TAny?>
+        where TAny : TAnyBase?
+    {
+        mws.AddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>(TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TAny?>?
         where TAny : TAnyBase?
     {
-        mws.AddFilteredMatchIterate<TEnumtr, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags);
+        mws.AddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -3016,22 +3449,42 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
     }
 
     [CallsObjectToString]
-    public TOCMold AddFilteredObjectEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<object> filterPredicate
+    public TOCMold AddFilteredEnumerateObject<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumbl : IEnumerable<object?>?
+        where TEnumbl : struct, IEnumerable<object?>
     {
-        mws.AddFilteredObjectEnumerate(value, filterPredicate, formatString, formatFlags);
+        mws.AddFilteredEnumerateObject(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 
     [CallsObjectToString]
-    public TOCMold AddFilteredObjectIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<object> filterPredicate
+    public TOCMold AddFilteredEnumerateObject<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<object> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<object?>?
+    {
+        mws.AddFilteredEnumerateObject(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    [CallsObjectToString]
+    public TOCMold AddFilteredIterateObject<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<object> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<object?>
+    {
+        mws.AddFilteredIterateObject(value, filterPredicate, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    [CallsObjectToString]
+    public TOCMold AddFilteredIterateObject<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<object?>?
     {
-        mws.AddFilteredObjectIterate(value, filterPredicate, formatString, formatFlags);
+        mws.AddFilteredIterateObject(value, filterPredicate, formatString, formatFlags);
         return mws.Mold;
     }
 }
