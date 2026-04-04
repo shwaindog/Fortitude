@@ -218,7 +218,7 @@ public class FieldStringEnumerableAlwaysAddFilteredStringBearer : FormattedFilte
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredEnumerate
+           .CollectionField.AlwaysAddFilteredEnumerateString
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerable
               , ElementPredicate
@@ -242,7 +242,7 @@ public class FieldCharSequenceEnumerableAlwaysAddFilteredStringBearer<TCharSeq, 
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredCharSeqEnumerate<IEnumerable<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
+           .CollectionField.AlwaysAddFilteredEnumerateCharSeq<IEnumerable<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerable
               , ElementPredicate
@@ -265,7 +265,7 @@ public class FieldStringBuilderEnumerableAlwaysAddFilteredStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredEnumerate
+           .CollectionField.AlwaysAddFilteredEnumerateStringBuilder
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerable
               , ElementPredicate
@@ -289,7 +289,7 @@ public class FieldMatchEnumerableAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredMatchEnumerate<IEnumerable<TAny>?, TAny, TAnyFilterBase>
+           .CollectionField.AlwaysAddFilteredEnumerateMatch<IEnumerable<TAny>?, TAny, TAnyFilterBase>
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerable
               , ElementPredicate
@@ -312,7 +312,7 @@ public class FieldObjectEnumerableAlwaysAddFilteredStringBearer : FormattedFilte
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredObjectEnumerate
+           .CollectionField.AlwaysAddFilteredEnumerateObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerable
               , ElementPredicate
@@ -334,7 +334,7 @@ public class FieldBoolEnumeratorAlwaysAddFilteredStringBearer : FormattedFiltere
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredIterate
+           .CollectionField.AlwaysAddFilteredIterateBool
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddFilteredBoolEnumerator, ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -356,7 +356,7 @@ public class FieldNullableBoolEnumeratorAlwaysAddFilteredStringBearer : Formatte
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredIterateNullable
+           .CollectionField.AlwaysAddFilteredIterateNullableBool
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddFilteredNullableBoolEnumerator, ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -525,7 +525,7 @@ public class FieldStringEnumeratorAlwaysAddFilteredStringBearer : FormattedFilte
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredIterate
+           .CollectionField.AlwaysAddFilteredIterateString
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddFilteredStringEnumerator
               , ElementPredicate
@@ -549,7 +549,7 @@ public class FieldCharSequenceEnumeratorAlwaysAddFilteredStringBearer<TCharSeq, 
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredCharSeqIterate<IEnumerator<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
+           .CollectionField.AlwaysAddFilteredIterateCharSeq<IEnumerator<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddFilteredCharSequenceEnumerator
               , ElementPredicate
@@ -572,7 +572,7 @@ public class FieldStringBuilderEnumeratorAlwaysAddFilteredStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredIterate
+           .CollectionField.AlwaysAddFilteredIterateStringBuilder
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddFilteredStringBuilderEnumerator
               , ElementPredicate
@@ -596,7 +596,7 @@ public class FieldMatchEnumeratorAlwaysAddFilteredStringBearer<TAny, TAnyFilterB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredMatchIterate<IEnumerator<TAny>?, TAny, TAnyFilterBase>
+           .CollectionField.AlwaysAddFilteredIterateMatch<IEnumerator<TAny>?, TAny, TAnyFilterBase>
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddFilteredMatchEnumerator
               , ElementPredicate
@@ -619,7 +619,7 @@ public class FieldObjectEnumeratorAlwaysAddFilteredStringBearer : FormattedFilte
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddFilteredObjectIterate
+           .CollectionField.AlwaysAddFilteredIterateObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddFilteredObjectEnumerator
               , ElementPredicate

@@ -1106,7 +1106,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(bool);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1139,14 +1138,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -1157,7 +1156,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1198,7 +1197,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(bool?);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1232,14 +1230,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -1249,7 +1247,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1325,7 +1323,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(TFmt);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1359,14 +1356,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -1376,7 +1373,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1419,7 +1416,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(TFmtStruct?);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1453,14 +1449,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -1470,7 +1466,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1555,7 +1551,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(TCloaked);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1588,14 +1583,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -1605,7 +1600,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, "", formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1650,7 +1645,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(TCloakedStruct);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1683,14 +1677,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -1700,7 +1694,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, "", formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1776,7 +1770,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(TBearer);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1809,14 +1802,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -1826,7 +1819,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, "", formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1869,7 +1862,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(TBearerStruct);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1902,14 +1894,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -1919,7 +1911,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, "", formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, "", formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1960,7 +1952,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(string);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1994,14 +1985,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -2011,7 +2002,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -2088,7 +2079,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(TCharSeq);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -2122,15 +2112,15 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
                 hasValue = value.MoveNext();
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
@@ -2139,7 +2129,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -2180,7 +2170,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(StringBuilder);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -2214,14 +2203,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -2231,7 +2220,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -2308,7 +2297,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(TAny);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -2342,14 +2330,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -2359,7 +2347,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -2402,7 +2390,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var  elementType     = typeof(object);
         var  any             = false;
         hasValue        ??= value?.MoveNext() ?? false;
-        var  itemCount       = 0;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -2436,14 +2423,14 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
@@ -2453,7 +2440,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             collectionItems = count;
         }
         value?.Dispose();
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 }

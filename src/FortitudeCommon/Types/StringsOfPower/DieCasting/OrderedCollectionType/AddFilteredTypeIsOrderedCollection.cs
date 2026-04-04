@@ -50,13 +50,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -96,13 +96,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -143,13 +143,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -190,13 +190,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -237,13 +237,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -284,13 +284,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -331,13 +331,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -378,13 +378,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -498,13 +498,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -545,13 +545,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -593,13 +593,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -641,13 +641,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -689,13 +689,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -737,13 +737,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -785,13 +785,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -833,13 +833,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -998,13 +998,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1046,13 +1046,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1095,13 +1095,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1143,13 +1143,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1193,13 +1193,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1241,13 +1241,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1290,13 +1290,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1339,13 +1339,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1524,13 +1524,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1571,13 +1571,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1618,13 +1618,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1665,13 +1665,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1712,13 +1712,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1759,13 +1759,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1806,13 +1806,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -1852,13 +1852,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2016,13 +2016,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2062,13 +2062,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2108,13 +2108,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2154,13 +2154,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2200,13 +2200,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2246,13 +2246,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2262,7 +2262,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<string> filterPredicate
+    public TOCMold AddFilteredEnumerateString<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<string?>
     {
@@ -2270,7 +2270,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.Mold;
     }
 
-    public TOCMold AddFilteredEnumerate<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<string> filterPredicate
+    public TOCMold AddFilteredEnumerateString<TEnumbl>(TEnumbl? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<string?>?
     {
@@ -2278,7 +2278,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.Mold;
     }
     
-    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
+    public TOCMold AddFilteredIterateString<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<string?>
@@ -2287,7 +2287,7 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
         return mws.Mold;
     }
     
-    public TOCMold AddFilteredIterate<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
+    public TOCMold AddFilteredIterateString<TEnumtr>(TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<string?>?
@@ -2328,13 +2328,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2376,13 +2376,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2424,13 +2424,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2473,13 +2473,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2604,13 +2604,14 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
                 mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
                 mws.GoToNextCollectionItemStart(elementType, i);
+                mws.ItemCount++;
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2652,13 +2653,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2700,13 +2701,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2747,13 +2748,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2794,13 +2795,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2841,13 +2842,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2925,13 +2926,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -2973,13 +2974,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -3021,13 +3022,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -3069,13 +3070,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -3192,13 +3193,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -3240,13 +3241,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -3288,13 +3289,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -3336,13 +3337,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -3384,13 +3385,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }
@@ -3432,13 +3433,13 @@ public partial class OrderedCollectionMold<TOCMold> where TOCMold : TypeMolder
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
                     {
                         break;
                     }
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
                 if (filterResult is { KeepProcessing: false }) break;
                 i += filterResult.SkipNextCount;
             }

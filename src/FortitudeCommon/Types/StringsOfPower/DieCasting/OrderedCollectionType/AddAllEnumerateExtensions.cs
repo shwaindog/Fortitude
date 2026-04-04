@@ -288,7 +288,7 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                      
         if (!elementType.IsAssignableTo(revealType)) 
             throw new ArgumentException($"Expected to receive a enumerable element " +
-                                        $"{elementType.Name} to be equatable to {revealType.Name}");
+                                        $"{elementType.ShortNameInCSharpFormat()} to be equatable to {revealType.ShortNameInCSharpFormat()}");
 
         using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(3);
         genericParamTypes[0] = enumblType;
@@ -926,7 +926,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(bool);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -963,17 +962,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1009,7 +1008,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(bool);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1046,17 +1044,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, mws.ItemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1123,7 +1121,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(TFmt);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1162,17 +1159,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                     
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1230,7 +1227,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(TFmtStruct?);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1268,17 +1264,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1353,7 +1349,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(TCloaked);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1390,17 +1385,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, "", formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, "", formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1440,7 +1435,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(TCloakedStruct);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1477,17 +1471,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, "", formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, "", formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1554,7 +1548,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(TBearer);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1591,17 +1584,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, "", formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, "", formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1639,7 +1632,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(TBearerStruct);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1676,17 +1668,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, "", formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, "", formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1722,7 +1714,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(string);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1760,17 +1751,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1837,7 +1828,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(TCharSeq);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1875,17 +1865,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, any ? itemCount : null, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, any ? mws.ItemCount : null, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -1921,7 +1911,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(StringBuilder);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -1959,17 +1948,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 
@@ -2034,7 +2023,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(TAny);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -2072,17 +2060,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
     
@@ -2120,7 +2108,6 @@ public static class OrderedCollectionAddAllEnumerateExtensions
         }
         var  elementType     = typeof(object);
         var  any             = false;
-        var  itemCount       = 0;
         int? collectionItems = null;
 
         TrackedInstanceMold? valueMold = null;
@@ -2158,17 +2145,17 @@ public static class OrderedCollectionAddAllEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
-                mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, itemCount++);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
-            collectionItems = itemCount;
+            collectionItems = mws.ItemCount;
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
             valueMold = mws.ConditionalCollectionPrefix(value, elementType, false, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? itemCount : null, collectionItems, formatString, formatFlags);
+        mws.ConditionalCollectionSuffix(valueMold, elementType, value != null ? mws.ItemCount : null, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
 }

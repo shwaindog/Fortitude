@@ -19,6 +19,8 @@ public interface ICollectionMoldWriteState : IMoldWriteState
     
     Type? DisplayAsType { get; set; }
     
+    int ItemCount { get; set; }
+    
     public bool BeforeFirstElement(Type elementType);
 }
 
@@ -42,6 +44,8 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
     }
 
     public virtual bool IsSimple => true;
+
+    public int ItemCount { get; set; }
 
     public Type? DisplayAsType { get; set; }
     
@@ -71,10 +75,17 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
 
     public TrackedInstanceMold? ConditionalCollectionPrefix<TCollection>(TCollection collection, Type elementType, bool? hasAny, CreateContext createContext)
     {
-        // if (hasAny == true)
-        // {
-            createContext = createContext with { FormatFlags = createContext.FormatFlags.RemoveEmbeddedContentFlags() };
-        // }
+        if (ItemCount == 0)
+        {
+            if (BeforeFirstItemFieldName != null && hasAny != true)
+            {
+                SkipBody = true;
+                return null;
+            }
+            BeforeFirstElement(elementType);
+            if (SkipBody) return null;
+        }
+        createContext = createContext with { FormatFlags = createContext.FormatFlags.RemoveEmbeddedContentFlags() };
         var formatFlags = createContext.FormatFlags;
         TrackedInstanceMold? valueMold   = null;
         
@@ -167,7 +178,8 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
         if (BeforeFirstItemFieldName != null)
         {
             this.FieldNameJoin(BeforeFirstItemFieldName);
-            Mold.StartTypeOpening(CreateMoldFormatFlags);
+            Mold.StartTypeOpening(CreateMoldFormatFlags.RemoveEmbeddedContentFlags());
+            Mold.FinishTypeOpening(CreateMoldFormatFlags.RemoveEmbeddedContentFlags());
             var shouldContinue = Mold.ShouldShowBody;
             if (shouldContinue)
             {
@@ -181,6 +193,7 @@ public class CollectionMoldWriteState<TOCMold> : MoldWriteState<TOCMold>, IColle
 
     public override void StateReset()
     {
+        ItemCount                = 0;
         BeforeFirstItemFieldName = null;
         DisplayAsType            = null;
         base.StateReset();

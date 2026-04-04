@@ -622,7 +622,7 @@ public class OrderedFromStringNullEnumerableAddFilteredSimpleOrderedCollectionSt
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateString
                (OrderedCollectionAddFilteredStringEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -649,7 +649,7 @@ public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
+           .AddFilteredEnumerateString
                (OrderedCollectionAddFilteredStringEnumerable
               , ElementPredicate
               , ValueFormatString, FormattingFlags)

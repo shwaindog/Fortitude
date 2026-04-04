@@ -1,9 +1,14 @@
-﻿using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
-using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
+﻿using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
-public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
+
+public interface IOrderedCollectionExtendFunctionality
+{
+    public void BeforeFirstElementWriteFieldName(string fieldName);
+}
+
+public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>, IOrderedCollectionExtendFunctionality
     where TOCMold : TypeMolder
 {
     private CollectionMoldWriteState<TOCMold> mws = null!;
@@ -34,23 +39,25 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
 
     public int ResultCount { get; set; }
 
+    public int ItemCount => mws.ItemCount;
+
     public int TotalCount { get; set; }
 
     
     public override void AppendClosing(FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
     {
-        if (CompAsOrderedCollectionMold.CreateMoldFormatFlags.HasSuppressClosing())
+        if (mws.BeforeFirstItemFieldName == null)
         {
-            State.Sf.Gb.RemoveLastSeparatorAndPadding();
-            return;
-        }
-        if (CompAsOrderedCollectionMold.CurrentWriteMethod.SupportsMultipleFields())
-        {
-            State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
-        }
-        else
-        {
-            State.StyleFormatter.AppendSimpleTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
+            if (CompAsOrderedCollectionMold.CreateMoldFormatFlags.HasSuppressClosing())
+            {
+                State.Sf.Gb.RemoveLastSeparatorAndPadding();
+                return;
+            }
+            if (CompAsOrderedCollectionMold.CurrentWriteMethod.SupportsMultipleFields())
+            {
+                State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
+            }
+            else { State.StyleFormatter.AppendSimpleTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags); }
         }
     }
 

@@ -275,7 +275,7 @@ public class OrderedFromCloakedBearerAnyNullEnumeratorRevealFilteredSimpleOrdere
     public StructEnumerator<IEnumerator<TCloaked>, TCloaked>? OrderedCollectionRevealFilteredCloakedBearerEnumerator
     {
         get => Value.ToNullableStructEnumerator<IEnumerator<TCloaked>, TCloaked>();
-        set => Value = value;
+        set => Value = value!;
     }
 
     public override Type OrderedCollectionType => OrderedCollectionRevealFilteredCloakedBearerEnumerator?.GetType() 
@@ -331,7 +331,7 @@ public class OrderedFromCloakedBearerNullEnumeratorRevealFilteredSimpleOrderedCo
     public StructEnumerator<IEnumerator<TCloaked>, TCloaked>? OrderedCollectionRevealFilteredCloakedBearerEnumerator
     {
         get => Value.ToNullableStructEnumerator<IEnumerator<TCloaked>, TCloaked>();
-        set => Value = value;
+        set => Value = value!;
     }
 
     public override Type OrderedCollectionType => OrderedCollectionRevealFilteredCloakedBearerEnumerator?.GetType() 
@@ -612,7 +612,7 @@ public class OrderedFromStringNullEnumeratorAddFilteredSimpleOrderedCollectionSt
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredIterate
+           .AddFilteredIterateString
                (OrderedCollectionAddFilteredStringEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
@@ -638,7 +638,7 @@ public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddFilteredIterate
+           .AddFilteredIterateString
                (OrderedCollectionAddFilteredStringEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)

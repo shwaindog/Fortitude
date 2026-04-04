@@ -100,8 +100,8 @@ public class SelectTypeCollectionFieldCompactJsonTests : SelectTypeCollectionFie
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(NumberCollectionsTestData.AllNumberCollectionsExpectations[2]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[354], StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[10]
+                                           , StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory,  ITheOneString tos, Type? className, string propertyName
