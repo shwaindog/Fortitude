@@ -86,7 +86,7 @@ public class ContentTypeMoldTestsCompactJsonAsValueTests : ContentTypeMoldAsValu
     public void CompactJsonNullStringBearerAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall)=> 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//

@@ -99,6 +99,13 @@ public class ScaffoldingValidateClassTests
     private const string KeyedCollectionScaffoldNameKeyValueStripOut                = "KeyValue";
     private const string KeyedCollectionScaffoldNameStringBearerStripOut            = "StringBearer";
 
+    private static readonly string[] OrderedCollectionOnlyInAlwaysAdd =
+    [
+        "NullableSpanFormattableAnyEnumerableAdd", "NullableSpanFormattableAnyEnumeratorAdd", "NullableSpanFormattableAnyNullEnumerableAdd"
+      , "NullableSpanFormattableAnyNullEnumeratorAdd", "NullableStringBearerAnyEnumerableReveal", "NullableStringBearerAnyEnumeratorReveal"
+      , "NullableStringBearerAnyNullEnumerableReveal", "NullableStringBearerAnyNullEnumeratorReveal"
+    ]; 
+
     [ClassInitialize]
     public static void AllTestsInClassStaticSetup(TestContext testContext)
     {
@@ -1015,6 +1022,7 @@ public class ScaffoldingValidateClassTests
         le?.AppendLine().Append("Total ").AppendLine(addFilteredInvokers.Count).FinalAppend("");
 
         var inAlwaysAddAllButNotAddFiltered = alwaysAddAllUniqueNamePart.Except(addFilteredUniqueNamePart);
+        inAlwaysAddAllButNotAddFiltered = inAlwaysAddAllButNotAddFiltered.Except(OrderedCollectionOnlyInAlwaysAdd);
 
         var counter = 0;
         le = logger.ErrorAppend("OrderedCollection -  Found in AlwaysAddAll  but not in AddFiltered - ")

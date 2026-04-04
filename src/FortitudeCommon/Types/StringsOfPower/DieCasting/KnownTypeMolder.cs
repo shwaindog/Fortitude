@@ -101,13 +101,13 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
 
     public override void StartTypeOpening(FormatFlags formatFlags)
     {
-        if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
+        if (formatFlags.HasSuppressOpening()) return;
         StartTypeOpening(MoldStateField.StyleFormatter, formatFlags);
     }
 
     public override void FinishTypeOpening(FormatFlags formatFlags)
     {
-        if (PortableState.CreateFormatFlags.HasSuppressOpening()) return;
+        if (formatFlags.HasSuppressOpening()) return;
         FinishTypeOpening(MoldStateField.StyleFormatter, formatFlags);
     }
 

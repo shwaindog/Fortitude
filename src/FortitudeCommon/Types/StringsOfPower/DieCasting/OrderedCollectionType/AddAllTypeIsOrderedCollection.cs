@@ -35,11 +35,11 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -69,11 +69,11 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -103,11 +103,11 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -136,11 +136,11 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -169,11 +169,11 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -202,11 +202,11 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -235,11 +235,11 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -268,11 +268,11 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -284,9 +284,27 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllEnumerateBool<TEnumbl>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<bool>
+    {
+        mws.AddAllEnumerateBool(value, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllEnumerateBool<TEnumbl>(TEnumbl? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool>?
     {
         mws.AddAllEnumerateBool(value, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllEnumerateNullableBool<TEnumbl>(TEnumbl? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : struct, IEnumerable<bool?>
+    {
+        mws.AddAllEnumerateNullableBool(value, formatString, formatFlags);
         return mws.Mold;
     }
 
@@ -302,9 +320,27 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold AddAllIterateBool<TEnumtr>(TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator<bool>
+    {
+        mws.AddAllIterateBool(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateBool<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
         where TEnumtr : IEnumerator<bool>?
     {
         mws.AddAllIterateBool(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateNullableBool<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator<bool?>
+    {
+        mws.AddAllIterateNullableBool(value, formatString, formatFlags, hasValue);
         return mws.Mold;
     }
 
@@ -336,12 +372,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -370,12 +406,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -404,12 +440,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -437,12 +473,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -470,12 +506,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -503,12 +539,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -536,12 +572,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -569,12 +605,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItem(item, i, formatString, formatFlags | FormatFlags.AsCollection);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -641,7 +677,7 @@ public partial class OrderedCollectionMold<TOCMold>
 
     public TOCMold AddAllEnumerateNullable<TEnumbl, TFmtStruct>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags) 
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TFmtStruct?>
         where TFmtStruct : struct, ISpanFormattable
     {
@@ -659,10 +695,37 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.Mold;
     }
 
+    public TOCMold AddAllIterate<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null) 
+        where TEnumtr : struct, IEnumerator
+    {
+        mws.AddAllIterate(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterate<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null) 
+        where TEnumtr : IEnumerator?
+    {
+        mws.AddAllIterate(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
     public TOCMold AddAllIterate<TEnumtr, TFmt>(TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null
-    ) 
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null) 
+        where TEnumtr : struct, IEnumerator<TFmt?>
+        where TFmt : ISpanFormattable?
+    {
+        mws.AddAllIterate<TEnumtr, TFmt>(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterate<TEnumtr, TFmt>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null) 
         where TEnumtr : IEnumerator<TFmt?>?
         where TFmt : ISpanFormattable?
     {
@@ -670,10 +733,37 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.Mold;
     }
 
+    public TOCMold AddAllIterateNullable<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator
+    {
+        mws.AddAllIterateNullable(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateNullable<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : IEnumerator?
+    {
+        mws.AddAllIterateNullable(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
     public TOCMold AddAllIterateNullable<TEnumtr, TFmtStruct>(TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null
-    )
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator<TFmtStruct?>
+        where TFmtStruct : struct, ISpanFormattable
+    {
+        mws.AddAllIterateNullable<TEnumtr, TFmtStruct>(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateNullable<TEnumtr, TFmtStruct>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
         where TEnumtr : IEnumerator<TFmtStruct?>?
         where TFmtStruct : struct, ISpanFormattable
     {
@@ -700,12 +790,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -733,12 +823,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -766,12 +856,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -798,12 +888,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -831,12 +921,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -863,12 +953,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -896,12 +986,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -928,12 +1018,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString, formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -998,9 +1088,27 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.Mold;
     }
 
+    public TOCMold RevealAllIterate<TEnumtr, TRevealBase>(TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator 
+        where TRevealBase : notnull
+    {
+        mws.RevealAllIterate(value, palantírReveal, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealAllIterate<TEnumtr, TRevealBase>(TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
+      , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : IEnumerator? 
+        where TRevealBase : notnull
+    {
+        mws.RevealAllIterate(value, palantírReveal, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
     public TOCMold RevealAllIterate<TEnumtr, TCloaked, TRevealBase>(TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags , bool? hasValue = null)
-        where TEnumtr : struct, IEnumerator<TCloaked?> 
+        where TEnumtr : struct, IEnumerator<TCloaked> 
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1010,7 +1118,7 @@ public partial class OrderedCollectionMold<TOCMold>
 
     public TOCMold RevealAllIterate<TEnumtr, TCloaked, TRevealBase>(TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
-        where TEnumtr : IEnumerator<TCloaked?>? 
+        where TEnumtr : IEnumerator<TCloaked>? 
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -1055,12 +1163,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1086,12 +1194,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1117,12 +1225,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1148,12 +1256,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1179,12 +1287,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1211,12 +1319,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1242,12 +1350,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1274,12 +1382,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1291,6 +1399,14 @@ public partial class OrderedCollectionMold<TOCMold>
     public TOCMold RevealAllEnumerate<TEnumbl>(TEnumbl? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable
+    {
+        mws.RevealAllEnumerate(value, formatString, formatFlags);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealAllEnumerate<TEnumbl>(TEnumbl? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable?
     {
         mws.RevealAllEnumerate(value, formatString, formatFlags);
         return mws.Mold;
@@ -1348,21 +1464,53 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.Mold;
     }
 
-    public TOCMold RevealAllIterate<TEnumtr, TBearer>(TEnumtr? value, string? formatString = null
+    public TOCMold RevealAllIterate<TEnumtr>(TEnumtr? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
-        where TEnumtr : struct, IEnumerator<TBearer?> 
-        where TBearer : IStringBearer?
+        where TEnumtr : struct, IEnumerator 
     {
-        mws.RevealAllIterateStringBearer<TEnumtr, TBearer>(value, formatString, formatFlags, hasValue);
+        mws.RevealAllIterate(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealAllIterate<TEnumtr>(TEnumtr? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : IEnumerator? 
+    {
+        mws.RevealAllIterate(value, formatString, formatFlags, hasValue);
         return mws.Mold;
     }
 
     public TOCMold RevealAllIterate<TEnumtr, TBearer>(TEnumtr? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
-        where TEnumtr : IEnumerator<TBearer?>? 
+        where TEnumtr : struct, IEnumerator<TBearer> 
         where TBearer : IStringBearer?
     {
-        mws.RevealAllIterateStringBearer<TEnumtr, TBearer>(value, formatString, formatFlags, hasValue);
+        mws.RevealAllIterate<TEnumtr, TBearer>(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealAllIterate<TEnumtr, TBearer>(TEnumtr? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : IEnumerator<TBearer>? 
+        where TBearer : IStringBearer?
+    {
+        mws.RevealAllIterate<TEnumtr, TBearer>(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealAllIterateNullable<TEnumtr>(TEnumtr? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator 
+    {
+        mws.RevealAllIterate(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold RevealAllIterateNullable<TEnumtr>(TEnumtr? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : IEnumerator? 
+    {
+        mws.RevealAllIterate(value, formatString, formatFlags, hasValue);
         return mws.Mold;
     }
 
@@ -1402,12 +1550,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1434,12 +1582,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1466,12 +1614,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1498,12 +1646,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1530,12 +1678,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1562,12 +1710,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1576,26 +1724,34 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllStringEnumerate<TEnumbl>(TEnumbl? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TOCMold AddAllEnumerateString<TEnumbl>(TEnumbl? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<string?>
     {
-        mws.AddAllStringEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateString(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllStringEnumerate<TEnumbl>(TEnumbl? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TOCMold AddAllEnumerateString<TEnumbl>(TEnumbl? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<string?>?
     {
-        mws.AddAllStringEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateString(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllStringIterate<TEnumtr>(TEnumtr? value
+    public TOCMold AddAllIterateString<TEnumtr>(TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null
-    )
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator<string?>
+    {
+        mws.AddAllIterateString(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateString<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
         where TEnumtr : IEnumerator<string?>?
     {
         mws.AddAllIterateString(value, formatString, formatFlags, hasValue);
@@ -1621,12 +1777,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1654,12 +1810,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1688,12 +1844,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1722,12 +1878,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1736,49 +1892,76 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllCharSeqEnumerate<TEnumbl>(TEnumbl? value
+    public TOCMold AddAllEnumerateCharSeq<TEnumbl>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable
     {
-        mws.AddAllCharSeqEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateCharSeq(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllCharSeqEnumerate<TEnumbl>(TEnumbl? value
+    public TOCMold AddAllEnumerateCharSeq<TEnumbl>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable?
     {
-        mws.AddAllCharSeqEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateCharSeq(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllCharSeqEnumerate<TEnumbl, TCharSeq>(TEnumbl? value
+    public TOCMold AddAllEnumerateCharSeq<TEnumbl, TCharSeq>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TCharSeq>
         where TCharSeq : ICharSequence?
     {
-        mws.AddAllCharSeqEnumerate<TEnumbl, TCharSeq>(value, formatString, formatFlags);
+        mws.AddAllEnumerateCharSeq<TEnumbl, TCharSeq>(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllCharSeqEnumerate<TEnumbl, TCharSeq>(TEnumbl? value
+    public TOCMold AddAllEnumerateCharSeq<TEnumbl, TCharSeq>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : ICharSequence?
     {
-        mws.AddAllCharSeqEnumerate<TEnumbl, TCharSeq>(value, formatString, formatFlags);
+        mws.AddAllEnumerateCharSeq<TEnumbl, TCharSeq>(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllCharSeqIterate<TEnumtr, TCharSeq>(TEnumtr? value
+    public TOCMold AddAllIterateCharSeq<TEnumtr>(TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null
-    )
-        where TEnumtr : IEnumerator<TCharSeq?>?
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator
+    {
+        mws.AddAllIterateCharSeq(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateCharSeq<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : IEnumerator?
+    {
+        mws.AddAllIterateCharSeq(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateCharSeq<TEnumtr, TCharSeq>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator<TCharSeq>
+        where TCharSeq : ICharSequence?
+    {
+        mws.AddAllIterateCharSeq<TEnumtr, TCharSeq>(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateCharSeq<TEnumtr, TCharSeq>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : IEnumerator<TCharSeq>?
         where TCharSeq : ICharSequence?
     {
         mws.AddAllIterateCharSeq<TEnumtr, TCharSeq>(value, formatString, formatFlags, hasValue);
@@ -1803,12 +1986,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1835,12 +2018,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1867,12 +2050,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1899,12 +2082,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1932,12 +2115,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1964,12 +2147,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -1978,25 +2161,34 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllStringBuilderEnumerate<TEnumbl>(TEnumbl? value
+    public TOCMold AddAllEnumerateStringBuilder<TEnumbl>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<StringBuilder?>
     {
-        mws.AddAllStringBuilderEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateStringBuilder(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllStringBuilderEnumerate<TEnumbl>(TEnumbl? value
+    public TOCMold AddAllEnumerateStringBuilder<TEnumbl>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<StringBuilder?>?
     {
-        mws.AddAllStringBuilderEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateStringBuilder(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllStringBuilderIterate<TEnumtr>(TEnumtr? value
+    public TOCMold AddAllIterateStringBuilder<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator<StringBuilder?>
+    {
+        mws.AddAllIterateStringBuilder(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateStringBuilder<TEnumtr>(TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
         where TEnumtr : IEnumerator<StringBuilder?>?
@@ -2023,12 +2215,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2055,12 +2247,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2087,12 +2279,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2119,12 +2311,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2133,47 +2325,71 @@ public partial class OrderedCollectionMold<TOCMold>
         return mws.SupportsMultipleFields ? mws.AddGoToNext() : mws.Mold;
     }
 
-    public TOCMold AddAllMatchEnumerate<TEnumbl>(TEnumbl? value
+    public TOCMold AddAllEnumerateMatch<TEnumbl>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable
     {
-        mws.AddAllMatchEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateMatch(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllMatchEnumerate<TEnumbl>(TEnumbl? value
+    public TOCMold AddAllEnumerateMatch<TEnumbl>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable?
     {
-        mws.AddAllMatchEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateMatch(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllMatchEnumerate<TEnumbl, TAny>(TEnumbl? value
+    public TOCMold AddAllEnumerateMatch<TEnumbl, TAny>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TAny>
     {
-        mws.AddAllMatchEnumerate<TEnumbl, TAny>(value, formatString, formatFlags);
+        mws.AddAllEnumerateMatch<TEnumbl, TAny>(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllMatchEnumerate<TEnumbl, TAny>(TEnumbl? value
+    public TOCMold AddAllEnumerateMatch<TEnumbl, TAny>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TAny>?
     {
-        mws.AddAllMatchEnumerate<TEnumbl, TAny>(value, formatString, formatFlags);
+        mws.AddAllEnumerateMatch<TEnumbl, TAny>(value, formatString, formatFlags);
         return mws.Mold;
     }
 
-    public TOCMold AddAllMatchIterate<TEnumtr, TAny>(TEnumtr? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TOCMold AddAllIterateMatch<TEnumtr>(TEnumtr? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator
+    {
+        mws.AddAllIterateMatch(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateMatch<TEnumtr>(TEnumtr? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : IEnumerator?
+    {
+        mws.AddAllIterateMatch(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateMatch<TEnumtr, TAny>(TEnumtr? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator<TAny?>
+    {
+        mws.AddAllIterateMatch<TEnumtr, TAny>(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    public TOCMold AddAllIterateMatch<TEnumtr, TAny>(TEnumtr? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
         where TEnumtr : IEnumerator<TAny?>?
     {
-        mws.AddAllMatchIterate<TEnumtr, TAny>(value, formatString, formatFlags, hasValue);
+        mws.AddAllIterateMatch<TEnumtr, TAny>(value, formatString, formatFlags, hasValue);
         return mws.Mold;
     }
 
@@ -2196,12 +2412,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2229,12 +2445,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2262,12 +2478,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2295,12 +2511,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2328,12 +2544,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(actualType, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2361,12 +2577,12 @@ public partial class OrderedCollectionMold<TOCMold>
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true) { break; }
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 var item = value[i];
 
-                mws.AppendFormattedCollectionItemMatchOrNull(item, i, formatString, formatFlags);
-                mws.GoToNextCollectionItemStart(elementType, i);
+                mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
+                mws.GoToNextCollectionItemStart(elementType, mws.ItemCount++);
             }
         }
         if (!any && valueMold is not { ShouldSuppressBody: true })
@@ -2376,32 +2592,42 @@ public partial class OrderedCollectionMold<TOCMold>
     }
 
     [CallsObjectToString]
-    public TOCMold AddAllObjectEnumerate<TEnumbl>(TEnumbl? value
+    public TOCMold AddAllEnumerateObject<TEnumbl>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<object?>
     {
-        mws.AddAllObjectEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateObject(value, formatString, formatFlags);
         return mws.Mold;
     }
 
     [CallsObjectToString]
-    public TOCMold AddAllObjectEnumerate<TEnumbl>(TEnumbl? value
+    public TOCMold AddAllEnumerateObject<TEnumbl>(TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<object?>?
     {
-        mws.AddAllObjectEnumerate(value, formatString, formatFlags);
+        mws.AddAllEnumerateObject(value, formatString, formatFlags);
         return mws.Mold;
     }
 
     [CallsObjectToString]
-    public TOCMold AddAllObjectIterate<TEnumtr>(TEnumtr? value
+    public TOCMold AddAllIterateObject<TEnumtr>(TEnumtr? value
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
+        where TEnumtr : struct, IEnumerator<object?>
+    {
+        mws.AddAllIterateObject(value, formatString, formatFlags, hasValue);
+        return mws.Mold;
+    }
+
+    [CallsObjectToString]
+    public TOCMold AddAllIterateObject<TEnumtr>(TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool? hasValue = null)
         where TEnumtr : IEnumerator<object?>?
     {
-        mws.AddAllObjectIterate(value, formatString, formatFlags, hasValue);
+        mws.AddAllIterateObject(value, formatString, formatFlags, hasValue);
         return mws.Mold;
     }
 }

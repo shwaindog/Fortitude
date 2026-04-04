@@ -2219,8 +2219,8 @@ public readonly struct NullableStructSpanFormattableOrEnumerableStructUnion<TFmt
 }
 
 public class SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer> : IStringBearer
-    where TFmt : TFmtRevealer?
-    where TFmtRevealer : ISpanFormattable
+    where TFmt : TFmtRevealer?, ISpanFormattable?
+    where TFmtRevealer : notnull
 {
     private readonly bool isNode;
     private readonly bool isItem;
@@ -2253,7 +2253,7 @@ public class SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer> : IString
         itemRevealer   = withRevealer;
     }
 
-    public SpanFormattableOrEnumerableClassUnion(List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>?>? nodeColl, bool asSimple
+    public SpanFormattableOrEnumerableClassUnion(List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>>? nodeColl, bool asSimple
       , bool asValue = true, PalantírReveal<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>>? withNodeRevealer = null)
     {
         isNode         = true;
@@ -2271,7 +2271,7 @@ public class SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer> : IString
     private readonly TFmt        item;
     private readonly List<TFmt>? itemCollection;
 
-    private readonly List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>?>? nodeCollection;
+    private readonly List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>>? nodeCollection;
 
     private static readonly List<IPAddress?> LogComplexOnlyStaticInstance =
     [
@@ -2298,27 +2298,27 @@ public class SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer> : IString
                 if (isSimple)
                     return tos.StartSimpleCollectionType(this)
                               .RevealAllEnumerate<
-                                  List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>?>?
+                                  List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>>?
                                 , SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>
                                 , SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>
                               >(nodeCollection, nodeRevealer).Complete();
                 else
                     return tos.StartComplexCollectionType(this)
                               .RevealAllEnumerate<
-                                  List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>?>?
+                                  List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>>?
                                 , SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>
                                 , SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>
                               >(nodeCollection, nodeRevealer).Complete();
             else if (isSimple)
                 return tos.StartSimpleCollectionType(this)
                           .RevealAllEnumerate<
-                              List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>?>?
+                              List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>>?
                             , SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>
                           >(nodeCollection).Complete();
             else
                 return tos.StartComplexCollectionType(this)
                           .RevealAllEnumerate<
-                              List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>?>?
+                              List<SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>>?
                             , SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer>
                           >(nodeCollection).Complete();
         if (itemRevealer != null)
@@ -2342,14 +2342,14 @@ public class SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer> : IString
                            .StartComplexContentType(this)
                            .RevealAsValue(nameof(item), item, itemRevealer)
                            .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
-                           .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                           .LogOnlyCollectionField.AlwaysAddAllStringEnumerateString(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                            .Complete();
                 else
                     return tos
                            .StartComplexContentType(this)
                            .RevealAsString(nameof(item), item, itemRevealer)
                            .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
-                           .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                           .LogOnlyCollectionField.AlwaysAddAllStringEnumerateString(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                            .Complete();
             else
                 return tos
@@ -2360,7 +2360,7 @@ public class SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer> : IString
                          , TFmtRevealer
                        >(itemCollection, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
-                       .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                       .LogOnlyCollectionField.AlwaysAddAllStringEnumerateString(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
         if (isSimple)
             if (isItem)
@@ -2376,20 +2376,20 @@ public class SpanFormattableOrEnumerableClassUnion<TFmt, TFmtRevealer> : IString
                        .StartComplexContentType(this)
                        .AsValue(nameof(item), item)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
-                       .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                       .LogOnlyCollectionField.AlwaysAddAllStringEnumerateString(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
             else
                 return tos
                        .StartComplexContentType(this)
                        .AsString(nameof(item), item)
                        .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
-                       .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+                       .LogOnlyCollectionField.AlwaysAddAllStringEnumerateString(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
                .AddAllEnumerate<List<TFmt>?, TFmt>(itemCollection, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
-               .LogOnlyCollectionField.AlwaysAddAllStringEnumerate(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
+               .LogOnlyCollectionField.AlwaysAddAllStringEnumerateString(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
     }
 }
@@ -2428,7 +2428,7 @@ public class NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct> : I
     }
 
     public NullableStructSpanFormattableOrEnumerableClassUnion(
-        List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>?>? nodeColl
+        List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>>? nodeColl
       , bool asSimple, bool asValue = true
       , PalantírReveal<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>>? withNodeRevealer = null)
     {
@@ -2446,7 +2446,7 @@ public class NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct> : I
     private readonly TFmtStruct?        item;
     private readonly List<TFmtStruct?>? itemCollection;
 
-    private readonly List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>?>? nodeCollection;
+    private readonly List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>>? nodeCollection;
 
     private static readonly List<Complex?> LogComplexOnlyStaticInstance =
     [
@@ -2472,27 +2472,27 @@ public class NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct> : I
                 if (isSimple)
                     return tos.StartSimpleCollectionType(this)
                               .RevealAllEnumerate<
-                                  List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>?>?
+                                  List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>>?
                                 , NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>
                                 , NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>
                               >(nodeCollection, nodeRevealer).Complete();
                 else
                     return tos.StartComplexCollectionType(this)
                               .RevealAllEnumerate<
-                                  List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>?>?
+                                  List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>>?
                                 , NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>
                                 , NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>
                               >(nodeCollection, nodeRevealer).Complete();
             else if (isSimple)
                 return tos.StartSimpleCollectionType(this)
                           .RevealAllEnumerate<
-                              List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>?>?
+                              List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>>?
                             , NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>
                           >(nodeCollection).Complete();
             else
                 return tos.StartComplexCollectionType(this)
                           .RevealAllEnumerate<
-                              List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>?>?
+                              List<NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>>?
                             , NullableStructSpanFormattableOrEnumerableClassUnion<TFmtStruct>
                           >(nodeCollection).Complete();
         if (itemRevealer != null)
@@ -3308,7 +3308,7 @@ public class NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct> : I
                     return tos.StartSimpleCollectionType(this)
                               .RevealAllIterate<
                                   ReusableWrappingEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?>?
-                                , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
+                                , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?
                                 , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
                               >(nodeCollectionEnumerator, nodeRevealer)
                               .Complete();
@@ -3316,7 +3316,7 @@ public class NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct> : I
                     return tos.StartComplexCollectionType(this)
                               .RevealAllIterate<
                                   ReusableWrappingEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?>?
-                                , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
+                                , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?
                                 , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
                               >(nodeCollectionEnumerator, nodeRevealer)
                               .Complete();
@@ -3324,13 +3324,13 @@ public class NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct> : I
                 return tos.StartSimpleCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?>?
-                            , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
+                            , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?
                           >(nodeCollectionEnumerator).Complete();
             else
                 return tos.StartComplexCollectionType(this)
                           .RevealAllIterate<
                               ReusableWrappingEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?>?
-                            , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>
+                            , NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct>?
                           >(nodeCollectionEnumerator).Complete();
         if (itemRevealer != null)
             if (isSimple)

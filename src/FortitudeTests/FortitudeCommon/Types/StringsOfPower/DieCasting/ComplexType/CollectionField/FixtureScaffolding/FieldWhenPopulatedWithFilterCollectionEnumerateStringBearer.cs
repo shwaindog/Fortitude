@@ -26,7 +26,7 @@ public class FieldBoolEnumerableWhenPopulatedWithFilterStringBearer : FormattedF
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterEnumerate
+           .CollectionField.WhenPopulatedWithFilterEnumerateBool
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerable
               , ElementPredicate
@@ -49,7 +49,7 @@ public class FieldNullableBoolEnumerableWhenPopulatedWithFilterStringBearer : Fo
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterEnumerate
+           .CollectionField.WhenPopulatedWithFilterEnumerateNullableBool
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerable
               , ElementPredicate
@@ -98,7 +98,7 @@ public class FieldNullableSpanFormattableEnumerableWhenPopulatedWithFilterString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterEnumerate
+           .CollectionField.WhenPopulatedWithFilterEnumerateNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerable
               , ElementPredicate
@@ -218,7 +218,7 @@ public class FieldStringEnumerableWhenPopulatedWithFilterStringBearer : Formatte
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterEnumerate
+           .CollectionField.WhenPopulatedWithFilterEnumerateString
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerable
               , ElementPredicate
@@ -242,7 +242,7 @@ public class FieldCharSequenceEnumerableWhenPopulatedWithFilterStringBearer<TCha
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeqEnumerate<IEnumerable<TCharSeq>, TCharSeq, TCharSeqFilterBase>
+           .CollectionField.WhenPopulatedWithFilterEnumerateCharSeq<IEnumerable<TCharSeq>, TCharSeq, TCharSeqFilterBase>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerable
               , ElementPredicate
@@ -265,7 +265,7 @@ public class FieldStringBuilderEnumerableWhenPopulatedWithFilterStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterStringBuilderEnumerate
+           .CollectionField.WhenPopulatedWithFilterEnumerateStringBuilder
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerable
               , ElementPredicate
@@ -289,7 +289,7 @@ public class FieldMatchEnumerableWhenPopulatedWithFilterStringBearer<TAny, TAnyB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterMatchEnumerate<IEnumerable<TAny>, TAny, TAnyBase>
+           .CollectionField.WhenPopulatedWithFilterEnumerateMatch<IEnumerable<TAny>, TAny, TAnyBase>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerable
               , ElementPredicate
@@ -312,7 +312,7 @@ public class FieldObjectEnumerableWhenPopulatedWithFilterStringBearer : Formatte
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterObjectEnumerate
+           .CollectionField.WhenPopulatedWithFilterEnumerateObject
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerable)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerable
               , ElementPredicate
@@ -334,7 +334,7 @@ public class FieldBoolEnumeratorWhenPopulatedWithFilterStringBearer : FormattedF
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterIterate
+           .CollectionField.WhenPopulatedWithFilterIterateBool
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterBoolEnumerator
               , ElementPredicate
@@ -357,7 +357,7 @@ public class FieldNullableBoolEnumeratorWhenPopulatedWithFilterStringBearer : Fo
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterIterate
+           .CollectionField.WhenPopulatedWithFilterIterateNullableBool
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableBoolEnumerator
               , ElementPredicate
@@ -406,7 +406,7 @@ public class FieldNullableSpanFormattableEnumeratorWhenPopulatedWithFilterString
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterIterate
+           .CollectionField.WhenPopulatedWithFilterIterateNullable
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterNullableSpanFormattableEnumerator
               , ElementPredicate
@@ -527,7 +527,7 @@ public class FieldStringEnumeratorWhenPopulatedWithFilterStringBearer : Formatte
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterIterate
+           .CollectionField.WhenPopulatedWithFilterIterateString
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringEnumerator
               , ElementPredicate
@@ -551,7 +551,7 @@ public class FieldCharSequenceEnumeratorWhenPopulatedWithFilterStringBearer<TCha
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterCharSeqIterate<IEnumerator<TCharSeq>, TCharSeq, TCharSeqFilterBase>
+           .CollectionField.WhenPopulatedWithFilterIterateCharSeq<IEnumerator<TCharSeq>, TCharSeq, TCharSeqFilterBase>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterCharSequenceEnumerator
               , ElementPredicate
@@ -574,7 +574,7 @@ public class FieldStringBuilderEnumeratorWhenPopulatedWithFilterStringBearer
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterIterate
+           .CollectionField.WhenPopulatedWithFilterIterateStringBuilder
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterStringBuilderEnumerator
               , ElementPredicate
@@ -598,7 +598,7 @@ public class FieldMatchEnumeratorWhenPopulatedWithFilterStringBearer<TAny, TAnyB
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterMatchIterate<IEnumerator<TAny>, TAny, TAnyBase>
+           .CollectionField.WhenPopulatedWithFilterIterateMatch<IEnumerator<TAny>, TAny, TAnyBase>
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterMatchEnumerator
               , ElementPredicate
@@ -621,7 +621,7 @@ public class FieldObjectEnumeratorWhenPopulatedWithFilterStringBearer : Formatte
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenPopulatedWithFilterObjectIterate
+           .CollectionField.WhenPopulatedWithFilterIterateObject
                (nameof(ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerator)
               , ComplexTypeCollectionFieldWhenPopulatedWithFilterObjectEnumerator
               , ElementPredicate

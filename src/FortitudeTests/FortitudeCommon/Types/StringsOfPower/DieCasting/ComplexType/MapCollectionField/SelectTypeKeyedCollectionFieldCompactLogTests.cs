@@ -109,7 +109,7 @@ public class SelectTypeKeyedCollectionFieldCompactLogTests : SelectTypeKeyedColl
             {
                 var nextExpect = sbFactory.Borrow<CharArrayStringBuilder>();
                 nextExpect.Append(propertyName).Append(": (");
-                orderedListExpectation.CollectionCallType.AppendShortNameInCSharpFormat(nextExpect).Append(")").Append(expectValue);
+                orderedListExpectation.CollectionCallType!.AppendShortNameInCSharpFormat(nextExpect).Append(")").Append(expectValue);
                 expectValue.DecrementRefCount();
                 expectValue = nextExpect;
             }

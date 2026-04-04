@@ -402,7 +402,7 @@ public abstract partial class FLogEntryMessageBuilder
         (ITheOneString? toAppendTo, IEnumerable<T>? value, string? formatString = null) where T : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllMatchEnumerate<IEnumerable<T>?, T>(value, formatString).Complete();
+                  .AddAllEnumerateMatch<IEnumerable<T>?, T>(value, formatString).Complete();
         return toAppendTo;
     }
 
@@ -410,7 +410,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class
     {
         appender?.StartSimpleCollectionType("")
-                .AddAllMatchEnumerate<IEnumerable<T>?, T>(value).Complete();
+                .AddAllEnumerateMatch<IEnumerable<T>?, T>(value).Complete();
         return appender;
     }
 
@@ -420,7 +420,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllMatchEnumerate<IEnumerable<T>?, T>(value, formatString).Complete();
+                .AddAllEnumerateMatch<IEnumerable<T>?, T>(value, formatString).Complete();
         return appender;
     }
 
@@ -429,7 +429,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class
     {
         toAppendTo?.StartSimpleCollectionType("")
-                  .AddAllMatchIterate<IEnumerator<T>?, T>(value, formatString).Complete();
+                  .AddAllIterateMatch<IEnumerator<T>?, T>(value, formatString).Complete();
         return toAppendTo;
     }
 
@@ -438,7 +438,7 @@ public abstract partial class FLogEntryMessageBuilder
         where T : class
     {
         appender?.StartSimpleCollectionType("")
-                .AddAllMatchIterate<IEnumerator<T>?, T>(value).Complete();
+                .AddAllIterateMatch<IEnumerator<T>?, T>(value).Complete();
         return appender;
     }
 
@@ -448,7 +448,7 @@ public abstract partial class FLogEntryMessageBuilder
     {
         var (value, formatString) = valueTuple;
         appender?.StartSimpleCollectionType("")
-                .AddAllMatchIterate<IEnumerator<T>?, T>(value, formatString).Complete();
+                .AddAllIterateMatch<IEnumerator<T>?, T>(value, formatString).Complete();
         return appender;
     }
 

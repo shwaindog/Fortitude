@@ -25,7 +25,7 @@ public class FieldBoolEnumerableWhenNonNullAddFilteredStringBearer : FormattedFi
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerate
+           .CollectionField.WhenNonNullAddFilteredEnumerateBool
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolEnumerable
               , ElementPredicate
@@ -49,7 +49,7 @@ public class FieldNullableBoolEnumerableWhenNonNullAddFilteredStringBearer : For
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredEnumerateNullable
+           .CollectionField.WhenNonNullAddFilteredEnumerateNullableBool
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolEnumerable
               , ElementPredicate
@@ -224,7 +224,7 @@ public class FieldStringEnumerableWhenNonNullAddFilteredStringBearer : Formatted
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredStringEnumerate
+           .CollectionField.WhenNonNullAddFilteredEnumerateString
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringEnumerable
               , ElementPredicate
@@ -250,7 +250,7 @@ public class FieldCharSequenceEnumerableWhenNonNullAddFilteredStringBearer<TChar
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredCharSeqEnumerate<IEnumerable<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
+           .CollectionField.WhenNonNullAddFilteredEnumerateCharSeq<IEnumerable<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerable
               , ElementPredicate
@@ -275,7 +275,7 @@ public class FieldStringBuilderEnumerableWhenNonNullAddFilteredStringBearer
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredStringBuilderEnumerate
+           .CollectionField.WhenNonNullAddFilteredEnumerateStringBuilder
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderEnumerable
               , ElementPredicate
@@ -301,7 +301,7 @@ public class FieldMatchEnumerableWhenNonNullAddFilteredStringBearer<TAny, TAnyBa
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredMatchEnumerate<IEnumerable<TAny>?, TAny, TAnyBase>
+           .CollectionField.WhenNonNullAddFilteredEnumerateMatch<IEnumerable<TAny>?, TAny, TAnyBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchEnumerable
               , ElementPredicate
@@ -326,7 +326,7 @@ public class FieldObjectEnumerableWhenNonNullAddFilteredStringBearer : Formatted
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredObjectEnumerate
+           .CollectionField.WhenNonNullAddFilteredEnumerateObject
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectEnumerable)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectEnumerable
               , ElementPredicate
@@ -350,7 +350,7 @@ public class FieldBoolEnumeratorWhenNonNullAddFilteredStringBearer : FormattedFi
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredIterate
+           .CollectionField.WhenNonNullAddFilteredIterateBool
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredBoolEnumerator
               , ElementPredicate
@@ -375,7 +375,7 @@ public class FieldNullableBoolEnumeratorWhenNonNullAddFilteredStringBearer : For
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredIterateNullable
+           .CollectionField.WhenNonNullAddFilteredIterateNullableBool
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredNullableBoolEnumerator
               , ElementPredicate
@@ -553,7 +553,7 @@ public class FieldStringEnumeratorWhenNonNullAddFilteredStringBearer : Formatted
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredStringIterate
+           .CollectionField.WhenNonNullAddFilteredIterateString
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringEnumerator
               , ElementPredicate
@@ -579,7 +579,7 @@ public class FieldCharSequenceEnumeratorWhenNonNullAddFilteredStringBearer<TChar
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredCharSeqIterate<IEnumerator<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
+           .CollectionField.WhenNonNullAddFilteredIterateCharSeq<IEnumerator<TCharSeq>?, TCharSeq, TCharSeqFilterBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredCharSequenceEnumerator
               , ElementPredicate
@@ -604,7 +604,7 @@ public class FieldStringBuilderEnumeratorWhenNonNullAddFilteredStringBearer
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredStringBuilderIterate
+           .CollectionField.WhenNonNullAddFilteredIterateStringBuilder
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredStringBuilderEnumerator
               , ElementPredicate
@@ -630,7 +630,7 @@ public class FieldMatchEnumeratorWhenNonNullAddFilteredStringBearer<TAny, TAnyBa
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredMatchIterate<IEnumerator<TAny>?, TAny, TAnyBase>
+           .CollectionField.WhenNonNullAddFilteredIterateMatch<IEnumerator<TAny>?, TAny, TAnyBase>
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredMatchEnumerator
               , ElementPredicate
@@ -655,7 +655,7 @@ public class FieldObjectEnumeratorWhenNonNullAddFilteredStringBearer : Formatted
     
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.WhenNonNullAddFilteredObjectIterate
+           .CollectionField.WhenNonNullAddFilteredIterateObject
                (nameof(ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectEnumerator)
               , ComplexTypeCollectionFieldWhenNonNullAddFilteredObjectEnumerator
               , ElementPredicate

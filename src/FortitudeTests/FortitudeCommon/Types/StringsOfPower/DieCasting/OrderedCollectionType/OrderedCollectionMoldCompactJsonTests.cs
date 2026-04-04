@@ -97,12 +97,12 @@ public class OrderedCollectionMoldCompactJsonTests : OrderedCollectionMoldTests
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
     
-    [TestMethod]
+    // [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1001]
-                                           , StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(BoolCollectionsTestData.AllBoolCollectionExpectations[4], ScaffoldingRegistry.AllScaffoldingTypes[1046]
+                                           , StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

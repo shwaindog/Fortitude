@@ -24,7 +24,7 @@ public class FieldBoolEnumerableAlwaysAddAllStringBearer : FormattedCollectionFi
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerate
+           .CollectionField.AlwaysAddAllEnumerateBool
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerable
               , ValueFormatString, FormattingFlags)
@@ -45,7 +45,7 @@ public class FieldNullableBoolEnumerableAlwaysAddAllStringBearer : FormattedColl
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllEnumerateNullable
+           .CollectionField.AlwaysAddAllEnumerateNullableBool
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerable
               , ValueFormatString, FormattingFlags)
@@ -206,7 +206,7 @@ public class FieldStringEnumerableAlwaysAddAllStringBearer : FormattedCollection
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllStringEnumerate
+           .CollectionField.AlwaysAddAllStringEnumerateString
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerable
               , ValueFormatString, FormattingFlags)
@@ -228,7 +228,7 @@ public class FieldCharSequenceEnumerableAlwaysAddAllStringBearer<TCharSeq> : For
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeqEnumerate<IEnumerable<TCharSeq>?, TCharSeq>
+           .CollectionField.AlwaysAddAllEnumerateCharSeq<IEnumerable<TCharSeq>?, TCharSeq>
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerable
               , ValueFormatString, FormattingFlags)
@@ -250,7 +250,7 @@ public class FieldStringBuilderEnumerableAlwaysAddAllStringBearer : FormattedCol
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllStringBuilderEnumerate
+           .CollectionField.AlwaysAddAllEnumerateStringBuilder
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerable
               , ValueFormatString, FormattingFlags)
@@ -271,7 +271,7 @@ public class FieldMatchEnumerableAlwaysAddAllStringBearer<TAny> : FormattedColle
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatchEnumerate<IEnumerable<TAny>?, TAny>
+           .CollectionField.AlwaysAddAllEnumerateMatch<IEnumerable<TAny>?, TAny>
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerable
               , ValueFormatString, FormattingFlags)
@@ -292,7 +292,7 @@ public class FieldObjectEnumerableAlwaysAddAllStringBearer : FormattedCollection
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObjectEnumerate
+           .CollectionField.AlwaysAddAllEnumerateObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerable)
               , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerable
               , ValueFormatString, FormattingFlags)
@@ -312,7 +312,7 @@ public class FieldBoolEnumeratorAlwaysAddAllStringBearer : FormattedEnumeratorFi
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllIterate
+           .CollectionField.AlwaysAddAllIterateBool
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllBoolEnumerator
               , ValueFormatString, FormattingFlags)
@@ -333,7 +333,7 @@ public class FieldNullableBoolEnumeratorAlwaysAddAllStringBearer : FormattedEnum
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllIterateNullable
+           .CollectionField.AlwaysAddAllIterateNullableBool
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllNullableBoolEnumerator
               , ValueFormatString, FormattingFlags)
@@ -494,7 +494,7 @@ public class FieldStringEnumeratorAlwaysAddAllStringBearer : FormattedEnumerator
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllStringIterate
+           .CollectionField.AlwaysAddAllIterateString
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllStringEnumerator
               , ValueFormatString, FormattingFlags)
@@ -516,7 +516,7 @@ public class FieldCharSequenceEnumeratorAlwaysAddAllStringBearer<TCharSeq> : For
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllCharSeqIterate<IEnumerator<TCharSeq>?, TCharSeq>
+           .CollectionField.AlwaysAddAllIterateCharSeq<IEnumerator<TCharSeq>?, TCharSeq>
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllCharSequenceEnumerator
               , ValueFormatString, FormattingFlags)
@@ -538,7 +538,7 @@ public class FieldStringBuilderEnumeratorAlwaysAddAllStringBearer : FormattedEnu
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllStringBuilderIterate
+           .CollectionField.AlwaysAddAllIterateStringBuilder
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllStringBuilderEnumerator
               , ValueFormatString, FormattingFlags)
@@ -559,7 +559,7 @@ public class FieldMatchEnumeratorAlwaysAddAllStringBearer<TAny> : FormattedEnume
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllMatchIterate<IEnumerator<TAny>?, TAny>
+           .CollectionField.AlwaysAddAllIterateMatch<IEnumerator<TAny>?, TAny>
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllMatchEnumerator
               , ValueFormatString, FormattingFlags)
@@ -581,7 +581,7 @@ public class FieldObjectEnumeratorAlwaysAddAllStringBearer : FormattedEnumerator
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartComplexType(this)
-           .CollectionField.AlwaysAddAllObjectIterate
+           .CollectionField.AlwaysAddAllIterateObject
                (nameof(ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator)
               , ComplexTypeCollectionFieldAlwaysAddAllObjectEnumerator
               , ValueFormatString, FormattingFlags)

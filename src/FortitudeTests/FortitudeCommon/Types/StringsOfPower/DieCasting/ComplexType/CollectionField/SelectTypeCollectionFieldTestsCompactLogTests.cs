@@ -102,8 +102,8 @@ public class SelectTypeCollectionFieldCompactLogTests : SelectTypeCollectionFiel
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CloakedBearerCollectionsTestData.AllCloakedBearerCollectionExpectations[2]
-                                           , ScaffoldingRegistry.AllScaffoldingTypes[78], StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(StringBearerCollectionsTestData.AllStringBearerCollectionExpectations[3]
+                                           , ScaffoldingRegistry.AllScaffoldingTypes[131], StringBuilderType.MutableString);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName

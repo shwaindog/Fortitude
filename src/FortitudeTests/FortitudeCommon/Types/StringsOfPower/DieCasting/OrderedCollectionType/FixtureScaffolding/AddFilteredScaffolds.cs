@@ -20,6 +20,8 @@ public class OrderedFromBoolArrayAddFilteredSimpleOrderedCollectionStringBearer 
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredBoolArray?.GetType() ?? typeof(bool[]);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolArray);
 
 
@@ -41,6 +43,8 @@ public class OrderedFromNullableBoolArrayAddFilteredSimpleOrderedCollectionStrin
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredNullableBoolArray?.GetType() ?? typeof(bool?[]);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolArray);
 
@@ -64,6 +68,8 @@ public class OrderedFromBoolSpanAddFilteredSimpleOrderedCollectionStringBearer :
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<bool>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolSpan);
 
 
@@ -85,6 +91,8 @@ public class OrderedFromNullableBoolSpanAddFilteredSimpleOrderedCollectionString
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(Span<bool?>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolSpan);
 
@@ -108,6 +116,8 @@ public class OrderedFromBoolReadOnlySpanAddFilteredSimpleOrderedCollectionString
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<bool>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolReadOnlySpan);
 
 
@@ -130,6 +140,8 @@ public class OrderedFromNullableBoolReadOnlySpanAddFilteredSimpleOrderedCollecti
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<bool?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolReadOnlySpan);
 
 
@@ -150,6 +162,8 @@ public class OrderedFromBoolListAddFilteredSimpleOrderedCollectionStringBearer :
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredBoolList?.GetType() ?? typeof(IReadOnlyList<bool>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolList);
 
@@ -174,6 +188,8 @@ public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionString
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredNullableBoolList?.GetType() ?? typeof(IReadOnlyList<bool?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolList);
 
 
@@ -185,111 +201,19 @@ public class OrderedFromNullableBoolListAddFilteredSimpleOrderedCollectionString
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsStruct
-                | SupportsValueFormatString)]
-public class OrderedFromBoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer :
-    FormattedFilteredCollectionMoldScaffold<bool, IEnumerable<bool>>
-  
-{
-    public IEnumerable<bool>? OrderedCollectionAddFilteredBoolEnumerable
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
-               (OrderedCollectionAddFilteredBoolEnumerable
-               , ElementPredicate
-               , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueFormatString)]
-public class OrderedFromNullableBoolEnumerableAddFilteredSimpleOrderedCollectionStringBearer
-    : FormattedFilteredCollectionMoldScaffold<bool?, IEnumerable<bool?>>
-{
-    public IEnumerable<bool?>? OrderedCollectionAddFilteredNullableBoolEnumerable
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerateNullable
-               (OrderedCollectionAddFilteredNullableBoolEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsStruct | SupportsValueFormatString)]
-public class OrderedFromBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer :
-    FormattedFilteredEnumeratorMoldScaffold<bool, IEnumerator<bool>>
-  
-{
-    public IEnumerator<bool>? OrderedCollectionAddFilteredBoolEnumerator
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredBoolEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredIterate
-               (OrderedCollectionAddFilteredBoolEnumerator
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
-                | SupportsValueFormatString)]
-public class OrderedFromNullableBoolEnumeratorAddFilteredSimpleOrderedCollectionStringBearer :
-    FormattedFilteredEnumeratorMoldScaffold<bool?, IEnumerator<bool?>>
-  
-{
-    public IEnumerator<bool?>? OrderedCollectionAddFilteredNullableBoolEnumerator
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableBoolEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredIterateNullable
-               (OrderedCollectionAddFilteredNullableBoolEnumerator
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsSpanFormattableExceptNullableStruct
                 | SupportsValueFormatString)]
 public class OrderedFromSpanFormattableArrayAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TBase> :
     FormattedFilteredCollectionMoldScaffold<TFmt, TBase, TFmt[]>
-    where TFmt : ISpanFormattable, TBase
+    where TFmt : ISpanFormattable?, TBase?
 {
-    public TFmt?[]? OrderedCollectionAddFilteredSpanFormattableArray
+    public TFmt[]? OrderedCollectionAddFilteredSpanFormattableArray
     {
         get => Value;
         set => Value = value!;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredSpanFormattableArray?.GetType() ?? typeof(TFmt[]);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableArray);
 
@@ -315,6 +239,8 @@ public class OrderedFromNullableSpanFormattableArrayAddFilteredSimpleOrderedColl
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredNullableSpanFormattableArray?.GetType() ?? typeof(TFmtStruct?[]);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableArray);
 
 
@@ -338,6 +264,8 @@ public class OrderedFromSpanFormattableSpanAddFilteredSimpleOrderedCollectionStr
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(Span<TFmt>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableSpan);
 
@@ -363,6 +291,8 @@ public class OrderedFromSpanFormattableNullableSpanAddFilteredSimpleOrderedColle
         set => Value = value!;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<TFmt?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableNullableSpan);
 
 
@@ -386,6 +316,8 @@ public class OrderedFromNullableSpanFormattableSpanAddFilteredSimpleOrderedColle
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(Span<TFmtStruct?>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableSpan);
 
@@ -411,6 +343,8 @@ public class OrderedFromSpanFormattableReadOnlySpanAddFilteredSimpleOrderedColle
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TFmt>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableReadOnlySpan);
 
 
@@ -434,6 +368,8 @@ public class OrderedFromSpanFormattableNullableReadOnlySpanAddFilteredSimpleOrde
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TFmt?>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableNullableReadOnlySpan);
 
@@ -459,6 +395,8 @@ public class OrderedFromNullableSpanFormattableReadOnlySpanAddFilteredSimpleOrde
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TFmtStruct?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableReadOnlySpan);
 
 
@@ -482,6 +420,8 @@ public class OrderedFromSpanFormattableListAddFilteredSimpleOrderedCollectionStr
         get => Value;
         set => Value = value!;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredSpanFormattableList?.GetType() ?? typeof(IReadOnlyList<TFmt?>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableList);
 
@@ -507,6 +447,9 @@ public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedColle
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredNullableSpanFormattableList?.GetType() 
+                                               ?? typeof(IReadOnlyList<TFmtStruct?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableList);
 
 
@@ -519,106 +462,11 @@ public class OrderedFromNullableSpanFormattableListAddFilteredSimpleOrderedColle
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate
-                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TFmtBase> :
-    FormattedFilteredCollectionMoldScaffold<TFmt, TFmtBase, IEnumerable<TFmt>>
-    where TFmt : ISpanFormattable?, TFmtBase?
-{
-    public IEnumerable<TFmt>? OrderedCollectionAddFilteredSpanFormattableEnumerable
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate<IEnumerable<TFmt>?, TFmt, TFmtBase>
-               (OrderedCollectionAddFilteredSpanFormattableEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsOnlyNullableStructSpanFormattable
-                | SupportsValueFormatString)]
-public class OrderedFromNullableSpanFormattableEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> :
-    FormattedFilteredCollectionMoldScaffold<TFmtStruct?, IEnumerable<TFmtStruct?>>
-    where TFmtStruct : struct, ISpanFormattable
-{
-    public IEnumerable<TFmtStruct?>? OrderedCollectionAddFilteredNullableSpanFormattableEnumerable
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerateNullable
-               (OrderedCollectionAddFilteredNullableSpanFormattableEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate
-                | AcceptsSpanFormattableExceptNullableStruct | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmt, TFmtBase> :
-    FormattedFilteredEnumeratorMoldScaffold<TFmt, TFmtBase, IEnumerator<TFmt>>
-    where TFmt : ISpanFormattable?, TFmtBase?
-{
-    public IEnumerator<TFmt>? OrderedCollectionAddFilteredSpanFormattableEnumerator
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredSpanFormattableEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredIterate<IEnumerator<TFmt>?, TFmt, TFmtBase>
-               (OrderedCollectionAddFilteredSpanFormattableEnumerator
-              , ElementPredicate, ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsOnlyNullableStructSpanFormattable
-                | SupportsValueFormatString)]
-public class OrderedFromNullableSpanFormattableEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TFmtStruct> :
-    FormattedFilteredEnumeratorMoldScaffold<TFmtStruct?, IEnumerator<TFmtStruct?>>
-    where TFmtStruct : struct, ISpanFormattable
-{
-    public IEnumerator<TFmtStruct?>? OrderedCollectionAddFilteredNullableSpanFormattableEnumerator
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredNullableSpanFormattableEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredIterateNullable
-               (OrderedCollectionAddFilteredNullableSpanFormattableEnumerator
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
     : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
-    where TCloaked : TFilterBase, TRevealBase
+    where TCloaked : TFilterBase?, TRevealBase?
     where TRevealBase : notnull
 {
     public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerArray
@@ -626,6 +474,9 @@ public class OrderedFromCloakedBearerArrayRevealFilteredSimpleOrderedCollectionS
         get => Value;
         set => Value = value!;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionRevealFilteredCloakedBearerArray?.GetType() 
+                                               ?? typeof(TCloaked?[]);
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerArray);
 
@@ -650,6 +501,9 @@ public class OrderedFromNullableCloakedBearerArrayRevealFilteredSimpleOrderedCol
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionRevealFilteredNullableCloakedBearerArray?.GetType() 
+                                               ?? typeof(TCloakedStruct?[]);
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerArray);
 
@@ -676,6 +530,8 @@ public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionSt
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<TCloaked>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerSpan);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -701,6 +557,8 @@ public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedColl
         set => Value = value!;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<TCloaked?>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerNullableSpan);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -725,12 +583,14 @@ public class OrderedFromNullableCloakedBearerSpanRevealFilteredSimpleOrderedColl
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<TCloakedStruct?>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerSpan);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
-               ((ReadOnlySpan<TCloakedStruct?>)OrderedCollectionRevealFilteredNullableCloakedBearerSpan
+               (OrderedCollectionRevealFilteredNullableCloakedBearerSpan.AsSpan()
               , ElementPredicate
               , ValueRevealer
               , ValueFormatString, FormattingFlags)
@@ -749,6 +609,8 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TCloaked>);
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerReadOnlySpan);
 
@@ -776,6 +638,8 @@ public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrd
         set => Value = value!;
     }
 
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TCloaked?>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -799,6 +663,8 @@ public class OrderedFromNullableCloakedBearerReadOnlySpanRevealFilteredSimpleOrd
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TCloakedStruct?>);
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerReadOnlySpan);
 
@@ -825,6 +691,9 @@ public class OrderedFromCloakedBearerListRevealFilteredSimpleOrderedCollectionSt
         set => Value = value!;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionRevealFilteredCloakedBearerList?.GetType() 
+                                               ?? typeof(ReadOnlySpan<IReadOnlyList<TCloaked?>>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerList);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
@@ -849,110 +718,15 @@ public class OrderedFromNullableCloakedBearerListRevealFilteredSimpleOrderedColl
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionRevealFilteredNullableCloakedBearerList?.GetType() 
+                                               ?? typeof(ReadOnlySpan<IReadOnlyList<TCloakedStruct?>>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerList);
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealFiltered
                (OrderedCollectionRevealFilteredNullableCloakedBearerList
-              , ElementPredicate
-              , ValueRevealer
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsValueFormatString)]
-public class OrderedFromCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
-    : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, IEnumerable<TCloaked>>
-    where TCloaked : TRevealBase?, TFilterBase?
-    where TRevealBase : notnull
-{
-    public IEnumerable<TCloaked>? OrderedCollectionRevealFilteredCloakedBearerEnumerable
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerEnumerable);
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate<IEnumerable<TCloaked>?, TCloaked, TFilterBase, TRevealBase>
-               (OrderedCollectionRevealFilteredCloakedBearerEnumerable
-              , ElementPredicate
-              , ValueRevealer
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsAnyNullableStruct
-                | SupportsValueRevealer | SupportsValueFormatString)]
-public class OrderedFromNullableCloakedBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> :
-    RevealerFilteredCollectionMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IEnumerable<TCloakedStruct?>?>
-    where TCloakedStruct : struct
-{
-    public IEnumerable<TCloakedStruct?>? OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable);
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerateNullable
-               (OrderedCollectionRevealFilteredNullableCloakedBearerEnumerable
-              , ElementPredicate
-              , ValueRevealer
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsAnyExceptNullableStruct
-                | SupportsValueRevealer | SupportsValueFormatString)]
-public class OrderedFromCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
-    : RevealerFilteredEnumeratorMoldScaffold<TCloaked, TFilterBase, TRevealBase, IEnumerator<TCloaked>>
-    where TCloaked : TRevealBase?, TFilterBase?
-    where TRevealBase : notnull
-{
-    public IEnumerator<TCloaked>? OrderedCollectionRevealFilteredCloakedBearerEnumerator
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionRevealFilteredCloakedBearerEnumerator);
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .RevealFilteredIterate<IEnumerator<TCloaked>?, TCloaked, TFilterBase, TRevealBase>
-               (OrderedCollectionRevealFilteredCloakedBearerEnumerator
-              , ElementPredicate
-              , ValueRevealer
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsAnyNullableStruct
-                | SupportsValueRevealer | SupportsValueFormatString)]
-public class OrderedFromNullableCloakedBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TCloakedStruct> :
-    RevealerFilteredEnumeratorMoldScaffold<TCloakedStruct?, TCloakedStruct?, TCloakedStruct, IEnumerator<TCloakedStruct?>?>
-    where TCloakedStruct : struct
-{
-    public IEnumerator<TCloakedStruct?>? OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator);
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .RevealFilteredIterateNullable
-               (OrderedCollectionRevealFilteredNullableCloakedBearerEnumerator
               , ElementPredicate
               , ValueRevealer
               , ValueFormatString, FormattingFlags)
@@ -970,6 +744,8 @@ public class OrderedFromStringBearerArrayRevealFilteredSimpleOrderedCollectionSt
         get => Value;
         set => Value = value!;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionRevealFilteredStringBearerArray?.GetType() ?? typeof(TBearer?[]);
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerArray);
 
@@ -995,6 +771,8 @@ public class OrderedFromNullableStringBearerArrayRevealFilteredSimpleOrderedColl
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionRevealFilteredNullableStringBearerArray?.GetType() ?? typeof(TBearerStruct?[]);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerArray);
 
 
@@ -1017,6 +795,8 @@ public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStr
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(Span<TBearer>);
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerSpan);
 
@@ -1042,6 +822,8 @@ public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedColle
         set => Value = value!;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<TBearer?>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerNullableSpan);
 
 
@@ -1066,6 +848,8 @@ public class OrderedFromNullableStringBearerSpanRevealFilteredSimpleOrderedColle
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<TBearerStruct?>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerSpan);
 
 
@@ -1088,6 +872,8 @@ public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedColle
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TBearer>);
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerReadOnlySpan);
 
@@ -1113,6 +899,8 @@ public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrde
         set => Value = value!;
     }
 
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TBearer?>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan);
 
 
@@ -1136,6 +924,8 @@ public class OrderedFromNullableStringBearerReadOnlySpanRevealFilteredSimpleOrde
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TBearerStruct?>);
 
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerReadOnlySpan);
 
@@ -1161,6 +951,8 @@ public class OrderedFromStringBearerListRevealFilteredSimpleOrderedCollectionStr
         set => Value = value!;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionRevealFilteredStringBearerList?.GetType() ?? typeof(IReadOnlyList<TBearer?>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerList);
 
 
@@ -1185,6 +977,9 @@ public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedColle
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionRevealFilteredNullableStringBearerList?.GetType() 
+                                               ?? typeof(IReadOnlyList<TBearerStruct?>);
+
     public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerList);
 
 
@@ -1197,113 +992,17 @@ public class OrderedFromNullableStringBearerListRevealFilteredSimpleOrderedColle
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsTypeAllButNullableStruct
-                | AcceptsStringBearer | SupportsValueFormatString)]
-public class OrderedFromStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> :
-    FormattedFilteredCollectionMoldScaffold<TBearer, TBearerBase, IEnumerable<TBearer>>
-    where TBearer : IStringBearer?, TBearerBase?
-{
-    public IEnumerable<TBearer>? OrderedCollectionRevealFilteredStringBearerEnumerable
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerate<IEnumerable<TBearer>?, TBearer, TBearerBase>
-               (OrderedCollectionRevealFilteredStringBearerEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate | AcceptsNullableStruct
-                | AcceptsStringBearer | SupportsValueFormatString)]
-public class OrderedFromNullableStringBearerEnumerableRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> :
-    FormattedFilteredCollectionMoldScaffold<TBearerStruct?, IEnumerable<TBearerStruct?>>
-    where TBearerStruct : struct, IStringBearer
-{
-    public IEnumerable<TBearerStruct?>? OrderedCollectionRevealFilteredNullableStringBearerEnumerable
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .RevealFilteredEnumerateNullable
-               (OrderedCollectionRevealFilteredNullableStringBearerEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsTypeAllButNullableStruct
-                | AcceptsStringBearer | SupportsValueFormatString)]
-public class OrderedFromStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> :
-    FormattedFilteredEnumeratorMoldScaffold<TBearer, TBearerBase, IEnumerator<TBearer>>
-    where TBearer : IStringBearer?, TBearerBase?
-{
-    public IEnumerator<TBearer>? OrderedCollectionRevealFilteredStringBearerEnumerator
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionRevealFilteredStringBearerEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .RevealFilteredIterate<IEnumerator<TBearer>?, TBearer, TBearerBase>
-               (OrderedCollectionRevealFilteredStringBearerEnumerator
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate | AcceptsNullableStruct
-                | AcceptsStringBearer | SupportsValueFormatString)]
-public class OrderedFromNullableStringBearerEnumeratorRevealFilteredSimpleOrderedCollectionStringBearer<TBearerStruct> :
-    FormattedFilteredEnumeratorMoldScaffold<TBearerStruct?, IEnumerator<TBearerStruct?>>
-    where TBearerStruct : struct, IStringBearer
-{
-    public IEnumerator<TBearerStruct?>? OrderedCollectionRevealFilteredNullableStringBearerEnumerator
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionRevealFilteredNullableStringBearerEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .RevealFilteredIterateNullable
-               (OrderedCollectionRevealFilteredNullableStringBearerEnumerator
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | FilterPredicate
                 | AcceptsClass | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<string?, string?[]>
-  
-
 {
     public string?[]? OrderedCollectionAddFilteredStringArray
     {
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredStringArray?.GetType() ?? typeof(string?[]);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringArray);
 
@@ -1320,14 +1019,14 @@ public class OrderedFromStringArrayAddFilteredSimpleOrderedCollectionStringBeare
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate | AcceptsString
                 | AcceptsClass | SupportsValueFormatString)]
 public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<string, string[]>
-  
-
 {
     public string[]? OrderedCollectionAddFilteredStringSpan
     {
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(Span<string>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringSpan);
 
@@ -1344,14 +1043,14 @@ public class OrderedFromStringSpanAddFilteredSimpleOrderedCollectionStringBearer
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | FilterPredicate
                 | AcceptsNullableClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<string?, string?[]>
-  
-
 {
     public string?[]? OrderedCollectionAddFilteredStringNullableSpan
     {
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(Span<string?>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringNullableSpan);
 
@@ -1368,14 +1067,14 @@ public class OrderedFromStringNullableSpanAddFilteredSimpleOrderedCollectionStri
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | FilterPredicate
                 | AcceptsClass | AcceptsString | SupportsValueFormatString)]
 public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<string, string[]>
-  
-
 {
     public string[]? OrderedCollectionAddFilteredStringReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<string>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringReadOnlySpan);
 
@@ -1393,14 +1092,14 @@ public class OrderedFromStringReadOnlySpanAddFilteredSimpleOrderedCollectionStri
                 | AcceptsString |  AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<string?, string?[]>
-  
-
 {
     public string?[]? OrderedCollectionAddFilteredStringNullableReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<string?>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringNullableReadOnlySpan);
 
@@ -1418,14 +1117,15 @@ public class OrderedFromStringNullableReadOnlySpanAddFilteredSimpleOrderedCollec
                 | AcceptsString | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
 public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer :
     FormattedFilteredCollectionMoldScaffold<string?, IReadOnlyList<string?>>
-  
-
 {
     public IReadOnlyList<string?>? OrderedCollectionAddFilteredStringList
     {
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredStringList?.GetType() 
+                                               ?? typeof(IReadOnlyList<string?>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringList);
 
@@ -1434,54 +1134,6 @@ public class OrderedFromStringListAddFilteredSimpleOrderedCollectionStringBearer
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredStringList
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate
-                | AcceptsString | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromStringEnumerableAddFilteredSimpleOrderedCollectionStringBearer :
-    FormattedFilteredCollectionMoldScaffold<string?, IEnumerable<string?>>
-
-{
-    public IEnumerable<string?>? OrderedCollectionAddFilteredStringEnumerable
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredStringEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
-               (OrderedCollectionAddFilteredStringEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate
-                | AcceptsString | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromStringEnumeratorAddFilteredSimpleOrderedCollectionStringBearer :
-    FormattedFilteredEnumeratorMoldScaffold<string?, IEnumerator<string?>>
-
-{
-    public IEnumerator<string?>? OrderedCollectionAddFilteredStringEnumerator
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredStringEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredIterate
-               (OrderedCollectionAddFilteredStringEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
            .Complete();
@@ -1498,6 +1150,9 @@ public class OrderedFromCharSequenceArrayAddFilteredSimpleOrderedCollectionStrin
         get => Value;
         set => Value = value!;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredCharSequenceArray?.GetType() 
+                                               ?? typeof(TCharSeq?[]);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceArray);
 
@@ -1523,6 +1178,8 @@ public class OrderedFromCharSequenceSpanAddFilteredSimpleOrderedCollectionString
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<TCharSeq>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceSpan);
 
 
@@ -1546,6 +1203,8 @@ public class OrderedFromCharSequenceReadOnlySpanAddFilteredSimpleOrderedCollecti
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TCharSeq>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceReadOnlySpan);
 
@@ -1571,6 +1230,9 @@ public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionString
         set => Value = value!;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredCharSequenceList?.GetType() 
+                                               ?? typeof(IReadOnlyList<TCharSeq?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceList);
 
 
@@ -1578,54 +1240,6 @@ public class OrderedFromCharSequenceListAddFilteredSimpleOrderedCollectionString
         tos.StartSimpleCollectionType(this)
            .AddFilteredCharSeq
                (OrderedCollectionAddFilteredCharSequenceList
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate
-                | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromCharSequenceEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
-    FormattedFilteredCollectionMoldScaffold<TCharSeq, TCharSeqBase, IEnumerable<TCharSeq>>
-    where TCharSeq : ICharSequence, TCharSeqBase
-{
-    public IEnumerable<TCharSeq>? OrderedCollectionAddFilteredCharSequenceEnumerable
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqEnumerate<IEnumerable<TCharSeq>?, TCharSeq, TCharSeqBase>
-               (OrderedCollectionAddFilteredCharSequenceEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate
-                | AcceptsCharSequence | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromCharSequenceEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TCharSeq, TCharSeqBase> :
-    FormattedFilteredEnumeratorMoldScaffold<TCharSeq, TCharSeqBase, IEnumerator<TCharSeq>>
-    where TCharSeq : ICharSequence?, TCharSeqBase?
-{
-    public IEnumerator<TCharSeq>? OrderedCollectionAddFilteredCharSequenceEnumerator
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredCharSequenceEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredCharSeqIterate<IEnumerator<TCharSeq>?, TCharSeq, TCharSeqBase>
-               (OrderedCollectionAddFilteredCharSequenceEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
            .Complete();
@@ -1642,6 +1256,9 @@ public class OrderedFromStringBuilderArrayAddFilteredSimpleOrderedCollectionStri
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredStringBuilderArray?.GetType() 
+                                               ?? typeof(StringBuilder?[]);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderArray);
 
@@ -1667,6 +1284,8 @@ public class OrderedFromStringBuilderSpanAddFilteredSimpleOrderedCollectionStrin
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<StringBuilder>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderSpan);
 
 
@@ -1690,6 +1309,8 @@ public class OrderedFromStringBuilderNullableSpanAddFilteredSimpleOrderedCollect
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(Span<StringBuilder?>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderNullableSpan);
 
@@ -1715,6 +1336,8 @@ public class OrderedFromStringBuilderReadOnlySpanAddFilteredSimpleOrderedCollect
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<StringBuilder>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderReadOnlySpan);
 
 
@@ -1738,6 +1361,8 @@ public class OrderedFromStringBuilderNullableReadOnlySpanAddFilteredSimpleOrdere
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<StringBuilder?>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderNullableReadOnlySpan);
 
@@ -1763,6 +1388,9 @@ public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStrin
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredStringBuilderList?.GetType() 
+                                               ?? typeof(IReadOnlyList<StringBuilder?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderList);
 
 
@@ -1770,54 +1398,6 @@ public class OrderedFromStringBuilderListAddFilteredSimpleOrderedCollectionStrin
         tos.StartSimpleCollectionType(this)
            .AddFiltered
                (OrderedCollectionAddFilteredStringBuilderList
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | FilterPredicate
-                | AcceptsStringBuilder | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromStringBuilderEnumerableAddFilteredSimpleOrderedCollectionStringBearer :
-    FormattedFilteredCollectionMoldScaffold<StringBuilder?, IEnumerable<StringBuilder?>>
-
-{
-    public IEnumerable<StringBuilder?>? OrderedCollectionAddFilteredStringBuilderEnumerable
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredEnumerate
-               (OrderedCollectionAddFilteredStringBuilderEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | FilterPredicate
-                | AcceptsStringBuilder | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromStringBuilderEnumeratorAddFilteredSimpleOrderedCollectionStringBearer :
-    FormattedFilteredEnumeratorMoldScaffold<StringBuilder?, IEnumerator<StringBuilder?>>
-
-{
-    public IEnumerator<StringBuilder?>? OrderedCollectionAddFilteredStringBuilderEnumerator
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredStringBuilderEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredIterate
-               (OrderedCollectionAddFilteredStringBuilderEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
            .Complete();
@@ -1835,6 +1415,8 @@ public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer
         set => Value = value!;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredMatchArray?.GetType() ?? typeof(TAny?[]);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchArray);
 
 
@@ -1851,13 +1433,15 @@ public class OrderedFromMatchArrayAddFilteredSimpleOrderedCollectionStringBearer
                 | AcceptsOnlyNonNullableGeneric | FilterPredicate)]
 public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> :
     FormattedFilteredCollectionMoldScaffold<TAny, TAnyFilterBase, TAny[]>
-   where TAny : TAnyFilterBase
+   where TAny : TAnyFilterBase?
 {
     public TAny[]? OrderedCollectionAddFilteredMatchSpan
     {
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(Span<TAny>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchSpan);
 
@@ -1871,41 +1455,19 @@ public class OrderedFromMatchSpanAddFilteredSimpleOrderedCollectionStringBearer<
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | SupportsValueFormatString
-                | AcceptsAnyGeneric | FilterPredicate)]
-public class OrderedFromMatchNullableSpanAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> :
-    FormattedFilteredCollectionMoldScaffold<TAny, TAnyFilterBase, TAny[]>
-    where TAny : TAnyFilterBase
-{
-    public TAny?[]? OrderedCollectionAddFilteredMatchNullableSpan
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchNullableSpan);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch
-               (OrderedCollectionAddFilteredMatchNullableSpan.AsSpan()
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | SupportsValueFormatString
                 | AcceptsOnlyNonNullableGeneric | FilterPredicate)]
 public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> :
     FormattedFilteredCollectionMoldScaffold<TAny, TAnyFilterBase, TAny[]>
-    where TAny : TAnyFilterBase
+    where TAny : TAnyFilterBase?
 {
     public TAny[]? OrderedCollectionAddFilteredMatchReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TAny>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchReadOnlySpan);
 
@@ -1919,41 +1481,19 @@ public class OrderedFromMatchReadOnlySpanAddFilteredSimpleOrderedCollectionStrin
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | SupportsValueFormatString
-                | AcceptsAnyGeneric | FilterPredicate)]
-public class OrderedFromMatchNullableReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> :
-    FormattedFilteredCollectionMoldScaffold<TAny, TAnyFilterBase, TAny[]>
-    where TAny : TAnyFilterBase
-{
-    public TAny?[]? OrderedCollectionAddFilteredMatchNullableReadOnlySpan
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchNullableReadOnlySpan);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredMatch
-               ((ReadOnlySpan<TAny?>)OrderedCollectionAddFilteredMatchNullableReadOnlySpan.AsSpan()
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsList | SupportsValueFormatString
                 | AcceptsAnyGeneric | FilterPredicate)]
 public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> :
     FormattedFilteredCollectionMoldScaffold<TAny, TAnyFilterBase, IReadOnlyList<TAny>>
-    where TAny : TAnyFilterBase
+    where TAny : TAnyFilterBase?
 {
-    public IReadOnlyList<TAny?>? OrderedCollectionAddFilteredMatchList
+    public IReadOnlyList<TAny>? OrderedCollectionAddFilteredMatchList
     {
         get => Value;
         set => Value = value!;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredMatchList?.GetType() ?? typeof(IReadOnlyList<TAny>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchList);
 
@@ -1962,54 +1502,6 @@ public class OrderedFromMatchListAddFilteredSimpleOrderedCollectionStringBearer<
         tos.StartSimpleCollectionType(this)
            .AddFilteredMatch
                (OrderedCollectionAddFilteredMatchList
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | SupportsValueFormatString
-                | AcceptsAnyGeneric | FilterPredicate)]
-public class OrderedFromMatchEnumerableAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> :
-    FormattedFilteredCollectionMoldScaffold<TAny, TAnyFilterBase, IEnumerable<TAny>>
-    where TAny : TAnyFilterBase?
-{
-    public IEnumerable<TAny>? OrderedCollectionAddFilteredMatchEnumerable
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchEnumerate<IEnumerable<TAny>?, TAny, TAnyFilterBase>
-               (OrderedCollectionAddFilteredMatchEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | SupportsValueFormatString
-                | AcceptsAnyGeneric | FilterPredicate)]
-public class OrderedFromMatchEnumeratorAddFilteredSimpleOrderedCollectionStringBearer<TAny, TAnyFilterBase> :
-    FormattedFilteredEnumeratorMoldScaffold<TAny, TAnyFilterBase, IEnumerator<TAny>>
-    where TAny : TAnyFilterBase
-{
-    public IEnumerator<TAny>? OrderedCollectionAddFilteredMatchEnumerator
-    {
-        get => Value;
-        set => Value = value!;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredMatchEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredMatchIterate<IEnumerator<TAny>?, TAny, TAnyFilterBase>
-               (OrderedCollectionAddFilteredMatchEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
            .Complete();
@@ -2025,6 +1517,8 @@ public class OrderedFromObjectArrayAddFilteredSimpleOrderedCollectionStringBeare
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredObjectArray?.GetType() ?? typeof(object?[]);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectArray);
 
@@ -2047,6 +1541,8 @@ public class OrderedFromObjectSpanAddFilteredSimpleOrderedCollectionStringBearer
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(Span<object>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectSpan);
 
@@ -2071,6 +1567,8 @@ public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStri
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(Span<object?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectNullableSpan);
 
 
@@ -2086,14 +1584,14 @@ public class OrderedFromObjectNullableSpanAddFilteredSimpleOrderedCollectionStri
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | SupportsValueFormatString
                 | AcceptsNonNullableObject | FilterPredicate)]
 public class OrderedFromObjectReadOnlySpanAddFilteredSimpleOrderedCollectionStringBearer : FormattedFilteredCollectionMoldScaffold<object, object[]>
-  
-
 {
     public object[]? OrderedCollectionAddFilteredObjectReadOnlySpan
     {
         get => Value;
         set => Value = value;
     }
+
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<object>);
 
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectReadOnlySpan);
 
@@ -2118,6 +1616,8 @@ public class OrderedFromObjectNullableReadOnlySpanAddFilteredSimpleOrderedCollec
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => typeof(ReadOnlySpan<object?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectNullableReadOnlySpan);
 
 
@@ -2140,6 +1640,8 @@ public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer
         set => Value = value;
     }
 
+    public override Type OrderedCollectionType => OrderedCollectionAddFilteredObjectList?.GetType() ?? typeof(IReadOnlyList<object?>);
+
     public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectList);
 
 
@@ -2147,52 +1649,6 @@ public class OrderedFromObjectListAddFilteredSimpleOrderedCollectionStringBearer
         tos.StartSimpleCollectionType(this)
            .AddFilteredObject
                (OrderedCollectionAddFilteredObjectList
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsNullableObject | SupportsValueFormatString
-                | FilterPredicate)]
-public class OrderedFromObjectEnumerableAddFilteredSimpleOrderedCollectionStringBearer :
-    FormattedFilteredCollectionMoldScaffold<object?, IEnumerable<object?>>
-{
-    public IEnumerable<object?>? OrderedCollectionAddFilteredObjectEnumerable
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectEnumerable);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectEnumerate
-               (OrderedCollectionAddFilteredObjectEnumerable
-              , ElementPredicate
-              , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsNullableObject | SupportsValueFormatString
-                | FilterPredicate)]
-public class OrderedFromObjectEnumeratorAddFilteredSimpleOrderedCollectionStringBearer :
-    FormattedFilteredEnumeratorMoldScaffold<object?, IEnumerator<object?>>
-{
-    public IEnumerator<object?>? OrderedCollectionAddFilteredObjectEnumerator
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override string PropertyName => nameof(OrderedCollectionAddFilteredObjectEnumerator);
-
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddFilteredObjectIterate
-               (OrderedCollectionAddFilteredObjectEnumerator
               , ElementPredicate
               , ValueFormatString, FormattingFlags)
            .Complete();

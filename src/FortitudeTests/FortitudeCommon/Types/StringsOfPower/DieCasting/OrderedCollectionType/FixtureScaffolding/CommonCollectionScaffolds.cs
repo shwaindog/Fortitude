@@ -26,17 +26,21 @@ public abstract class EnumeratorMoldScaffold<TValue, TCollection> : EnumeratorFi
 }
 
 public abstract class FormattedCollectionMoldScaffold<TValue, TCollection> : FormattedCollectionFieldMoldScaffold<TValue, TCollection>
-  , IEnumerable<TValue>
+  , IEnumerable<TValue>, IOrderedCollectionMoldScaffold
     where TCollection : IEnumerable<TValue>
 {
+    public abstract Type OrderedCollectionType { get; }
+    
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TValue> GetEnumerator() => Value?.GetEnumerator() ?? Enumerable.Empty<TValue>().GetEnumerator();
 }
 
 public abstract class FormattedEnumeratorMoldScaffold<TValue, TCollection> : FormattedEnumeratorFieldMoldScaffold<TValue, TCollection>
-  , IEnumerable<TValue> where TCollection : IEnumerator<TValue>
+  , IEnumerable<TValue>, IOrderedCollectionMoldScaffold where TCollection : IEnumerator<TValue>
 {
+    public abstract Type OrderedCollectionType { get; }
+    
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TValue> GetEnumerator() => Value ?? Enumerable.Empty<TValue>().GetEnumerator();
@@ -44,20 +48,23 @@ public abstract class FormattedEnumeratorMoldScaffold<TValue, TCollection> : For
 
 public abstract class RevealerCollectionMoldScaffold<TCloaked, TRevealBase ,TCollection> : 
     RevealerCollectionFieldMoldScaffold<TCloaked, TRevealBase , TCollection>
-  , IEnumerable<TCloaked>
+  , IEnumerable<TCloaked>, IOrderedCollectionMoldScaffold
     where TCollection : IEnumerable<TCloaked>?
     where TRevealBase : notnull
 {
+    public abstract Type OrderedCollectionType { get; }
+    
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => Value?.GetEnumerator() ?? Enumerable.Empty<TCloaked>().GetEnumerator();
 }
 
 public abstract class RevealerEnumeratorMoldScaffold<TCloaked, TRevealBase, TCollection> : 
-    RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, TCollection>, IEnumerable<TCloaked>
+    RevealerEnumeratorFieldMoldScaffold<TCloaked, TRevealBase, TCollection>, IEnumerable<TCloaked>, IOrderedCollectionMoldScaffold
     where TCollection : IEnumerator<TCloaked>?
     where TRevealBase : notnull
 {
+    public abstract Type OrderedCollectionType { get; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => Value ?? Enumerable.Empty<TCloaked>().GetEnumerator();
@@ -101,37 +108,41 @@ public abstract class FilteredEnumeratorMoldScaffold<TValue, TValueFilterBase, T
 }
 
 public abstract class FormattedFilteredCollectionMoldScaffold<TValue, TCollection> : FormattedFilteredCollectionFieldMoldScaffold<TValue, TCollection>
-  , IEnumerable<TValue> where TCollection : IEnumerable<TValue>
+  , IEnumerable<TValue>, IOrderedCollectionMoldScaffold where TCollection : IEnumerable<TValue>
 {
+    public abstract Type OrderedCollectionType { get; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TValue> GetEnumerator() => Value?.GetEnumerator() ?? Enumerable.Empty<TValue>().GetEnumerator();
 }
 
 public abstract class FormattedFilteredCollectionMoldScaffold<TValue, TValueFilterBase, TCollection> : 
-    FormattedFilteredCollectionFieldMoldScaffold<TValue, TValueFilterBase, TCollection>, IEnumerable<TValue>
+    FormattedFilteredCollectionFieldMoldScaffold<TValue, TValueFilterBase, TCollection>, IEnumerable<TValue>, IOrderedCollectionMoldScaffold
     where TValue : TValueFilterBase?
     where TCollection : IEnumerable<TValue>
 {
+    public abstract Type OrderedCollectionType { get; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TValue> GetEnumerator() => Value?.GetEnumerator() ?? Enumerable.Empty<TValue>().GetEnumerator();
 }
 
 public abstract class FormattedFilteredEnumeratorMoldScaffold<TValue, TCollection> : FormattedFilteredEnumeratorFieldMoldScaffold<TValue, TCollection>
-  , IEnumerable<TValue>
+  , IEnumerable<TValue>, IOrderedCollectionMoldScaffold
     where TCollection : IEnumerator<TValue>
 {
+    public abstract Type OrderedCollectionType { get; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TValue> GetEnumerator() => Value ?? Enumerable.Empty<TValue>().GetEnumerator();
 }
 
 public abstract class FormattedFilteredEnumeratorMoldScaffold<TValue, TValueFilterBase, TCollection> : 
-    FormattedFilteredEnumeratorFieldMoldScaffold<TValue, TValueFilterBase, TCollection>, IEnumerable<TValue>
+    FormattedFilteredEnumeratorFieldMoldScaffold<TValue, TValueFilterBase, TCollection>, IEnumerable<TValue>, IOrderedCollectionMoldScaffold
     where TValue : TValueFilterBase?
     where TCollection : IEnumerator<TValue>
 {
+    public abstract Type OrderedCollectionType { get; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TValue> GetEnumerator() => Value ?? Enumerable.Empty<TValue>().GetEnumerator();
@@ -148,10 +159,12 @@ public abstract class RevealerFilteredCollectionMoldScaffold<TCloaked, TCollecti
 
 public abstract class RevealerFilteredCollectionMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection> : 
     RevealerFilteredCollectionFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection>, IEnumerable<TCloaked>
+  , IOrderedCollectionMoldScaffold
     where TCloaked : TCloakedFilterBase?
     where TCollection : IEnumerable<TCloaked>?
     where TRevealBase : notnull
 {
+    public abstract Type OrderedCollectionType { get; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => Value?.GetEnumerator() ?? Enumerable.Empty<TCloaked>().GetEnumerator();
@@ -169,10 +182,12 @@ public abstract class RevealerFilteredEnumeratorMoldScaffold<TCloaked, TCollecti
 
 public abstract class RevealerFilteredEnumeratorMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection> : 
     RevealerFilteredEnumeratorFieldMoldScaffold<TCloaked, TCloakedFilterBase, TRevealBase, TCollection>, IEnumerable<TCloaked>
+  , IOrderedCollectionMoldScaffold
     where TCloaked : TCloakedFilterBase?
     where TCollection : IEnumerator<TCloaked>?
     where TRevealBase : notnull
 {
+    public abstract Type OrderedCollectionType { get; }
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public IEnumerator<TCloaked> GetEnumerator() => Value ?? Enumerable.Empty<TCloaked>().GetEnumerator();

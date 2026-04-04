@@ -224,7 +224,7 @@ public class DictionaryExpect<TKey, TValue, TKFilterBase, TVFilterBase, TKSubLis
     public bool ValueTypeIsNullableStruct => ValueType.IsNullable();
     public bool ValueTypeIsNotNullableStruct => !ValueTypeIsNullableStruct;
 
-    public Type KeyedCollectionType { get; protected set; }
+    public Type KeyedCollectionType { get; protected set; } = null!;
 
     public bool ContainsNullKeys
     {
