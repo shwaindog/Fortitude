@@ -43,6 +43,16 @@ public static class OrderedCollectionAddFilteredIterateExtensions
       , bool? hasValue = null)
         where TEnumtr : IEnumerator?;
 
+    internal delegate void InputTypeNullableInvoke<in TEnumtr, TElement>(
+        ICollectionMoldWriteState mws
+      , TEnumtr? value
+      , OrderedCollectionPredicate<TElement?> filterPredicate
+      , string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
+      , bool? hasValue = null)
+        where TEnumtr : IEnumerator<TElement?>?
+        where TElement : struct;
+
     internal delegate void CloakedRevealerInvoker<in TEnumtr, out TFilterBase, out TRevealBase>(
         ICollectionMoldWriteState mws
       , TEnumtr? value
@@ -107,8 +117,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 ((enumtrType, elementType, filterType)
                , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
                  {
-                     
-                     bool isNullable = key.elementType.IsNullable();
                      var  itemType = key.elementType.IfNullableGetUnderlyingTypeOrThis();
                      
                      if (!itemType.IsInputConstructionType()) 
@@ -128,16 +136,39 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                      methodParamTypes[4] = typeof(FormatFlags);
                      methodParamTypes[5] = typeof(bool?);
 
-                     string methodName;
-                     if (isNullable)
-                     {
-                         methodName           = nameof(AddFilteredIterateNullable);
-                         genericParamTypes[1] = itemType;
-                     }
-                     else
-                     {
-                         methodName = nameof(AddFilteredIterate);
-                     }
+                     string methodName = nameof(AddFilteredIterate);
+
+                     return GetStaticMethodInfo(methodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
+                 });
+        return methInf;
+    }
+
+    internal static MethodInfo GetAddFilteredNullableSpanFormattableMethodInfo<TFilterBase>(this Type enumtrType, Type elementType)
+    {
+        var filterType = typeof(TFilterBase);
+        var methInf =
+            BuiltInTypeInvoke.GetOrAdd
+                ((enumtrType, elementType, filterType)
+               , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
+                 {
+                     var  itemType = key.elementType.IfNullableGetUnderlyingTypeOrThis();
+                     
+                     if (!itemType.IsInputConstructionType()) 
+                         throw new ArgumentException("Expected to receive a a built in enumerator type.  Got " + key.elementType.FullName);
+                     
+                     using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
+                     genericParamTypes[0] = key.enumeratorType;
+                     genericParamTypes[1] = key.elementType;
+
+                     using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(6);
+                     methodParamTypes[0] = typeof(ICollectionMoldWriteState);
+                     methodParamTypes[1] = key.enumeratorType;
+                     methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase>);
+                     methodParamTypes[3] = typeof(string);
+                     methodParamTypes[4] = typeof(FormatFlags);
+                     methodParamTypes[5] = typeof(bool?);
+
+                     string methodName = nameof(AddFilteredIterateNullable);
 
                      return GetStaticMethodInfo(methodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
                  });
@@ -156,10 +187,10 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                      bool isNullable = key.elementType.IsNullable();
                      var  itemType   = key.elementType.IfNullableGetUnderlyingTypeOrThis();
                      
-                     if (!itemType.IsStringBearerOrNullableCached()) 
-                         throw new ArgumentException("Expected to receive a built-in enumerator type.  Got " + key.elementType.FullName);
-
-
+                     if (isNullable || !itemType.IsStringBearerOrNullableCached()) 
+                         throw new ArgumentException("Expected to receive a non nullable struct IStringBearer enumeratortype." +
+                                                     "  Got " + key.elementType.FullName);
+                     
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(3);
                      genericParamTypes[0] = key.enumeratorType;
                      genericParamTypes[1] = key.elementType;
@@ -173,16 +204,44 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                      methodParamTypes[4] = typeof(FormatFlags);
                      methodParamTypes[5] = typeof(bool?);
 
-                     string methodName;
-                     if (isNullable)
-                     {
-                         methodName           = nameof(RevealFilteredIterateNullable);
-                         genericParamTypes[1] = itemType;
-                     }
-                     else
-                     {
-                         methodName = nameof(RevealFilteredIterate);
-                     }
+                     var methodName = nameof(RevealFilteredIterate);
+
+                     return GetStaticMethodInfo(methodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
+                 });
+        return methInf;
+    }
+
+    internal static MethodInfo GetAddFilteredNullableStringBearerMethodInfo<TFilterBase>(this Type enumtrType, Type elementType)
+    {
+        var filterType = typeof(TFilterBase);
+        var methInf =
+            BuiltInTypeInvoke.GetOrAdd
+                ((enumtrType, elementType, filterType)
+               , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
+                 {
+                     
+                     bool isNullable = key.elementType.IsNullable();
+                     var  itemType   = key.elementType.IfNullableGetUnderlyingTypeOrThis();
+                     
+                     if (!isNullable || !itemType.IsStringBearerOrNullableCached()) 
+                         throw new ArgumentException("Expected to receive a nullable struct IStringBearer enumerator type.  " +
+                                                     "Got " + key.elementType.FullName);
+
+
+                     using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
+                     genericParamTypes[0] = key.enumeratorType;
+                     genericParamTypes[1] = key.filterType;
+
+                     using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(6);
+                     methodParamTypes[0] = typeof(ICollectionMoldWriteState);
+                     methodParamTypes[1] = key.enumeratorType;
+                     methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase>);
+                     methodParamTypes[3] = typeof(string);
+                     methodParamTypes[4] = typeof(FormatFlags);
+                     methodParamTypes[5] = typeof(bool?);
+
+                     var methodName = nameof(RevealFilteredIterateNullable);
+                     genericParamTypes[1] = itemType;
 
                      return GetStaticMethodInfo(methodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
                  });
@@ -397,7 +456,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         return methInf;
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateSingleToDoubleGenericDelegate<TEnumtr, TFilterBase>(
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>(
         Type enumblParamType, Type enumtrType, Type elementType, string toInvokeMethodName)
         where TEnumtr : IEnumerator?
     {
@@ -419,9 +478,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
 
         var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddAllSingleToDoubleGenericEnumerableInvoker)));
+        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToTripleGenericInvoker)));
         genericParamTypes[0] = enumblParamType;
-        genericParamTypes[0] = elementType;
+        genericParamTypes[1] = elementType;
         var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
 
         methodParamTypes[1] = enumblParamType;
@@ -435,7 +494,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         return (InputTypeInvoke<TEnumtr, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> BuildAddAllSingleToDoubleGenericEnumerableInvoker<TEnumtr, TElement, TFilterBase>(
+    private static InputTypeInvoke<TEnumtr, TFilterBase> BuildAnyEnumblToTripleGenericInvoker<TEnumtr, TElement, TFilterBase>(
         MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
         where TEnumtr : IEnumerator<TElement>?
         where TElement : TFilterBase?
@@ -479,7 +538,86 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags);
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateSingleToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>(
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAnyEnumblToDoubleNullableStructGenericInvokerDelegate<TEnumtr, TFilterBase>(
+        Type enumblParamType, Type enumblType, Type elementType, string toInvokeMethodName)
+        where TEnumtr : IEnumerator?
+    {
+        var itemType = elementType.IfNullableGetUnderlyingTypeOrThis();
+        
+        using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
+        genericParamTypes[0] = enumblType;
+        genericParamTypes[1] = itemType;
+
+        using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(6);
+        methodParamTypes[0] = typeof(ICollectionMoldWriteState);
+        methodParamTypes[1] = enumblType;
+        methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase?>);
+        methodParamTypes[3] = typeof(string);
+        methodParamTypes[4] = typeof(FormatFlags);
+        methodParamTypes[5] = typeof(bool?);
+
+        var toInvokeOn              = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
+        
+        var       genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToDoubleNullableStructGenericInvoker)));
+        genericParamTypes[0] = enumblParamType;
+        var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
+
+        methodParamTypes[1]  = enumblParamType;
+
+        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
+        invokeReflectedArgs[0] = toInvokeOn;
+        invokeReflectedArgs[1] = enumblParamType;
+        invokeReflectedArgs[2] = enumblType;
+        invokeReflectedArgs[3] = methodParamTypes.AsArray;
+
+        return (InputTypeInvoke<TEnumtr, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+    }
+
+    private static InputTypeInvoke<TEnumtr, TElement?> BuildAnyEnumblToDoubleNullableStructGenericInvoker<TEnumtr, TElement>(
+        MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
+        where TEnumtr : IEnumerator<TElement?>?
+        where TElement : struct
+    {
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var helperMethod =
+            new DynamicMethod
+                ($"{methodInfo.Name}_DynamicEnumeratorInvoke", null,
+                 methodParamTypes, typeof(OrderedCollectionAddAllEnumerateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
+
+        // call AddAllEnumerate(KeyedCollectionMold, TEnumbl, valueFmtStr, keyFmtStr, valueFmtStr, FormatFlags)
+        ilGenerator.Emit(OpCodes.Ldarg_0);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
+        ilGenerator.Emit(OpCodes.Ldarg_2);
+        ilGenerator.Emit(OpCodes.Ldarg_3);
+        ilGenerator.Emit(OpCodes.Ldarg_S, 4);
+        ilGenerator.Emit(OpCodes.Ldarg_S, 5);
+        ilGenerator.Emit(OpCodes.Call, methodInfo);
+        ilGenerator.Emit(OpCodes.Ret);
+        var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeNullableInvoke<TEnumtr, TElement>));
+        var createInvoker = (InputTypeNullableInvoke<TEnumtr, TElement>)methodInvoker;
+
+        return Wrapped;
+
+        void Wrapped(ICollectionMoldWriteState mws, TEnumtr? enumbl, OrderedCollectionPredicate<TElement?> filterPredicate
+          , string? valueFmtStr = null, FormatFlags flags = DefaultCallerTypeFlags, bool? hasValues = null) =>
+            createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags, hasValues);
+    }
+
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>(
         Type enumblParamType, Type enumblType, Type elementType, Type filterType, string toInvokeMethodName)
         where TEnumtr : IEnumerator?
     {
@@ -496,7 +634,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
 
         var toInvokeOn              = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
         
-        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddAllSingleToSingleGenericEnumerableInvoker)));
+        var       genGenMethod            = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToSingleGenericInvoker)));
         using var invokeGenericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(3);
         invokeGenericParamTypes[0] = enumblParamType;
         invokeGenericParamTypes[1] = elementType;
@@ -514,7 +652,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         return (InputTypeInvoke<TEnumtr, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> BuildAddAllSingleToSingleGenericEnumerableInvoker<TEnumtr, TElement, TFilterBase>(
+    private static InputTypeInvoke<TEnumtr, TFilterBase> BuildAnyEnumblToSingleGenericInvoker<TEnumtr, TElement, TFilterBase>(
         MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
         where TEnumtr : IEnumerator<TElement>?
         where TElement : TFilterBase?
@@ -570,7 +708,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
 
         var toInvokeMethodName = isNullable ? nameof(AddFilteredIterateNullableBool) : nameof(AddFilteredIterateBool);
 
-        return CreateSingleToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, filterType, toInvokeMethodName);
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, filterType, toInvokeMethodName);
     }
     
     internal static InputTypeInvoke<TEnumtr, TFilterBase> GetAddAllSpanFormattable<TEnumtr, TFilterBase>(Type enumblType)
@@ -595,11 +733,41 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var isNullable  = elementType.IsNullable();
         var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
          
-        if (!itemType.IsSpanFormattableCached()) throw new ArgumentException("Expected to receive a ISpanFormattable collection");
+        if (isNullable || !itemType.IsSpanFormattableCached()) throw new ArgumentException("Expected to receive a non nullable ISpanFormattable collection");
 
-        var toInvokeMethodName = isNullable ? nameof(AddFilteredIterateNullable) : nameof(AddFilteredIterate);
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>
+            (enumblParamType, enumblType, elementType, nameof(AddFilteredIterate));
+    }
+    
+    internal static InputTypeInvoke<TEnumtr, TFilterBase> GetAddAllNullableSpanFormattable<TEnumtr, TFilterBase>(Type enumblType)
+        where TEnumtr : IEnumerator?
+        where TFilterBase : struct
+    {
+        var enumblParamType = typeof(TEnumtr);
+        var callAsFactory   = true;
+        var invoker =
+            (InputTypeInvoke<TEnumtr, TFilterBase>)
+            InputTypeInvokeCache
+                .GetOrAdd
+                    ((enumblParamType, enumblType)
+                   , static ((Type enumblParamType, Type enumblType) key, bool _) => 
+                         CreateAddAllNullableSpanFormattableDelegate<TEnumtr, TFilterBase>(key.enumblParamType, key.enumblType), callAsFactory);
+        return invoker;
+    }
 
-        return CreateSingleToDoubleGenericDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, toInvokeMethodName);
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllNullableSpanFormattableDelegate<TEnumtr, TFilterBase>(
+        Type enumblParamType, Type enumblType) 
+        where TEnumtr : IEnumerator?
+    {
+        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+        var isNullable  = elementType.IsNullable();
+        var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
+         
+        if (!isNullable || !itemType.IsSpanFormattableCached()) 
+            throw new ArgumentException("Expected to receive a nullable ISpanFormattable struct collection");
+
+        return CreateAnyEnumblToDoubleNullableStructGenericInvokerDelegate<TEnumtr, TFilterBase>
+                (enumblParamType, enumblType, itemType, nameof(AddFilteredIterateNullable));
     }
 
     private static CloakedRevealerInvoker<TEnumtr, TFilterBase, TRevealBase> GetAddAllCloakedRevealer<TEnumtr, TFilterBase, TRevealBase>(Type enumblType)
@@ -733,9 +901,13 @@ public static class OrderedCollectionAddFilteredIterateExtensions
          
         if (!itemType.IsStringBearer()) throw new ArgumentException("Expected to receive a IStringBearer collection");
 
-        string toInvokeMethodName = isNullable ? nameof(RevealFilteredIterateNullable) : nameof(RevealFilteredIterate);
-
-        return CreateSingleToDoubleGenericDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, toInvokeMethodName);
+        if (isNullable)
+        {
+            return CreateAnyEnumblToDoubleNullableStructGenericInvokerDelegate<TEnumtr, TFilterBase>
+                (enumblParamType, enumblType, elementType, nameof(RevealFilteredIterateNullable));
+        }
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>
+            (enumblParamType, enumblType, elementType, nameof(RevealFilteredIterate));
     }
 
     private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllStringDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType) 
@@ -745,7 +917,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
          
         if (!elementType.IsString()) throw new ArgumentException("Expected to receive a string collection");
 
-        return CreateSingleToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>
             (enumblParamType, enumblType, elementType, elementType, nameof(AddFilteredIterateString));
     }
 
@@ -771,7 +943,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                          
         if (!elementType.IsCharSequence()) throw new ArgumentException("Expected to receive a ICharSequence collection");
 
-        return CreateSingleToDoubleGenericDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, nameof(AddFilteredIterateCharSeq));
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, nameof(AddFilteredIterateCharSeq));
     }
 
     private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllStringBuilderDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType) 
@@ -781,7 +953,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
          
         if (!elementType.IsStringBuilder()) throw new ArgumentException("Expected to receive a StringBuilder collection");
 
-        return CreateSingleToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>
             (enumblParamType, enumblType, elementType, elementType, nameof(AddFilteredIterateStringBuilder));
     }
 
@@ -804,10 +976,15 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         where TEnumtr : IEnumerator?
     {
         var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+        var isNullable  = elementType.IsNullable();
         var itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
 
         if (itemType.IsSpanFormattable())
         {
+            if (isNullable)
+            {
+                return CreateAddAllNullableSpanFormattableDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
+            }
             return CreateAddAllSpanFormattableDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
         }
         if (itemType.IsStringBearer())
@@ -831,7 +1008,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             return CreateAddAllBoolDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
         }
 
-        return CreateSingleToDoubleGenericDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, nameof(AddFilteredIterateMatch));
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, nameof(AddFilteredIterateMatch));
     }
 
     internal static MethodInfo GetStaticMethodInfo(string findMethodName, Type[] findGenericParams, params Type[] findParamTypes)
@@ -1201,39 +1378,6 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         value?.Dispose();
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
-    }
-
-    public static void AddFilteredIterateNullable<TEnumtr, TFmtBase>(
-        this ICollectionMoldWriteState mws
-      , TEnumtr? value
-      , OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags
-      , bool? hasValue = null)
-        where TEnumtr : struct, IEnumerator
-    {
-        if (value != null)
-        {
-            mws.AddFilteredIterateNullable(value.Value, filterPredicate, formatString, formatFlags, hasValue);
-            return;
-        }
-        var elementType = typeof(TFmtBase);
-        var valueMold   = mws.ConditionalCollectionPrefix(value, elementType, null, formatFlags);
-        mws.ConditionalCollectionSuffix(valueMold, elementType, null, null, "", formatFlags);
-    }
-
-    public static void AddFilteredIterateNullable<TEnumtr, TFmtBase>(
-        this ICollectionMoldWriteState mws
-      , TEnumtr? value
-      , OrderedCollectionPredicate<TFmtBase> filterPredicate
-      , string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags
-      , bool? hasValue = null)
-        where TEnumtr : IEnumerator?
-    {
-        var actualType         = value?.GetType() ?? typeof(TEnumtr);
-        var callGenericInvoker = GetAddAllSpanFormattable<TEnumtr, TFmtBase>(actualType);
-        callGenericInvoker(mws, value, filterPredicate, formatString, formatFlags, hasValue);
     }
 
     public static void AddFilteredIterateNullable<TEnumtr, TFmtStruct>(

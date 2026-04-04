@@ -91,14 +91,14 @@ public class OrderedFromNullableBoolEnumeratorAddAllSimpleOrderedCollectionStrin
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllIterateNullableBool<IEnumerator<bool?>?>
+           .AddAllIterateNullableBool
                (OrderedCollectionAddAllNullableBoolEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerator | AcceptsSpanFormattableExceptNullableStruct
                 | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableNullAnyEnumeratorAddAllSimpleOrderedCollectionStringBearer<TFmt>
+public class OrderedFromSpanFormattableAnyNullEnumeratorAddAllSimpleOrderedCollectionStringBearer<TFmt>
     : FormattedEnumeratorMoldScaffold<TFmt, IEnumerator<TFmt>>
     where TFmt : ISpanFormattable?
 {
@@ -921,7 +921,7 @@ public class OrderedFromObjectNullEnumeratorAddAllSimpleOrderedCollectionStringB
     }
 
     public override Type OrderedCollectionType =>
-        OrderedCollectionAddAllObjectEnumerator?.GetType() ?? typeof(IEnumerator<object?>);
+        OrderedCollectionAddAllObjectEnumerator?.GetType() ?? typeof(StructEnumerator<IEnumerator<object?>, object?>?);
 
     public override string PropertyName => nameof(OrderedCollectionAddAllObjectEnumerator);
 

@@ -103,7 +103,7 @@ public class OrderedFromNullableBoolEnumerableAddAllSimpleOrderedCollectionStrin
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsSpanFormattableExceptNullableStruct
                 | SupportsValueFormatString)]
-public class OrderedFromSpanFormattableNullAnyEnumerableAddAllSimpleOrderedCollectionStringBearer<TFmt>
+public class OrderedFromSpanFormattableAnyNullEnumerableAddAllSimpleOrderedCollectionStringBearer<TFmt>
     : FormattedCollectionMoldScaffold<TFmt, IEnumerable<TFmt>>
     where TFmt : ISpanFormattable?
 {
@@ -201,7 +201,7 @@ public class OrderedFromSpanFormattableEnumerableAddAllSimpleOrderedCollectionSt
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsOnlyNullableStructSpanFormattable
                 | SupportsValueFormatString)]
-public class OrderedFromNullableSpanFormattableNullAnyEnumerableAddAllSimpleOrderedCollectionStringBearer<TFmtStruct>
+public class OrderedFromNullableSpanFormattableAnyNullEnumerableAddAllSimpleOrderedCollectionStringBearer<TFmtStruct>
     : FormattedCollectionMoldScaffold<TFmtStruct?, IEnumerable<TFmtStruct?>>
     where TFmtStruct : struct, ISpanFormattable
 {
@@ -301,7 +301,7 @@ public class OrderedFromNullableSpanFormattableEnumerableAddAllSimpleOrderedColl
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsAnyExceptNullableStruct
                 | SupportsValueRevealer | SupportsValueFormatString)]
-public class OrderedFromCloakedBearerNullAnyEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
+public class OrderedFromCloakedBearerAnyNullEnumerableRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerCollectionMoldScaffold<TCloaked, TRevealBase, IEnumerable<TCloaked>?>
     where TCloaked : TRevealBase?
     where TRevealBase : notnull
@@ -461,7 +461,7 @@ public class OrderedFromNullableCloakedBearerEnumerableRevealAllSimpleOrderedCol
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsTypeAllButNullableStruct
                 | AcceptsStringBearer | SupportsValueFormatString)]
-public class OrderedFromStringBearerNullAnyEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearer> : FormattedCollectionMoldScaffold<TBearer,
+public class OrderedFromStringBearerAnyNullEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearer> : FormattedCollectionMoldScaffold<TBearer,
     IEnumerable<TBearer>>
     where TBearer : IStringBearer?
 {
@@ -555,7 +555,7 @@ public class OrderedFromStringBearerEnumerableRevealAllSimpleOrderedCollectionSt
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsNullableStruct | AcceptsStringBearer
                 | SupportsValueFormatString)]
-public class OrderedFromNullableStringBearerNullAnyEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
+public class OrderedFromNullableStringBearerAnyNullEnumerableRevealAllSimpleOrderedCollectionStringBearer<TBearerStruct>
     : FormattedCollectionMoldScaffold<TBearerStruct?, IEnumerable<TBearerStruct?>> where TBearerStruct : struct, IStringBearer
 {
     public StructEnumerable<IEnumerable<TBearerStruct?>, TBearerStruct?>? OrderedCollectionRevealAllNullableStringBearerEnumerable
@@ -690,7 +690,7 @@ public class OrderedFromStringEnumerableAddAllSimpleOrderedCollectionStringBeare
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsCharSequence
                 | AcceptsClass | AcceptsNullableClass | SupportsValueFormatString)]
-public class OrderedFromCharSequenceNullAnyEnumerableAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
+public class OrderedFromCharSequenceAnyNullEnumerableAddAllSimpleOrderedCollectionStringBearer<TCharSeq>
     : FormattedCollectionMoldScaffold<TCharSeq, IEnumerable<TCharSeq>>
     where TCharSeq : ICharSequence?
 {
@@ -837,7 +837,7 @@ public class OrderedFromStringBuilderEnumerableAddAllSimpleOrderedCollectionStri
 }
 
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsEnumerable | AcceptsAnyGeneric | SupportsValueFormatString)]
-public class OrderedFromMatchNullAnyEnumerableAddAllSimpleOrderedCollectionStringBearer<TAny> : 
+public class OrderedFromMatchAnyNullEnumerableAddAllSimpleOrderedCollectionStringBearer<TAny> : 
     FormattedCollectionMoldScaffold<TAny, IEnumerable<TAny>>
 {
     public StructEnumerable<IEnumerable<TAny>, TAny>? OrderedCollectionAddAllMatchEnumerable

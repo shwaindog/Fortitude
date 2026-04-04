@@ -1268,26 +1268,6 @@ public class OrderedFromMatchSpanAddAllSimpleOrderedCollectionStringBearer<TAny>
            .Complete();
 }
 
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsSpan | AcceptsAnyGeneric | SupportsValueFormatString)]
-public class OrderedFromMatchNullableSpanAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny?, TAny?[]>
-{
-    public TAny?[]? OrderedCollectionAddAllMatchNullableSpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override Type OrderedCollectionType => typeof(Span<TAny?>);
-
-    public override string PropertyName => nameof(OrderedCollectionAddAllMatchNullableSpan);
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddAllMatch(OrderedCollectionAddAllMatchNullableSpan.AsSpan()
-                      , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
 [TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan
                 | AcceptsOnlyNonNullableGeneric | SupportsValueFormatString)]
 public class OrderedFromMatchReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny, TAny[]>
@@ -1305,27 +1285,6 @@ public class OrderedFromMatchReadOnlySpanAddAllSimpleOrderedCollectionStringBear
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddAllMatch((ReadOnlySpan<TAny>)OrderedCollectionAddAllMatchReadOnlySpan.AsSpan()
-                      , ValueFormatString, FormattingFlags)
-           .Complete();
-}
-
-[TypeGeneratePart(IsOrderedCollectionType | CollectionCardinality | AcceptsArray | CallsAsReadOnlySpan | AcceptsAnyGeneric
-                | SupportsValueFormatString)]
-public class OrderedFromMatchNullableReadOnlySpanAddAllSimpleOrderedCollectionStringBearer<TAny> : FormattedCollectionMoldScaffold<TAny?, TAny?[]>
-{
-    public TAny?[]? OrderedCollectionAddAllMatchNullableReadOnlySpan
-    {
-        get => Value;
-        set => Value = value;
-    }
-
-    public override Type OrderedCollectionType => typeof(ReadOnlySpan<TAny?>);
-
-    public override string PropertyName => nameof(OrderedCollectionAddAllMatchNullableReadOnlySpan);
-
-    public override AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartSimpleCollectionType(this)
-           .AddAllMatch((ReadOnlySpan<TAny?>)OrderedCollectionAddAllMatchNullableReadOnlySpan.AsSpan()
                       , ValueFormatString, FormattingFlags)
            .Complete();
 }

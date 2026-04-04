@@ -16,6 +16,7 @@ using static System.Reflection.BindingFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification.CollectionItemResult;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
+
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
@@ -25,15 +26,16 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     private static MethodInfo[]? myMethodInfosCached;
 
     private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> InputTypeInvokeCache = new();
-    
+
     private static readonly ConcurrentDictionary<(Type, Type, Type, Type), Delegate> CloakedInvokeCache = new();
-    
+
     private static readonly ConcurrentDictionary<(Type, Type, Type, Type, MethodInfo), Delegate> InputTypeCallStructEnumeratorCache = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type, MethodInfo), Delegate> InputTypeNullableStructCallStructEnumeratorCache = new();
 
     internal delegate void InputTypeInvoke<in TEnumbl, out TFilterBase>(
         ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable?;
@@ -41,16 +43,25 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     internal delegate void InputTypeInvoke<in TEnumbl, TElement, out TFilterBase>(
         ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?;
 
+    internal delegate void InputTypeNullableInvoke<in TEnumbl, TElement>(
+        ICollectionMoldWriteState mws
+      , TEnumbl? value
+      , OrderedCollectionPredicate<TElement?> filterPredicate
+      , string? valueFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumbl : IEnumerable<TElement?>?
+        where TElement : struct;
+
     internal delegate void CloakedRevealerInvoker<in TEnumbl, out TFilterBase, out TRevealBase>(
         ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> cloakedRevealer
       , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -60,7 +71,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     internal delegate void CloakedRevealerInvoker<in TEnumbl, TElement, out TFilterBase, out TRevealBase>(
         ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase>? cloakedRevealer
       , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -71,7 +82,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     internal delegate void NullableCloakedRevealerInvoker<in TEnumbl, TElement>(
         ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TElement?> filterPredicate  
+      , OrderedCollectionPredicate<TElement?> filterPredicate
       , PalantírReveal<TElement>? cloakedRevealer
       , string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -79,12 +90,12 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         where TElement : struct;
 
 
-    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(
+    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>(
         Type enumblParamType, Type enumblType, Type elementType, Type filterType, string toInvokeMethodName)
         where TEnumbl : IEnumerable?
     {
         var itemType = elementType.IfNullableGetUnderlyingTypeOrThis();
-        
+
         using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(3);
         genericParamTypes[0] = enumblType;
         genericParamTypes[1] = itemType;
@@ -99,7 +110,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddFilteredSingleGenericEnumerableInvoker)));
+        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToTripleGenericInvokerDelegate)));
         genericParamTypes[0] = enumblParamType;
         genericParamTypes[1] = elementType;
         var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
@@ -115,7 +126,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         return (InputTypeInvoke<TEnumbl, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
     }
 
-    private static InputTypeInvoke<TEnumbl, TFilterBase> BuildAddFilteredSingleGenericEnumerableInvoker<TEnumbl, TElement, TFilterBase>(
+    private static InputTypeInvoke<TEnumbl, TFilterBase> BuildAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TElement, TFilterBase>(
         MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?
@@ -158,7 +169,84 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags);
     }
 
-    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateSingleAnyToGenericeInputTypeInvokerDelegate<TEnumbl, TFilterBase>(
+    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAnyEnumblToDoubleGenericInvokerDelegate<TEnumbl, TFilterBase>(
+        Type enumblParamType, Type enumblType, Type elementType, string toInvokeMethodName)
+        where TEnumbl : IEnumerable?
+    {
+        var itemType = elementType.IfNullableGetUnderlyingTypeOrThis();
+
+        using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
+        genericParamTypes[0] = enumblType;
+        genericParamTypes[1] = itemType;
+
+        using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
+        methodParamTypes[0] = typeof(ICollectionMoldWriteState);
+        methodParamTypes[1] = enumblType;
+        methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase>);
+        methodParamTypes[3] = typeof(string);
+        methodParamTypes[4] = typeof(FormatFlags);
+
+        var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
+
+        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToDoubleGenericInvoker)));
+        genericParamTypes[0] = enumblParamType;
+        genericParamTypes[1] = elementType;
+        var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
+
+        methodParamTypes[1] = enumblParamType;
+
+        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
+        invokeReflectedArgs[0] = toInvokeOn;
+        invokeReflectedArgs[1] = enumblParamType;
+        invokeReflectedArgs[2] = enumblType;
+        invokeReflectedArgs[3] = methodParamTypes.AsArray;
+
+        return (InputTypeInvoke<TEnumbl, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+    }
+
+    private static InputTypeInvoke<TEnumbl, TElement> BuildAnyEnumblToDoubleGenericInvoker<TEnumbl, TElement>(
+        MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
+        where TEnumbl : IEnumerable<TElement>?
+    {
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var helperMethod =
+            new DynamicMethod
+                ($"{methodInfo.Name}_DynamicEnumeratorInvoke", null,
+                 methodParamTypes, typeof(OrderedCollectionAddFilteredEnumerateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
+        if (requiresCast || requiresUnboxing)
+        {
+            // Make space for enumblType local variables
+            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+
+            // cast TEnumbl value => (enumblType)value
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+            ilGenerator.Emit(OpCodes.Stloc_0);
+        }
+
+        // call AddAllEnumerate(KeyedCollectionMold, TEnumbl, valueFmtStr, keyFmtStr, valueFmtStr, FormatFlags)
+        ilGenerator.Emit(OpCodes.Ldarg_0);
+        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
+        ilGenerator.Emit(OpCodes.Ldarg_2);
+        ilGenerator.Emit(OpCodes.Ldarg_3);
+        ilGenerator.Emit(OpCodes.Ldarg_S, 4);
+        ilGenerator.Emit(OpCodes.Call, methodInfo);
+        ilGenerator.Emit(OpCodes.Ret);
+        var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeInvoke<TEnumbl, TElement>));
+        var createInvoker = (InputTypeInvoke<TEnumbl, TElement>)methodInvoker;
+
+        return Wrapped;
+
+        void Wrapped(ICollectionMoldWriteState mws, TEnumbl? enumbl, OrderedCollectionPredicate<TElement> filterPredicate
+          , string? valueFmtStr, FormatFlags flags) =>
+            createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags);
+    }
+
+    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilterBase>(
         Type enumblParamType, Type enumblType, Type itemType, string toInvokeMethodName)
         where TEnumbl : IEnumerable?
     {
@@ -172,15 +260,15 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         methodParamTypes[3] = typeof(string);
         methodParamTypes[4] = typeof(FormatFlags);
 
-        var toInvokeOn              = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
-        
-        var       genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddAllSingleAnyToGenericEnumerableInvoker)));
+        var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
+
+        var       genGenMethod            = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToSingleGenericInvoker)));
         using var invokeGenericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
         invokeGenericParamTypes[0] = enumblParamType;
         invokeGenericParamTypes[1] = itemType;
         var concreteGenMethod = genGenMethod.MakeGenericMethod(invokeGenericParamTypes.AsArray);
 
-        methodParamTypes[1]  = enumblParamType;
+        methodParamTypes[1] = enumblParamType;
 
         using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
         invokeReflectedArgs[0] = toInvokeOn;
@@ -191,7 +279,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         return (InputTypeInvoke<TEnumbl, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
     }
 
-    private static InputTypeInvoke<TEnumbl, TFilterBase> BuildAddAllSingleAnyToGenericEnumerableInvoker<TEnumbl, TFilterBase>(
+    private static InputTypeInvoke<TEnumbl, TFilterBase> BuildAnyEnumblToSingleGenericInvoker<TEnumbl, TFilterBase>(
         MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
         where TEnumbl : IEnumerable?
     {
@@ -234,18 +322,18 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     }
 
     private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredBoolDelegate<TEnumbl, TFilterBase>(Type enumblParamType
-      , Type enumblType, Type filterType) 
+      , Type enumblType, Type filterType)
         where TEnumbl : IEnumerable?
     {
-         var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-         bool isNullable  = elementType.IsNullable();
-         var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
-         
-         if (!itemType.IsBool()) throw new ArgumentException("Expected to receive a Boolean(?) collection");
+        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+        bool isNullable  = elementType.IsNullable();
+        var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
 
-         string toInvokeMethodName = isNullable ? nameof(AddFilteredEnumerateNullableBool) : nameof(AddFilteredEnumerateBool);
+        if (!itemType.IsBool()) throw new ArgumentException("Expected to receive a Boolean(?) collection");
 
-         return CreateSingleAnyToGenericeInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType, toInvokeMethodName);
+        string toInvokeMethodName = isNullable ? nameof(AddFilteredEnumerateNullableBool) : nameof(AddFilteredEnumerateBool);
+
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType, toInvokeMethodName);
     }
 
     internal static InputTypeInvoke<TEnumbl, TFilterBase> GetAddFilteredSpanFormattable<TEnumbl, TFilterBase>(Type enumblType)
@@ -259,25 +347,29 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             InputTypeInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType, filterType)
-                   , static ((Type enumblParamType, Type enumblType, Type filterType) key, bool _) => 
+                   , static ((Type enumblParamType, Type enumblType, Type filterType) key, bool _) =>
                          CreateAddFilteredSpanFormattableDelegate<TEnumbl, TFilterBase>
                              (key.enumblParamType, key.enumblType, key.filterType), callAsFactory);
         return invoker;
     }
 
     private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredSpanFormattableDelegate<TEnumbl, TFilterBase>(
-        Type enumblParamType, Type enumblType, Type filterType) 
+        Type enumblParamType, Type enumblType, Type filterType)
         where TEnumbl : IEnumerable?
     {
-         var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-         bool isNullable  = elementType.IsNullable();
-         var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
-         
-         if (!itemType.IsSpanFormattableCached()) throw new ArgumentException("Expected to receive a ISpanFormattable collection");
+        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+        bool isNullable  = elementType.IsNullable();
+        var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
 
-         string toInvokeMethodName = isNullable ? nameof(AddFilteredEnumerateNullable) : nameof(AddFilteredEnumerate);
+        if (!itemType.IsSpanFormattableCached()) throw new ArgumentException("Expected to receive a ISpanFormattable collection");
 
-         return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType, filterType, toInvokeMethodName);
+        if (isNullable)
+        {
+            return CreateAnyEnumblToDoubleGenericInvokerDelegate<TEnumbl, TFilterBase>
+                (enumblParamType, enumblType, elementType, nameof(AddFilteredEnumerateNullable));
+        }
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>
+            (enumblParamType, enumblType, elementType, filterType, nameof(AddFilteredEnumerate));
     }
 
     private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase> GetAddFilteredCloakedRevealer<TEnumbl, TFilterBase, TRevealBase>(
@@ -294,22 +386,22 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             CloakedInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType, filterType, revealType)
-                   , static ((Type enumblParamType, Type enumblType,  Type filterType, Type revealType) key, bool _) => 
+                   , static ((Type enumblParamType, Type enumblType, Type filterType, Type revealType) key, bool _) =>
                          CreateAddFilteredCloakedRevealerDelegate<TEnumbl, TFilterBase, TRevealBase>
                              (key.enumblParamType, key.enumblType, key.filterType, key.revealType)
                    , callAsFactory);
         return invoker;
     }
 
-    private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase> 
+    private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase>
         CreateAddFilteredCloakedRevealerDelegate<TEnumbl, TFilterBase, TRevealBase>
-        (Type enumblParamType, Type enumblType, Type filterType, Type revealType) 
-        where TEnumbl : IEnumerable? 
+        (Type enumblParamType, Type enumblType, Type filterType, Type revealType)
+        where TEnumbl : IEnumerable?
         where TRevealBase : notnull
     {
         var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-                     
-        if (!elementType.IsAssignableTo(revealType)) 
+
+        if (!elementType.IsAssignableTo(revealType))
             throw new ArgumentException($"Expected to receive a enumerable element " +
                                         $"{elementType.Name} to be equatable to {revealType.Name}");
 
@@ -344,9 +436,9 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         return (CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
     }
 
-    private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase> 
+    private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase>
         BuildAddFilteredCloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>(
-        MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
+            MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
@@ -401,34 +493,40 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             InputTypeInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType, filterType)
-                   , static ((Type enumblParamType, Type enumblType, Type filterType) key, bool _) => 
-                         CreateAddFilteredStringBearerDelegate<TEnumbl, TFilterBase>(key.enumblParamType, key.enumblType, key.filterType), callAsFactory);
+                   , static ((Type enumblParamType, Type enumblType, Type filterType) key, bool _) =>
+                         CreateAddFilteredStringBearerDelegate<TEnumbl, TFilterBase>(key.enumblParamType, key.enumblType, key.filterType)
+                   , callAsFactory);
         return invoker;
     }
 
     private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredStringBearerDelegate<TEnumbl, TFilterBase>(Type enumblParamType
-      , Type enumblType, Type filterType) 
-        where TEnumbl : IEnumerable?
-    {
-         var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-         bool isNullable  = elementType.IsNullable();
-         var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
-         
-         if (!itemType.IsStringBearer()) throw new ArgumentException("Expected to receive a IStringBearer collection");
-
-         string toInvokeMethodName = isNullable ? nameof(RevealFilteredEnumerateNullable) : nameof(RevealFilteredEnumerate);
-
-         return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType, filterType, toInvokeMethodName);
-    }
-
-    private static InputTypeInvoke<TEnumbl, TFilter> CreateAddFilteredStringDelegate<TEnumbl, TFilter>(Type enumblParamType, Type enumblType) 
+      , Type enumblType, Type filterType)
         where TEnumbl : IEnumerable?
     {
         var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-         
+        bool isNullable  = elementType.IsNullable();
+        var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
+
+        if (!itemType.IsStringBearer()) throw new ArgumentException("Expected to receive a IStringBearer collection");
+
+        if (isNullable)
+        {
+            return CreateAnyEnumblToDoubleGenericInvokerDelegate<TEnumbl, TFilterBase>
+                (enumblParamType, enumblType, elementType, nameof(RevealFilteredEnumerateNullable));
+        }
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>
+            (enumblParamType, enumblType, elementType, filterType, nameof(RevealFilteredEnumerate));
+    }
+
+    private static InputTypeInvoke<TEnumbl, TFilter> CreateAddFilteredStringDelegate<TEnumbl, TFilter>(Type enumblParamType, Type enumblType)
+        where TEnumbl : IEnumerable?
+    {
+        var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+
         if (!elementType.IsString()) throw new ArgumentException("Expected to receive a string collection");
 
-        return CreateSingleAnyToGenericeInputTypeInvokerDelegate<TEnumbl, TFilter>(enumblParamType, enumblType, typeof(string), nameof(AddFilteredEnumerateString));
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilter>(enumblParamType, enumblType, typeof(string)
+                                                                             , nameof(AddFilteredEnumerateString));
     }
 
     internal static InputTypeInvoke<TEnumbl, TFilterBase> GetAddFilteredCharSequence<TEnumbl, TFilterBase>(Type enumblType)
@@ -442,33 +540,34 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             InputTypeInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType, filterType)
-                   , static ((Type enumblParamType, Type enumblType, Type filterType) key, bool _) => 
-                         CreateAddFilteredCharSequenceDelegate<TEnumbl, TFilterBase>(key.enumblParamType, key.enumblType, key.filterType), callAsFactory);
+                   , static ((Type enumblParamType, Type enumblType, Type filterType) key, bool _) =>
+                         CreateAddFilteredCharSequenceDelegate<TEnumbl, TFilterBase>(key.enumblParamType, key.enumblType, key.filterType)
+                   , callAsFactory);
         return invoker;
     }
 
     private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredCharSequenceDelegate<TEnumbl, TFilterBase>(
-        Type enumblParamType, Type enumblType, Type filterType) 
+        Type enumblParamType, Type enumblType, Type filterType)
         where TEnumbl : IEnumerable?
     {
-        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-                         
+        var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+
         if (!elementType.IsCharSequence()) throw new ArgumentException("Expected to receive a ICharSequence collection");
 
-        return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType
-                                                                  , filterType, nameof(AddFilteredEnumerateCharSeq));
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, elementType
+                                                                                 , filterType, nameof(AddFilteredEnumerateCharSeq));
     }
 
     private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredStringBuilderDelegate<TEnumbl, TFilterBase>(
-        Type enumblParamType, Type enumblType) 
+        Type enumblParamType, Type enumblType)
         where TEnumbl : IEnumerable?
     {
-        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-         
+        var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+
         if (!elementType.IsStringBuilder()) throw new ArgumentException("Expected to receive a StringBuilder collection");
 
-        return CreateSingleAnyToGenericeInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, typeof(StringBuilder)
-                                                                                  , nameof(AddFilteredEnumerateStringBuilder));
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, typeof(StringBuilder)
+                                                                                 , nameof(AddFilteredEnumerateStringBuilder));
     }
 
     internal static InputTypeInvoke<TEnumbl, TFilterBase> GetAddFilteredMatch<TEnumbl, TFilterBase>(Type enumblType)
@@ -482,13 +581,13 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             InputTypeInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType, filterType)
-                   , static ((Type enumblParamType, Type enumblType, Type filterType) key, bool _) => 
+                   , static ((Type enumblParamType, Type enumblType, Type filterType) key, bool _) =>
                          CreateAddFilteredMatchDelegate<TEnumbl, TFilterBase>(key.enumblParamType, key.enumblType, key.filterType), callAsFactory);
         return invoker;
     }
 
     private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredMatchDelegate<TEnumbl, TFilterBase>(
-        Type enumblParamType, Type enumblType, Type filterType) 
+        Type enumblParamType, Type enumblType, Type filterType)
         where TEnumbl : IEnumerable?
     {
         var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
@@ -502,25 +601,16 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         {
             return CreateAddFilteredStringBearerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType);
         }
-        if (itemType.IsString())
-        {
-            return CreateAddFilteredStringDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType);
-        }
-        if (itemType.IsStringBuilder())
-        {
-            return CreateAddFilteredStringBuilderDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType);
-        }
+        if (itemType.IsString()) { return CreateAddFilteredStringDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType); }
+        if (itemType.IsStringBuilder()) { return CreateAddFilteredStringBuilderDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType); }
         if (itemType.IsCharSequence())
         {
             return CreateAddFilteredCharSequenceDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType);
         }
-        if (itemType.IsBool())
-        {
-            return CreateAddFilteredBoolDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType);
-        }
+        if (itemType.IsBool()) { return CreateAddFilteredBoolDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType); }
 
-        return CreateInputTypeInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType
-                                                                  , elementType, filterType, nameof(AddFilteredEnumerateMatch));
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType
+                                                                                 , elementType, filterType, nameof(AddFilteredEnumerateMatch));
     }
 
     private static InputTypeInvoke<TEnumbl, TElement, TFilterBase> GetAddFilteredBoolCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>
@@ -528,17 +618,27 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredBoolMethodInfo<TFilterBase>(typeof(TElement));
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredBoolMethodInfo<TFilterBase>(typeof(TElement));
         return enumblType.GetAddFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>(enumtrType, callEnumtrInvokeMethInf);
     }
 
-    private static InputTypeInvoke<TEnumbl, TElement, TFilterBase> GetAddFilteredSpanFormattableCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>
+    private static InputTypeInvoke<TEnumbl, TElement, TFilterBase> GetAddFilteredSpanFormattableCallStructEnumtrInvoker<
+            TEnumbl, TElement, TFilterBase>
         (this Type enumblType, Type enumtrType)
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredSpanFormattableMethodInfo<TFilterBase>(typeof(TElement));
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredSpanFormattableMethodInfo<TFilterBase>(typeof(TElement));
         return enumblType.GetAddFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>(enumtrType, callEnumtrInvokeMethInf);
+    }
+
+    private static InputTypeNullableInvoke<TEnumbl, TElement> GetAddFilteredNullableSpanFormattableCallStructEnumtrInvoker<TEnumbl, TElement>
+        (this Type enumblType, Type enumtrType)
+        where TEnumbl : IEnumerable<TElement?>?
+        where TElement : struct
+    {
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredNullableSpanFormattableMethodInfo<TElement>(typeof(TElement));
+        return enumblType.GetAddStructFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement>(enumtrType, callEnumtrInvokeMethInf);
     }
 
     private static InputTypeInvoke<TEnumbl, TElement, TFilterBase> GetAddFilteredStringBearerCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>
@@ -546,8 +646,17 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredStringBearerMethodInfo<TFilterBase>(typeof(TElement));
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredStringBearerMethodInfo<TFilterBase>(typeof(TElement));
         return enumblType.GetAddFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>(enumtrType, callEnumtrInvokeMethInf);
+    }
+
+    private static InputTypeNullableInvoke<TEnumbl, TElement> GetAddFilteredNullableStringBearerCallStructEnumtrInvoker<TEnumbl, TElement>
+        (this Type enumblType, Type enumtrType)
+        where TEnumbl : IEnumerable<TElement?>?
+        where TElement : struct
+    {
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredNullableStringBearerMethodInfo<TElement?>(typeof(TElement?));
+        return enumblType.GetAddStructFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement>(enumtrType, callEnumtrInvokeMethInf);
     }
 
     private static InputTypeInvoke<TEnumbl, TElement, TFilterBase> GetAddFilteredStringCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>
@@ -555,7 +664,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredStringMethodInfo(typeof(TElement));
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredStringMethodInfo(typeof(TElement));
         return enumblType.GetAddFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>(enumtrType, callEnumtrInvokeMethInf);
     }
 
@@ -564,7 +673,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredCharSequenceMethodInfo<TFilterBase>(typeof(TElement));
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredCharSequenceMethodInfo<TFilterBase>(typeof(TElement));
         return enumblType.GetAddFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>(enumtrType, callEnumtrInvokeMethInf);
     }
 
@@ -573,7 +682,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredMatchMethodInfo<TFilterBase>(typeof(TElement));
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredMatchMethodInfo<TFilterBase>(typeof(TElement));
         return enumblType.GetAddFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>(enumtrType, callEnumtrInvokeMethInf);
     }
 
@@ -582,7 +691,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredObjectMethodInfo(typeof(TElement), typeof(object));
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredObjectMethodInfo(typeof(TElement), typeof(object));
         return enumblType.GetAddFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>(enumtrType, callEnumtrInvokeMethInf);
     }
 
@@ -591,7 +700,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredStringBuilderMethodInfo(typeof(TElement));
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredStringBuilderMethodInfo(typeof(TElement));
         return enumblType.GetAddFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase>(enumtrType, callEnumtrInvokeMethInf);
     }
 
@@ -613,7 +722,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                                   <TEnumbl, TElement, TFilterBase>(key.enumblParamType, key.enumeratorType, key.enumtrMethInf), callAsFactory);
         return invoker;
     }
-    
+
     private static InputTypeInvoke<TEnumbl, TElement, TFilterBase> BuildAddFilteredNoRevealersCallStructEnumtr<TEnumbl, TElement, TFilterBase>
         (this Type enumblType, Type enumblParamType, Type enumeratorType, MethodInfo callEnumtrInvokeMethInf)
         where TEnumbl : IEnumerable<TElement>?
@@ -648,8 +757,8 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         // cast TEnumbl value => (enumblType)value
         ilGenerator.DeclareLocal(enumeratorType);
-        var hasValues =  ilGenerator.DeclareLocal(hasValuesType);
-        
+        var hasValues = ilGenerator.DeclareLocal(hasValuesType);
+
         ilGenerator.Emit(OpCodes.Ldloca_S, hasValues);
         ilGenerator.Emit(OpCodes.Initobj, hasValuesType);
         ilGenerator.Emit(OpCodes.Ldarg_1);
@@ -688,17 +797,110 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         return (InputTypeInvoke<TEnumbl, TElement, TFilterBase>)methodInvoker;
     }
 
+    private static InputTypeNullableInvoke<TEnumbl, TNullStruct> GetAddStructFilteredBuiltInTypeCallStructEnumtrInvoker<TEnumbl, TNullStruct>
+        (this Type enumblType, Type enumtrType, MethodInfo enumeratorMethodInf)
+        where TEnumbl : IEnumerable<TNullStruct?>?
+        where TNullStruct : struct
+    {
+        var enumblParamType = typeof(TEnumbl);
+        var callAsFactory   = true;
+        var invoker =
+            (InputTypeNullableInvoke<TEnumbl, TNullStruct>)
+            InputTypeNullableStructCallStructEnumeratorCache
+                .GetOrAdd((enumblParamType, enumblType, enumtrType, enumeratorMethodInf)
+                        , static ((Type enumblParamType, Type enumblType, Type enumeratorType, MethodInfo enumtrMethInf) key
+                                , bool _) =>
+                              key.enumblType.BuildNullableStructAddFilteredNoRevealersCallStructEnumtr
+                                  <TEnumbl, TNullStruct>(key.enumblParamType, key.enumeratorType, key.enumtrMethInf), callAsFactory);
+        return invoker;
+    }
+
+    private static InputTypeNullableInvoke<TEnumbl, TElementStruct> BuildNullableStructAddFilteredNoRevealersCallStructEnumtr<TEnumbl, TElementStruct>
+        (this Type enumblType, Type enumblParamType, Type enumeratorType, MethodInfo callEnumtrInvokeMethInf)
+        where TEnumbl : IEnumerable<TElementStruct?>?
+        where TElementStruct : struct
+    {
+        var requiresCast     = enumblParamType != enumblType;
+        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
+
+        var enumtrInvokeParams       = callEnumtrInvokeMethInf.GetParameters();
+        var boolRequiresNullableCast = enumtrInvokeParams[1].ParameterType.IsNullable() && !enumeratorType.IsNullable();
+
+        using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
+        methodParamTypes[0] = typeof(ICollectionMoldWriteState);
+        methodParamTypes[1] = enumblParamType;
+        methodParamTypes[2] = typeof(OrderedCollectionPredicate<TElementStruct?>);
+        methodParamTypes[3] = typeof(string);
+        methodParamTypes[4] = typeof(FormatFlags);
+
+        var hasValuesType = typeof(bool?);
+
+        var helperMethod =
+            new DynamicMethod
+                ($"{enumblType.Name}_DynamicNoRevealersNoNullableStructInvoke_{enumblType.Name}", null,
+                 methodParamTypes.AsArray
+               , typeof(OrderedCollectionAddFilteredEnumerateExtensions).Module, false);
+        var ilGenerator = helperMethod.GetILGenerator();
+        // Make space for enumblType  and enumeratorType and if required Nullable<enumeratorType> local variables
+        var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
+        ilGenerator.DeclareLocal(enumeratorType);
+        LocalBuilder? castEnumtrToNullable = null;
+        if (boolRequiresNullableCast) { castEnumtrToNullable = ilGenerator.DeclareLocal(typeof(Nullable<>).MakeGenericType(enumeratorType)); }
+
+        // cast TEnumbl value => (enumblType)value
+        ilGenerator.DeclareLocal(enumeratorType);
+        var hasValues = ilGenerator.DeclareLocal(hasValuesType);
+
+        ilGenerator.Emit(OpCodes.Ldloca_S, hasValues);
+        ilGenerator.Emit(OpCodes.Initobj, hasValuesType);
+        ilGenerator.Emit(OpCodes.Ldarg_1);
+        if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
+        else if (requiresCast) { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
+        ilGenerator.Emit(OpCodes.Stloc_0);
+
+        var getEnumtrMethInf = enumblLocalType.LocalType.GetEnumeratorMethodInfo() ??
+                               throw new ArgumentException("Enumerable does not have a public instance GetEnumerator!");
+
+        // enumblType value => value.GetEnumerator()
+        ilGenerator.Emit(OpCodes.Ldloc_0);
+        ilGenerator.Emit(OpCodes.Callvirt, getEnumtrMethInf);
+        ilGenerator.Emit(OpCodes.Stloc_1);
+
+        if (castEnumtrToNullable != null)
+        {
+            // enumeratorType valueEnumtr => Nullable<enumeratorType>
+            ilGenerator.Emit(OpCodes.Ldloca_S, 2);
+            var createNullableConstructor = castEnumtrToNullable.LocalType.GetConstructor([enumeratorType])!;
+            ilGenerator.Emit(OpCodes.Ldloc_1);
+            ilGenerator.Emit(OpCodes.Call, createNullableConstructor);
+        }
+
+        // call AddFilteredIterateValueRevealer(KeyedCollectionMold, TEnumtr, valueRevealer, keyFmtStr, valueFmtStr, FormatFlags)
+        ilGenerator.Emit(OpCodes.Ldarg_0);
+        ilGenerator.Emit(boolRequiresNullableCast ? OpCodes.Ldloc_2 : OpCodes.Ldloc_1);
+        ilGenerator.Emit(OpCodes.Ldarg_2);
+        ilGenerator.Emit(OpCodes.Ldarg_3);
+        ilGenerator.Emit(OpCodes.Ldarg_S, 4);
+        ilGenerator.Emit(OpCodes.Ldloc, hasValues);
+        ilGenerator.Emit(OpCodes.Call, callEnumtrInvokeMethInf);
+
+        ilGenerator.Emit(OpCodes.Ret);
+        var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeNullableInvoke<TEnumbl, TElementStruct>));
+        return (InputTypeNullableInvoke<TEnumbl, TElementStruct>)methodInvoker;
+    }
+
     private static CloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase> GetAddFilteredCloakedRevealerCallStructEnumtrInvoker
         <TEnumbl, TElement, TFilterBase, TRevealBase>(this Type enumblType, Type enumtrType)
         where TEnumbl : IEnumerable<TElement>?
         where TElement : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredCloakedRevealerMethodInfo<TFilterBase, TRevealBase>(typeof(TElement));
-        return enumblType.GetAddFilteredCloakedRevealerCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>(enumtrType, callEnumtrInvokeMethInf);
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredCloakedRevealerMethodInfo<TFilterBase, TRevealBase>(typeof(TElement));
+        return enumblType
+            .GetAddFilteredCloakedRevealerCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>(enumtrType, callEnumtrInvokeMethInf);
     }
 
-    private static CloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase> 
+    private static CloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>
         GetAddFilteredCloakedRevealerCallStructEnumtrInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>
         (this Type enumblType, Type enumtrType, MethodInfo enumeratorMethodInf)
         where TEnumbl : IEnumerable<TElement>?
@@ -719,7 +921,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                                   (key.enumblParamType, key.enumeratorType, key.enumtrMethInf), callAsFactory);
         return invoker;
     }
-    
+
     private static CloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase> BuildAddFilteredCloakedRevealerCallStructEnumtr
         <TEnumbl, TElement, TFilterBase, TRevealBase>
         (this Type enumblType, Type enumblParamType, Type enumeratorType, MethodInfo callEnumtrInvokeMethInf)
@@ -757,8 +959,8 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         // cast TEnumbl value => (enumblType)value
         ilGenerator.DeclareLocal(enumeratorType);
-        var hasValues =  ilGenerator.DeclareLocal(hasValuesType);
-        
+        var hasValues = ilGenerator.DeclareLocal(hasValuesType);
+
         ilGenerator.Emit(OpCodes.Ldloca_S, hasValues);
         ilGenerator.Emit(OpCodes.Initobj, hasValuesType);
         ilGenerator.Emit(OpCodes.Ldarg_1);
@@ -803,7 +1005,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         where TEnumbl : IEnumerable<TElement?>?
         where TElement : struct
     {
-        var callEnumtrInvokeMethInf  = enumtrType.GetAddFilteredNullableCloakedRevealerMethodInfo<TElement>(typeof(TElement?));
+        var callEnumtrInvokeMethInf = enumtrType.GetAddFilteredNullableCloakedRevealerMethodInfo<TElement>(typeof(TElement?));
         return enumblType.GetAddFilteredNullableCloakedRevealerCallStructEnumtrInvoker<TEnumbl, TElement>(enumtrType, callEnumtrInvokeMethInf);
     }
 
@@ -819,14 +1021,15 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             (NullableCloakedRevealerInvoker<TEnumbl, TElement>)
             InputTypeCallStructEnumeratorCache
                 .GetOrAdd((enumblParamType, enumblType, enumtrType, filterType, enumeratorMethodInf)
-                        , static ((Type enumblParamType, Type enumblType, Type enumeratorType, Type filterType, MethodInfo enumtrMethInf) key, bool _) =>
+                        , static ((Type enumblParamType, Type enumblType, Type enumeratorType, Type filterType, MethodInfo enumtrMethInf) key
+                                , bool _) =>
                               key.enumblType.BuildAddFilteredNullableCloakedRevealerCallStructEnumtr
                                   <TEnumbl, TElement>(key.enumblParamType, key.enumeratorType, key.enumtrMethInf), callAsFactory);
         return invoker;
     }
-    
+
     private static NullableCloakedRevealerInvoker<TEnumbl, TElement> BuildAddFilteredNullableCloakedRevealerCallStructEnumtr<TEnumbl, TElement>(
-            this Type enumblType, Type enumblParamType, Type enumeratorType, MethodInfo callEnumtrInvokeMethInf)
+        this Type enumblType, Type enumblParamType, Type enumeratorType, MethodInfo callEnumtrInvokeMethInf)
         where TEnumbl : IEnumerable<TElement?>?
         where TElement : struct
     {
@@ -860,8 +1063,8 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         // cast TEnumbl value => (enumblType)value
         ilGenerator.DeclareLocal(enumeratorType);
-        var hasValues =  ilGenerator.DeclareLocal(hasValuesType);
-        
+        var hasValues = ilGenerator.DeclareLocal(hasValuesType);
+
         ilGenerator.Emit(OpCodes.Ldloca_S, hasValues);
         ilGenerator.Emit(OpCodes.Initobj, hasValuesType);
         ilGenerator.Emit(OpCodes.Ldarg_1);
@@ -903,7 +1106,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
     private static MethodInfo GetStaticMethodInfo(string findMethodName, Type[] findGenericParams, params Type[] findParamTypes)
     {
-        myMethodInfosCached ??= typeof(OrderedCollectionAddFilteredEnumerateExtensions).GetMethods( NonPublic | Public | Static);
+        myMethodInfosCached ??= typeof(OrderedCollectionAddFilteredEnumerateExtensions).GetMethods(NonPublic | Public | Static);
 
         MethodInfo? genTypeDefMeth = null;
 
@@ -999,9 +1202,9 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = 
+                    valueMold =
                         mws.Master.GetTrackedInstanceMold
                             (value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
                            , formatFlags.RemoveEmbeddedContentFlags());
@@ -1016,7 +1219,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredBoolCallStructEnumtrInvoker<TEnumbl, bool, bool>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
@@ -1044,10 +1247,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -1104,9 +1304,9 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = 
+                    valueMold =
                         mws.Master.GetTrackedInstanceMold
                             (value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
                            , formatFlags.RemoveEmbeddedContentFlags());
@@ -1121,7 +1321,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredBoolCallStructEnumtrInvoker<TEnumbl, bool?, bool?>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
@@ -1149,10 +1349,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -1169,7 +1366,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerate<TEnumbl, TFmtBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFmtBase> filterPredicate  
+      , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable
@@ -1187,12 +1384,12 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerate<TEnumbl, TFmtBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFmtBase> filterPredicate  
+      , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable?
     {
-        var actualType = value?.GetType() ?? typeof(TEnumbl);
+        var actualType         = value?.GetType() ?? typeof(TEnumbl);
         var callGenericInvoker = GetAddFilteredSpanFormattable<TEnumbl, TFmtBase>(actualType);
         callGenericInvoker(mws, value, filterPredicate, formatString, formatFlags);
     }
@@ -1200,7 +1397,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFmtBase> filterPredicate  
+      , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TFmt>
@@ -1219,7 +1416,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFmtBase> filterPredicate  
+      , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TFmt>?
@@ -1242,9 +1439,9 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = 
+                    valueMold =
                         mws.Master.GetTrackedInstanceMold
                             (value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
                            , formatFlags.RemoveEmbeddedContentFlags());
@@ -1259,7 +1456,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredSpanFormattableCallStructEnumtrInvoker<TEnumbl, TFmt, TFmtBase>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
@@ -1287,10 +1484,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -1307,7 +1501,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFmtStruct?> filterPredicate  
+      , OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TFmtStruct?>
@@ -1326,7 +1520,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFmtStruct?> filterPredicate  
+      , OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TFmtStruct?>?
@@ -1349,9 +1543,9 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = 
+                    valueMold =
                         mws.Master.GetTrackedInstanceMold
                             (value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
                            , formatFlags.RemoveEmbeddedContentFlags());
@@ -1366,8 +1560,8 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
-                    actualType.GetAddFilteredSpanFormattableCallStructEnumtrInvoker<TEnumbl, TFmtStruct?, TFmtStruct?>(enumeratorType);
+                var structEnumtrInvoker =
+                    actualType.GetAddFilteredNullableSpanFormattableCallStructEnumtrInvoker<TEnumbl, TFmtStruct>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
                 valueMold?.Complete();
@@ -1394,10 +1588,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.AppendFormattedCollectionItem(item, itemCount, formatString, formatFlags | FormatFlags.AsCollection);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -1414,7 +1605,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void RevealFilteredEnumerate<TEnumbl, TFilterBase, TRevealBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1434,7 +1625,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void RevealFilteredEnumerate<TEnumbl, TFilterBase, TRevealBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1449,17 +1640,18 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TCloaked>
-        where TCloaked : TRevealBase?
+        where TCloaked : TFilterBase?, TRevealBase?
         where TRevealBase : notnull
     {
         if (value != null)
         {
-            mws.RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(value.Value,  filterPredicate, palantírReveal, formatString, formatFlags);
+            mws.RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>
+                (value.Value, filterPredicate, palantírReveal, formatString , formatFlags);
             return;
         }
         var elementType = typeof(TRevealBase);
@@ -1470,7 +1662,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(
         this ICollectionMoldWriteState mws,
         TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1495,9 +1687,9 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = 
+                    valueMold =
                         mws
                             .Master
                             .GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags()
@@ -1510,11 +1702,11 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                         return;
                     }
                     mws.InnerSameAsOuterType = true;
-                    
+
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredCloakedRevealerCallStructEnumtrInvoker<TEnumbl, TCloaked, TFilterBase, TRevealBase>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, palantírReveal, formatString, formatFlags);
@@ -1541,10 +1733,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -1605,9 +1794,9 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = 
+                    valueMold =
                         mws
                             .Master
                             .GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags()
@@ -1620,11 +1809,11 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                         return;
                     }
                     mws.InnerSameAsOuterType = true;
-                    
+
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredNullableCloakedRevealerCallStructEnumtrInvoker<TEnumbl, TCloakedStruct>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, palantírReveal, formatString, formatFlags);
@@ -1651,10 +1840,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -1671,7 +1857,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void RevealFilteredEnumerate<TEnumbl, TFilterBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable
@@ -1689,7 +1875,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void RevealFilteredEnumerate<TEnumbl, TFilterBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable?
@@ -1702,11 +1888,11 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void RevealFilteredEnumerate<TEnumbl, TBearer, TFilterBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TBearer>
-        where TBearer : IStringBearer?
+        where TBearer : TFilterBase?, IStringBearer?
     {
         if (value != null)
         {
@@ -1721,7 +1907,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void RevealFilteredEnumerate<TEnumbl, TBearer, TFilterBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TFilterBase> filterPredicate  
+      , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TBearer>?
@@ -1744,11 +1930,11 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = 
+                    valueMold =
                         mws.Master
-                           .GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection 
+                           .GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
                                                  , formatFlags.RemoveEmbeddedContentFlags());
 
                     if (valueMold.ShouldSuppressBody)
@@ -1761,7 +1947,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredStringBearerCallStructEnumtrInvoker<TEnumbl, TBearer, TFilterBase>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
@@ -1788,10 +1974,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -1808,7 +1991,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void RevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate  
+      , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TBearerStruct?>
@@ -1850,9 +2033,10 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
+                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags()
+                                                                , AsSimple | WrittenAsFlags.AsCollection
                                                                 , formatFlags.RemoveEmbeddedContentFlags());
 
                     if (valueMold.ShouldSuppressBody)
@@ -1865,8 +2049,8 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
-                    actualType.GetAddFilteredStringBearerCallStructEnumtrInvoker<TEnumbl, TBearerStruct?, TBearerStruct?>(enumeratorType);
+                var structEnumtrInvoker =
+                    actualType.GetAddFilteredNullableStringBearerCallStructEnumtrInvoker<TEnumbl, TBearerStruct>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
                 valueMold?.Complete();
@@ -1892,10 +2076,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -1912,7 +2093,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateString<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<string> filterPredicate  
+      , OrderedCollectionPredicate<string> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<string?>
@@ -1930,7 +2111,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateString<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<string> filterPredicate  
+      , OrderedCollectionPredicate<string> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<string?>?
@@ -1952,9 +2133,10 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
+                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags()
+                                                                , AsSimple | WrittenAsFlags.AsCollection
                                                                 , formatFlags.RemoveEmbeddedContentFlags());
 
                     if (valueMold.ShouldSuppressBody)
@@ -1967,7 +2149,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredStringCallStructEnumtrInvoker<TEnumbl, string?, string>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
@@ -1995,10 +2177,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -2015,7 +2194,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate  
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable
@@ -2033,7 +2212,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate  
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable?
@@ -2046,7 +2225,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate  
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TCharSeq>
@@ -2065,13 +2244,12 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate  
+      , OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : TCharSeqBase?, ICharSequence?
     {
-        
         var actualType = value?.GetType() ?? typeof(IEnumerable<TCharSeq>);
         if (mws.HasSkipBody(actualType, "", formatFlags))
         {
@@ -2089,11 +2267,11 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
                     valueMold = mws.Master.GetTrackedInstanceMold
                         (value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
-                                                                , formatFlags.RemoveEmbeddedContentFlags());
+                       , formatFlags.RemoveEmbeddedContentFlags());
 
                     if (valueMold.ShouldSuppressBody)
                     {
@@ -2105,7 +2283,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredCharSequenceCallStructEnumtrInvoker<TEnumbl, TCharSeq, TCharSeqBase>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
@@ -2133,10 +2311,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -2153,7 +2328,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateStringBuilder<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<StringBuilder> filterPredicate  
+      , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<StringBuilder?>
@@ -2171,7 +2346,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateStringBuilder<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<StringBuilder> filterPredicate  
+      , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<StringBuilder?>?
@@ -2193,9 +2368,10 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
+                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags()
+                                                                , AsSimple | WrittenAsFlags.AsCollection
                                                                 , formatFlags.RemoveEmbeddedContentFlags());
 
                     if (valueMold.ShouldSuppressBody)
@@ -2208,7 +2384,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredStringBuilderCallStructEnumtrInvoker<TEnumbl, StringBuilder?, StringBuilder>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
@@ -2236,10 +2412,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.AppendFormattedCollectionItemOrNull(item, itemCount, formatString, formatFlags);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -2256,7 +2429,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateMatch<TEnumbl, TAnyBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TAnyBase> filterPredicate  
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable
@@ -2274,7 +2447,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateMatch<TEnumbl, TAnyBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TAnyBase> filterPredicate  
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable?
@@ -2287,7 +2460,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TAnyBase> filterPredicate  
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TAny>
@@ -2306,7 +2479,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
     public static void AddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<TAnyBase> filterPredicate  
+      , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TAny>?
@@ -2329,9 +2502,10 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
+                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags()
+                                                                , AsSimple | WrittenAsFlags.AsCollection
                                                                 , formatFlags.RemoveEmbeddedContentFlags());
 
                     if (valueMold.ShouldSuppressBody)
@@ -2344,7 +2518,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredMatchCallStructEnumtrInvoker<TEnumbl, TAny, TAnyBase>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
@@ -2372,10 +2546,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
@@ -2388,12 +2559,12 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         mws.ConditionalCollectionSuffix(valueMold, elementType, itemCount, collectionItems, formatString, formatFlags);
         if (mws.SupportsMultipleFields) { mws.AppendGoToNex(); }
     }
-    
+
     [CallsObjectToString]
     public static void AddFilteredEnumerateObject<TEnumbl>(
         this ICollectionMoldWriteState mws
       , TEnumbl? value
-      , OrderedCollectionPredicate<object> filterPredicate  
+      , OrderedCollectionPredicate<object> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<object?>
@@ -2434,9 +2605,10 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
             var enumeratorType = actualType.GetEnumeratorType();
             if (enumeratorType?.IsValueType ?? false)
             {
-                if(!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
+                if (!actualType.IsValueType && !mws.BuildingInstanceEquals(value))
                 {
-                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags(), AsSimple | WrittenAsFlags.AsCollection
+                    valueMold = mws.Master.GetTrackedInstanceMold(value, formatFlags.RemoveEmbeddedContentFlags()
+                                                                , AsSimple | WrittenAsFlags.AsCollection
                                                                 , formatFlags.RemoveEmbeddedContentFlags());
 
                     if (valueMold.ShouldSuppressBody)
@@ -2445,11 +2617,11 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                         return;
                     }
                     mws.InnerSameAsOuterType = true;
-                    
+
                     formatFlags |= AsEmbeddedContent;
                 }
                 mws.DisplayAsType = actualType;
-                var structEnumtrInvoker = 
+                var structEnumtrInvoker =
                     actualType.GetAddFilteredObjectCallStructEnumtrInvoker<TEnumbl, object?, object>(enumeratorType);
                 // ReSharper disable once GenericEnumeratorNotDisposed
                 structEnumtrInvoker(mws, value, filterPredicate, formatString, formatFlags);
@@ -2477,10 +2649,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, formatFlags);
                     any       = true;
-                    if (valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    if (valueMold?.ShouldSuppressBody == true) { break; }
                 }
                 mws.AppendFormattedCollectionItemMatchOrNull(item, itemCount, formatString, formatFlags);
                 mws.GoToNextCollectionItemStart(elementType, itemCount++);
