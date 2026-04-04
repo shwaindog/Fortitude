@@ -71,6 +71,9 @@ public interface IMoldWriteState : IRecyclableObject, ITransferState
 
     bool HasSkipBody(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
+    
+    TypeMolder WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
+      , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
 
     bool HasSkipField(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
@@ -113,7 +116,7 @@ public interface IMoldWriteState<out T> : IMigratableMoldWriteState where T : Ty
 {
     new T Mold { get; }
 
-    T WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
+    new T WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags);
 }
 
@@ -376,6 +379,9 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
     [DebuggerStepThrough]
     public virtual bool HasSkipField(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags) => SkipFields;
+
+    TypeMolder IMoldWriteState.WasSkipped(Type actualType, ReadOnlySpan<char> fieldName, FormatFlags formatFlags) => 
+        WasSkipped(actualType, fieldName, formatFlags);
 
     public virtual TExt WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)

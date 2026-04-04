@@ -1460,7 +1460,7 @@ public readonly struct CharSeqOrEnumeratorStructUnion : IStringBearer
                                   ReusableWrappingEnumerator<ICharSequence?>?
                                 , ICharSequence?
                                 , ICharSequence
-                              >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -1484,7 +1484,7 @@ public readonly struct CharSeqOrEnumeratorStructUnion : IStringBearer
                            ReusableWrappingEnumerator<ICharSequence?>?
                          , ICharSequence?
                          , ICharSequence
-                       >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -1515,7 +1515,7 @@ public readonly struct CharSeqOrEnumeratorStructUnion : IStringBearer
         return tos
                .StartComplexCollectionType(this)
                .AddAllCharSeqIterate<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>
-                   (itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                   (itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
@@ -1647,7 +1647,7 @@ public class CharSeqOrEnumeratorClassUnion : IStringBearer
                                   ReusableWrappingEnumerator<ICharSequence?>?
                                 , ICharSequence?
                                 , ICharSequence
-                              >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -1671,7 +1671,7 @@ public class CharSeqOrEnumeratorClassUnion : IStringBearer
                            ReusableWrappingEnumerator<ICharSequence?>?
                          , ICharSequence?
                          , ICharSequence
-                       >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
@@ -1702,7 +1702,7 @@ public class CharSeqOrEnumeratorClassUnion : IStringBearer
         return tos
                .StartComplexCollectionType(this)
                .AddAllCharSeqIterate<ReusableWrappingEnumerator<ICharSequence?>?, ICharSequence?>
-                   (itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                   (itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .Complete();

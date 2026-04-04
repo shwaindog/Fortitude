@@ -2734,7 +2734,7 @@ public readonly struct SpanFormattableOrEnumeratorStructUnion<TFmt, TFmtRevealer
                                   ReusableWrappingEnumerator<TFmt>?
                                 , TFmt
                                 , TFmtRevealer
-                              >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -2758,7 +2758,7 @@ public readonly struct SpanFormattableOrEnumeratorStructUnion<TFmt, TFmtRevealer
                            ReusableWrappingEnumerator<TFmt>?
                          , TFmt
                          , TFmtRevealer
-                       >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -2787,7 +2787,7 @@ public readonly struct SpanFormattableOrEnumeratorStructUnion<TFmt, TFmtRevealer
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllIterate<ReusableWrappingEnumerator<TFmt>?, TFmt>(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .AddAllIterate<ReusableWrappingEnumerator<TFmt>?, TFmt>(itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
@@ -2959,7 +2959,7 @@ public readonly struct NullableStructSpanFormattableOrEnumeratorStructUnion<TFmt
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
                     return tos.StartSimpleCollectionType(this)
-                              .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -2979,7 +2979,7 @@ public readonly struct NullableStructSpanFormattableOrEnumeratorStructUnion<TFmt
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -3015,7 +3015,7 @@ public readonly struct NullableStructSpanFormattableOrEnumeratorStructUnion<TFmt
                .AddAllIterateNullable<
                    ReusableWrappingEnumerator<TFmtStruct?>?
                  , TFmtStruct
-               >(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               >(itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();
@@ -3153,7 +3153,7 @@ public class SpanFormattableOrEnumeratorClassUnion<TFmt, TFmtRevealer> : IString
                                   ReusableWrappingEnumerator<TFmt>?
                                 , TFmt
                                 , TFmtRevealer
-                              >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -3177,7 +3177,7 @@ public class SpanFormattableOrEnumeratorClassUnion<TFmt, TFmtRevealer> : IString
                            ReusableWrappingEnumerator<TFmt>?
                          , TFmt
                          , TFmtRevealer
-                       >(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       >(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .Complete();
@@ -3206,7 +3206,7 @@ public class SpanFormattableOrEnumeratorClassUnion<TFmt, TFmtRevealer> : IString
                        .Complete();
         return tos
                .StartComplexCollectionType(this)
-               .AddAllIterate<ReusableWrappingEnumerator<TFmt>?, TFmt>(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               .AddAllIterate<ReusableWrappingEnumerator<TFmt>?, TFmt>(itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .Complete();
@@ -3341,7 +3341,7 @@ public class NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct> : I
                         return tos.StartSimpleContentType(this).RevealAsString(item, itemRevealer).Complete();
                 else
                     return tos.StartSimpleCollectionType(this)
-                              .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                              .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                               .Complete();
             else if (isItem)
                 if (isValue)
@@ -3361,7 +3361,7 @@ public class NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct> : I
             else
                 return tos
                        .StartComplexCollectionType(this)
-                       .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+                       .RevealAllIterateNullable(itemCollectionEnumerator, itemRevealer, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                        .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                        .Complete();
@@ -3397,7 +3397,7 @@ public class NullableStructSpanFormattableOrEnumeratorClassUnion<TFmtStruct> : I
                .AddAllIterateNullable<
                    ReusableWrappingEnumerator<TFmtStruct?>?
                  , TFmtStruct
-               >(itemCollectionEnumerator, null, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
+               >(itemCollectionEnumerator, null, isValue ? DefaultCallerTypeFlags : AsStringContent)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(LogComplexOnlyStaticInstance), LogComplexOnlyStaticInstance)
                .LogOnlyKeyedCollectionField.AlwaysAddAll(nameof(logComplexOnlyInstance), logComplexOnlyInstance)
                .Complete();

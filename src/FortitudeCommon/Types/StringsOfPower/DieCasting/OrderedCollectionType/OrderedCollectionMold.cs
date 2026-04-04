@@ -54,5 +54,10 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>
         }
     }
 
+    public void BeforeFirstElementWriteFieldName(string fieldName)
+    {
+        mws.BeforeFirstItemFieldName = fieldName;
+    }
+
     protected virtual CollectionMoldWriteState<TOCMold> CompAsOrderedCollectionMold => (CollectionMoldWriteState<TOCMold>)MoldStateField;
 }

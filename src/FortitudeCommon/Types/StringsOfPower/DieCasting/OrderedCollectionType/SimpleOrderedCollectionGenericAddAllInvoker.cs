@@ -16,14 +16,14 @@ public static class SimpleOrderedCollectionGenericAddAllInvoker
     private static readonly ConcurrentDictionary<Type, Delegate> CallCollAddAll            = new();
 
     private const string AddAllMethodName                               = $"{nameof(SimpleOrderedCollectionMold.AddAll)}";
-    private const string AddAllEnumerateMethodName                      = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerate)}";
-    private const string AddAllIterateMethodName                        = $"{nameof(SimpleOrderedCollectionMold.AddAllIterate)}";
+    private const string AddAllEnumerateMethodName                      = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerateBool)}";
+    private const string AddAllIterateMethodName                        = $"{nameof(SimpleOrderedCollectionMold.AddAllIterateBool)}";
     private const string AddAllStringEnumerateMethodName        = $"{nameof(SimpleOrderedCollectionMold.AddAllStringEnumerate)}";
     private const string AddAllStringIterateMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllStringIterate)}";
     private const string AddAllStringBuilderEnumerateMethodName = $"{nameof(SimpleOrderedCollectionMold.AddAllStringBuilderEnumerate)}";
     private const string AddAllStringBuilderIterateMethodName   = $"{nameof(SimpleOrderedCollectionMold.AddAllStringBuilderIterate)}";
-    private const string AddAllEnumerateNullableMethodName              = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerateNullable)}";
-    private const string AddAllIterateNullableMethodName                = $"{nameof(SimpleOrderedCollectionMold.AddAllIterateNullable)}";
+    private const string AddAllEnumerateNullableMethodName              = $"{nameof(SimpleOrderedCollectionMold.AddAllEnumerateNullableBool)}";
+    private const string AddAllIterateNullableMethodName                = $"{nameof(SimpleOrderedCollectionMold.AddAllIterateNullableBool)}";
     private const string AddAllCharSequenceMethodName                   = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeq)}";
     private const string AddAllCharSequenceEnumerateMethodName          = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeqEnumerate)}";
     private const string AddAllCharSequenceIterateMethodName            = $"{nameof(SimpleOrderedCollectionMold.AddAllCharSeqIterate)}";

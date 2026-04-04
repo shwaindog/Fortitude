@@ -176,7 +176,7 @@ public class OrderedFromBoolEnumerableAddAllSimpleOrderedCollectionStringBearer 
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerate(OrderedCollectionAddAllBoolEnumerable
+           .AddAllEnumerateBool(OrderedCollectionAddAllBoolEnumerable
                           , ValueFormatString, FormattingFlags)
            .Complete();
 }
@@ -195,7 +195,7 @@ public class OrderedFromNullableBoolEnumerableAddAllSimpleOrderedCollectionStrin
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllEnumerateNullable(OrderedCollectionAddAllNullableBoolEnumerable
+           .AddAllEnumerateNullableBool(OrderedCollectionAddAllNullableBoolEnumerable
                                   , ValueFormatString, FormattingFlags)
            .Complete();
 }
@@ -214,11 +214,7 @@ public class OrderedFromBoolEnumeratorAddAllSimpleOrderedCollectionStringBearer 
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllIterate
-               (OrderedCollectionAddAllBoolEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+           .AddAllIterateBool(OrderedCollectionAddAllBoolEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -236,11 +232,7 @@ public class OrderedFromNullableBoolEnumeratorAddAllSimpleOrderedCollectionStrin
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllIterateNullable
-               (OrderedCollectionAddAllNullableBoolEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+           .AddAllIterateNullableBool(OrderedCollectionAddAllNullableBoolEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -470,11 +462,7 @@ public class OrderedFromSpanFormattableEnumeratorAddAllSimpleOrderedCollectionSt
 
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
-           .AddAllIterate<IEnumerator<TFmt>?, TFmt>
-               (OrderedCollectionAddAllSpanFormattableEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+           .AddAllIterate<IEnumerator<TFmt>?, TFmt>(OrderedCollectionAddAllSpanFormattableEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -538,10 +526,7 @@ public class OrderedFromNullableSpanFormattableEnumeratorAddAllSimpleOrderedColl
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddAllIterateNullable<IEnumerator<TFmtStruct?>?, TFmtStruct>
-               (OrderedCollectionAddAllNullableSpanFormattableEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionAddAllNullableSpanFormattableEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -617,7 +602,7 @@ public class OrderedFromCloakedBearerSpanRevealAllSimpleOrderedCollectionStringB
                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerNullableSpanRevealAllSimpleOrderedCollectionStringBearer<TCloaked, TRevealBase>
     : RevealerCollectionMoldScaffold<TCloaked?, TRevealBase, TCloaked?[]?>
-    where TCloaked : class?, TRevealBase?
+    where TCloaked : TRevealBase?
     where TRevealBase : notnull
 {
     public TCloaked?[]? OrderedCollectionRevealAllCloakedBearerNullableSpan
@@ -834,11 +819,7 @@ public class OrderedFromCloakedBearerEnumeratorRevealAllSimpleOrderedCollectionS
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealAllIterate<IEnumerator<TCloaked>?, TCloaked, TRevealBase>
-               (OrderedCollectionRevealAllCloakedBearerEnumerator
-              , ValueRevealer
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionRevealAllCloakedBearerEnumerator, ValueRevealer, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -859,11 +840,7 @@ public class OrderedFromNullableCloakedBearerEnumeratorRevealAllSimpleOrderedCol
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealAllIterateNullable
-               (OrderedCollectionRevealAllNullableCloakedBearerEnumerator
-              , ValueRevealer
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionRevealAllNullableCloakedBearerEnumerator, ValueRevealer, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -934,7 +911,7 @@ public class OrderedFromStringBearerSpanRevealAllSimpleOrderedCollectionStringBe
                 | AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromStringBearerNullableSpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>
     : FormattedCollectionMoldScaffold<TBearer?, TBearer?[]>
-    where TBearer : class, IStringBearer
+    where TBearer : IStringBearer
 {
     public TBearer?[]? OrderedCollectionRevealAllStringBearerNullableSpan
     {
@@ -997,7 +974,7 @@ public class OrderedFromStringBearerReadOnlySpanRevealAllSimpleOrderedCollection
                   AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromStringBearerNullableReadOnlySpanRevealAllSimpleOrderedCollectionStringBearer<TBearer>
     : FormattedCollectionMoldScaffold<TBearer?, TBearer?[]>
-    where TBearer : class, IStringBearer
+    where TBearer : IStringBearer
 {
     public TBearer?[]? OrderedCollectionRevealAllStringBearerNullableReadOnlySpan
     {
@@ -1135,10 +1112,7 @@ public class OrderedFromStringBearerEnumeratorRevealAllSimpleOrderedCollectionSt
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealAllIterate<IEnumerator<TBearer>?, TBearer>
-               (OrderedCollectionRevealAllStringBearerEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionRevealAllStringBearerEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1158,10 +1132,7 @@ public class OrderedFromNullableStringBearerEnumeratorRevealAllSimpleOrderedColl
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .RevealAllIterateNullable<IEnumerator<TBearerStruct?>?, TBearerStruct>
-               (OrderedCollectionRevealAllNullableStringBearerEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionRevealAllNullableStringBearerEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1325,10 +1296,7 @@ public class OrderedFromStringEnumeratorAddAllSimpleOrderedCollectionStringBeare
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddAllStringIterate
-               (OrderedCollectionAddAllStringEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionAddAllStringEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1451,10 +1419,7 @@ public class OrderedFromCharSequenceEnumeratorAddAllSimpleOrderedCollectionStrin
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddAllCharSeqIterate<IEnumerator<TCharSeq>?, TCharSeq>
-               (OrderedCollectionAddAllCharSequenceEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionAddAllCharSequenceEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1622,10 +1587,7 @@ public class OrderedFromStringBuilderEnumeratorAddAllSimpleOrderedCollectionStri
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddAllStringBuilderIterate
-               (OrderedCollectionAddAllStringBuilderEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionAddAllStringBuilderEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1785,10 +1747,7 @@ public class OrderedFromMatchEnumeratorAddAllSimpleOrderedCollectionStringBearer
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddAllMatchIterate<IEnumerator<TAny>?, TAny>
-               (OrderedCollectionAddAllMatchEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionAddAllMatchEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }
 
@@ -1948,9 +1907,6 @@ public class OrderedFromObjectEnumeratorAddAllSimpleOrderedCollectionStringBeare
     public override AppendSummary RevealState(ITheOneString tos) =>
         tos.StartSimpleCollectionType(this)
            .AddAllObjectIterate
-               (OrderedCollectionAddAllObjectEnumerator
-              , null
-              , ValueFormatString
-              , FormattingFlags)
+               (OrderedCollectionAddAllObjectEnumerator, ValueFormatString, FormattingFlags)
            .Complete();
 }

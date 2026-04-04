@@ -210,6 +210,7 @@ public static class FieldContentHandlingExtensions
     public static bool DoesNotHaveAsEmbeddedContentFlags(this FormatFlags flags)         => (flags & AsEmbeddedContent) != AsEmbeddedContent;
 
     public static FormatFlags RemoveEmbeddedContentFlags(this FormatFlags flags) => (flags & ~AsEmbeddedContent);
+    public static FormatFlags RemoveUnsuppressOpenCloseFlags(this FormatFlags flags) => (flags & ~(SuppressOpening | SuppressClosing));
 
     public static bool HasAllOf(this FormatFlags flags, FormatFlags checkAllFound)    => (flags & checkAllFound) == checkAllFound;
     public static bool HasNoneOf(this FormatFlags flags, FormatFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;

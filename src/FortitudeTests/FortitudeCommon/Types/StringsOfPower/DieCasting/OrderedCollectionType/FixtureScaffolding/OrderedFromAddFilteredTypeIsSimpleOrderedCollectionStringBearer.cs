@@ -692,7 +692,7 @@ public class OrderedFromCloakedBearerSpanRevealFilteredSimpleOrderedCollectionSt
                 | SupportsValueRevealer | SupportsValueFormatString)]
 public class OrderedFromCloakedBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TCloaked, TFilterBase, TRevealBase>
     : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
-    where TCloaked : class?, TRevealBase?, TFilterBase?
+    where TCloaked : TRevealBase?, TFilterBase?
     where TRevealBase : notnull
 {
     public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerNullableSpan
@@ -767,7 +767,7 @@ public class OrderedFromCloakedBearerReadOnlySpanRevealFilteredSimpleOrderedColl
 public class OrderedFromCloakedBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer
     <TCloaked, TFilterBase, TRevealBase>
     : RevealerFilteredCollectionMoldScaffold<TCloaked, TFilterBase, TRevealBase, TCloaked[]>
-    where TCloaked : class?, TRevealBase?, TFilterBase?
+    where TCloaked : TRevealBase?, TFilterBase?
     where TRevealBase : notnull
 {
     public TCloaked?[]? OrderedCollectionRevealFilteredCloakedBearerNullableReadOnlySpan
@@ -1034,7 +1034,7 @@ public class OrderedFromStringBearerSpanRevealFilteredSimpleOrderedCollectionStr
                 | AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromStringBearerNullableSpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> :
     FormattedFilteredCollectionMoldScaffold<TBearer, TBearerBase, TBearer[]>
-    where TBearer : class, IStringBearer, TBearerBase
+    where TBearer : IStringBearer, TBearerBase
 {
     public TBearer?[]? OrderedCollectionRevealFilteredStringBearerNullableSpan
     {
@@ -1105,7 +1105,7 @@ public class OrderedFromStringBearerReadOnlySpanRevealFilteredSimpleOrderedColle
                   AcceptsStringBearer | SupportsValueFormatString)]
 public class OrderedFromStringBearerNullableReadOnlySpanRevealFilteredSimpleOrderedCollectionStringBearer<TBearer, TBearerBase> :
     FormattedFilteredCollectionMoldScaffold<TBearer, TBearerBase, TBearer[]>
-    where TBearer : class, IStringBearer, TBearerBase
+    where TBearer : IStringBearer, TBearerBase
 {
     public TBearer?[]? OrderedCollectionRevealFilteredStringBearerNullableReadOnlySpan
     {
