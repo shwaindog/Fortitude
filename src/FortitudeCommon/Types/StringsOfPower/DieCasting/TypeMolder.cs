@@ -248,8 +248,8 @@ public static class TypeMolderExtensions
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtContentInvokers           = new();
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> DynamicSpanFmtCollectionElementInvokers = new();
 
-    public static TExt AddGoToNext<TExt>(this IMoldWriteState<TExt> mdc, bool alwaysAddNextSeparator = false)
-        where TExt : TypeMolder
+    public static TMold AddGoToNext<TMold>(this IMoldWriteState<TMold> mdc, bool alwaysAddNextSeparator = false)
+        where TMold : TypeMolder
     {
         if (mdc.Sf.Gb.HasCommitContent || alwaysAddNextSeparator) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
         return mdc.Mold;
@@ -260,33 +260,33 @@ public static class TypeMolderExtensions
         if (mdc.Sf.Gb.HasCommitContent || alwaysAddNextSeparator) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
     }
 
-    public static TExt AddGoToNext<TAny, TExt>(this TAny writtenAsFlags, IMoldWriteState<TExt> mdc)
-        where TExt : TypeMolder
+    public static TMold AddGoToNext<TAny, TMold>(this TAny writtenAsFlags, IMoldWriteState<TMold> mdc)
+        where TMold : TypeMolder
     {
         if (mdc.Sf.Gb.HasCommitContent) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
         return mdc.Mold;
     }
 
-    public static TExt AddGoToNext<TExt>(this AppendSummary appendSummary, IMoldWriteState<TExt> mdc)
-        where TExt : TypeMolder
+    public static TMold AddGoToNext<TMold>(this AppendSummary appendSummary, IMoldWriteState<TMold> mdc)
+        where TMold : TypeMolder
     {
         if (mdc.Sf.Gb.HasCommitContent || appendSummary.Length > 0) { mdc.StyleFormatter.AddToNextFieldSeparatorAndPadding(); }
         return mdc.Mold;
     }
 
-    public static TExt ToTypeBuilder<TExt, T>(this T _, IMoldWriteState<TExt> typeBuilder)
-        where TExt : TypeMolder =>
+    public static TMold ToTypeBuilder<TMold, T>(this T _, IMoldWriteState<TMold> typeBuilder)
+        where TMold : TypeMolder =>
         typeBuilder.Mold;
 
 
     public static IStringBuilder ToStringBuilder<T>(this T _, IStringBuilder sb) => sb;
 
 
-    public static IMoldWriteState<TExt> ToInternalTypeBuilder<TExt, T>(this T _, IMoldWriteState<TExt> typeBuilder)
-        where TExt : TypeMolder => typeBuilder;
+    public static IMoldWriteState<TMold> ToInternalTypeBuilder<TMold, T>(this T _, IMoldWriteState<TMold> typeBuilder)
+        where TMold : TypeMolder => typeBuilder;
 
-    public static IMoldWriteState<TExt> AnyToCompAccess<TExt, T>(this T _, IMoldWriteState<TExt> typeBuilder)
-        where TExt : TypeMolder => typeBuilder;
+    public static IMoldWriteState<TMold> AnyToCompAccess<TMold, T>(this T _, IMoldWriteState<TMold> typeBuilder)
+        where TMold : TypeMolder => typeBuilder;
 
     public static AppendSummary AppendNullableBooleanField(this IMoldWriteState mdc, ReadOnlySpan<char> fieldName
       , bool? value
@@ -1296,10 +1296,10 @@ public static class TypeMolderExtensions
         return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, preAppendLength, preAppendLength, writtenAsTracking, actualType);
     }
 
-    public static TExt AppendEmptyCollectionOrNull<TExt>(this IMoldWriteState<TExt> mdc, Type elementType, Type collectionType
+    public static TMold AppendEmptyCollectionOrNull<TMold>(this IMoldWriteState<TMold> mdc, Type elementType, Type collectionType
       , int? matchedItemsCount = null, int? totalCheckedItemsCount = null, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool nullBecomesEmpty = true)
-        where TExt : TypeMolder
+        where TMold : TypeMolder
     {
         if (totalCheckedItemsCount != null)
         {
@@ -1328,10 +1328,10 @@ public static class TypeMolderExtensions
         return mdc.Mold;
     }
 
-    public static TExt AppendEmptyCollectionOrNullAndGoToNext<TExt>(this IMoldWriteState<TExt> mdc, Type elementType, Type collectionType
+    public static TMold AppendEmptyCollectionOrNullAndGoToNext<TMold>(this IMoldWriteState<TMold> mdc, Type elementType, Type collectionType
       , int? matchedItemsCount = null, int? totalCheckedItemsCount = null, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags, bool nullBecomesEmpty = true)
-        where TExt : TypeMolder
+        where TMold : TypeMolder
     {
         mdc.AppendEmptyCollectionOrNull(elementType, collectionType, matchedItemsCount, totalCheckedItemsCount
                                       , formatString, formatFlags, nullBecomesEmpty);

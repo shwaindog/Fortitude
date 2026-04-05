@@ -10,279 +10,279 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<bool> value
+    public TMold WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<bool> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<bool?> value
+    public TMold WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<bool?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll<TFmt>(ReadOnlySpan<char> fieldName, Span<TFmt> value
+    public TMold WhenNonNullAddAll<TFmt>(ReadOnlySpan<char> fieldName, Span<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TFmt : ISpanFormattable? =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value
+    public TMold WhenNonNullAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TFmtStruct : struct, ISpanFormattable =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, Span<TCloaked> value
+    public TMold WhenNonNullRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, Span<TCloaked> value
     , PalantírReveal<TRevealBase> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         WhenConditionMetRevealAll(value is { Length: > 0 }, fieldName, value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
+    public TMold WhenNonNullRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
     , PalantírReveal<TCloakedStruct> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct =>
         WhenConditionMetRevealAll(value is { Length: > 0 }, fieldName, value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value
+    public TMold WhenNonNullRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)]  string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TBearer : IStringBearer? =>
         WhenConditionMetRevealAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
+    public TMold WhenNonNullRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)]  string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TBearerStruct : struct, IStringBearer =>
         WhenConditionMetRevealAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<string> value
+    public TMold WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<string> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, Span<string?> value
+    public TMold WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, Span<string?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllNullable(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
+    public TMold WhenNonNullAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TCharSeq : ICharSequence? =>
         WhenConditionMetAddAllCharSeq(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
+    public TMold WhenNonNullAddAll(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
+    public TMold WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllNullable(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, Span<TAny> value
+    public TMold WhenNonNullAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, Span<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenNonNullAddAllObject(ReadOnlySpan<char> fieldName, Span<object> value
+    public TMold WhenNonNullAddAllObject(ReadOnlySpan<char> fieldName, Span<object> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenNonNullAddAllObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value
+    public TMold WhenNonNullAddAllObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value
+    public TMold WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value
+    public TMold WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value
+    public TMold WhenNonNullAddAll<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TFmt : ISpanFormattable? =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value
+    public TMold WhenNonNullAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TFmtStruct : struct, ISpanFormattable =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value
+    public TMold WhenNonNullRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value
     , PalantírReveal<TRevealBase> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         WhenConditionMetRevealAll(value is { Length: > 0 }, fieldName, value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
+    public TMold WhenNonNullRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
     , PalantírReveal<TCloakedStruct> palantírReveal, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TCloakedStruct : struct =>
         WhenConditionMetRevealAll(value is { Length: > 0 }, fieldName, value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
+    public TMold WhenNonNullRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TBearer : IStringBearer? =>
         WhenConditionMetRevealAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
+    public TMold WhenNonNullRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TBearerStruct : struct, IStringBearer =>
         WhenConditionMetRevealAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value
+    public TMold WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
+    public TMold WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllNullable(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
+    public TMold WhenNonNullAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TCharSeq : ICharSequence? =>
         WhenConditionMetAddAllCharSeq(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
+    public TMold WhenNonNullAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
+    public TMold WhenNonNullAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllNullable(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
+    public TMold WhenNonNullAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenNonNullAddAllObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
+    public TMold WhenNonNullAddAllObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenNonNullAddAllObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
+    public TMold WhenNonNullAddAllObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(value is { Length: > 0 }, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(string fieldName, bool[]? value
+    public TMold WhenNonNullAddAll(string fieldName, bool[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(string fieldName, bool?[]? value
+    public TMold WhenNonNullAddAll(string fieldName, bool?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll<TFmt>(string fieldName, TFmt[]? value
+    public TMold WhenNonNullAddAll<TFmt>(string fieldName, TFmt[]? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null , FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TFmt : ISpanFormattable? =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll<TFmtStruct>(string fieldName, TFmtStruct?[]? value
+    public TMold WhenNonNullAddAll<TFmtStruct>(string fieldName, TFmtStruct?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TFmtStruct : struct, ISpanFormattable =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TCloaked, TRevealBase>(string fieldName, TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal
+    public TMold WhenNonNullRevealAll<TCloaked, TRevealBase>(string fieldName, TCloaked?[]? value, PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         WhenConditionMetRevealAll(value != null, fieldName, value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TMold WhenNonNullRevealAll<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TCloakedStruct : struct =>
         WhenConditionMetRevealAll(value != null, fieldName, value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TBearer>(string fieldName, TBearer?[]? value
+    public TMold WhenNonNullRevealAll<TBearer>(string fieldName, TBearer?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer? =>
         WhenConditionMetRevealAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value
+    public TMold WhenNonNullRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
         WhenConditionMetRevealAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(string fieldName, string?[]? value
+    public TMold WhenNonNullAddAll(string fieldName, string?[]? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllCharSeq<TCharSeq>(string fieldName, TCharSeq?[]? value
+    public TMold WhenNonNullAddAllCharSeq<TCharSeq>(string fieldName, TCharSeq?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TCharSeq : ICharSequence? =>
         WhenConditionMetAddAllCharSeq(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(string fieldName, StringBuilder?[]? value
+    public TMold WhenNonNullAddAll(string fieldName, StringBuilder?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllMatch<TAny>(string fieldName, TAny[]? value
+    public TMold WhenNonNullAddAllMatch<TAny>(string fieldName, TAny[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(value != null, fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenNonNullAddAllObject(string fieldName, object?[]? value
+    public TMold WhenNonNullAddAllObject(string fieldName, object?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenNonNullAddAllMatch(fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(string fieldName, IReadOnlyList<bool>? value
+    public TMold WhenNonNullAddAll(string fieldName, IReadOnlyList<bool>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(string fieldName, IReadOnlyList<bool?>? value
+    public TMold WhenNonNullAddAll(string fieldName, IReadOnlyList<bool?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt>? value
+    public TMold WhenNonNullAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TFmt : ISpanFormattable? =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
+    public TMold WhenNonNullAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TFmtStruct : struct, ISpanFormattable =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TCloaked, TRevealBase>(string fieldName, IReadOnlyList<TCloaked>? value
+    public TMold WhenNonNullRevealAll<TCloaked, TRevealBase>(string fieldName, IReadOnlyList<TCloaked>? value
     , PalantírReveal<TRevealBase> palantírReveal
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
         WhenConditionMetRevealAll(value != null, fieldName, value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TCloakedStruct>(string fieldName, IReadOnlyList<TCloakedStruct?>? value
+    public TMold WhenNonNullRevealAll<TCloakedStruct>(string fieldName, IReadOnlyList<TCloakedStruct?>? value
     , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TCloakedStruct : struct =>
         WhenConditionMetRevealAll(value != null, fieldName, value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TBearer>(string fieldName, IReadOnlyList<TBearer>? value
+    public TMold WhenNonNullRevealAll<TBearer>(string fieldName, IReadOnlyList<TBearer>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer? =>
         WhenConditionMetRevealAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealAll<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
+    public TMold WhenNonNullRevealAll<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
         WhenConditionMetRevealAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(string fieldName, IReadOnlyList<string?>? value
+    public TMold WhenNonNullAddAll(string fieldName, IReadOnlyList<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllCharSeq<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq>? value
+    public TMold WhenNonNullAddAllCharSeq<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TCharSeq : ICharSequence? =>
         WhenConditionMetAddAllCharSeq(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAll(string fieldName, IReadOnlyList<StringBuilder?>? value
+    public TMold WhenNonNullAddAll(string fieldName, IReadOnlyList<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAll(value != null, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenNonNullAddAllMatch<TAny>(string fieldName, IReadOnlyList<TAny?>? value
+    public TMold WhenNonNullAddAllMatch<TAny>(string fieldName, IReadOnlyList<TAny?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(value != null, fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenNonNullAddAllObject(string fieldName, IReadOnlyList<object?>? value
+    public TMold WhenNonNullAddAllObject(string fieldName, IReadOnlyList<object?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenNonNullAddAllMatch(fieldName, value, formatString, formatFlags);
 }

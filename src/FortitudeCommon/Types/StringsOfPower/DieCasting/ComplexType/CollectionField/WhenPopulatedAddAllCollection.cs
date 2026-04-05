@@ -12,35 +12,35 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<bool> value
+    public TMold WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<bool> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<bool>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<bool?> value
+    public TMold WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<bool?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<bool?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll<TFmt>(ReadOnlySpan<char> fieldName, Span<TFmt> value
+    public TMold WhenPopulatedAddAll<TFmt>(ReadOnlySpan<char> fieldName, Span<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TFmt : ISpanFormattable? =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TFmt>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value
+    public TMold WhenPopulatedAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TFmtStruct : struct, ISpanFormattable =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TFmtStruct?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TCloaked, TRevealBase>
+    public TMold WhenPopulatedRevealAll<TCloaked, TRevealBase>
     (ReadOnlySpan<char> fieldName, Span<TCloaked> value, PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
@@ -49,7 +49,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TCloaked>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
+    public TMold WhenPopulatedRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct =>
@@ -57,94 +57,94 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TCloakedStruct?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value
+    public TMold WhenPopulatedRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TBearer : IStringBearer? =>
         value is { Length: > 0 }
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TBearer>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
+    public TMold WhenPopulatedRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TBearerStruct : struct, IStringBearer =>
         value is { Length: > 0 }
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TBearerStruct?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<string> value
+    public TMold WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<string> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<string>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllNullable(ReadOnlySpan<char> fieldName, Span<string?> value
+    public TMold WhenPopulatedAddAllNullable(ReadOnlySpan<char> fieldName, Span<string?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAllNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<string?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
+    public TMold WhenPopulatedAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCharSeq : ICharSequence? =>
         value is { Length: > 0 }
             ? AlwaysAddAllCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TCharSeq>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
+    public TMold WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<StringBuilder?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
+    public TMold WhenPopulatedAddAllNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAllNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<StringBuilder?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, Span<TAny> value
+    public TMold WhenPopulatedAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, Span<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAllMatch(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TAny>), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObject(ReadOnlySpan<char> fieldName, Span<object> value
+    public TMold WhenPopulatedAddAllObject(ReadOnlySpan<char> fieldName, Span<object> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedAddAllMatch(fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value
+    public TMold WhenPopulatedAddAllObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedAddAllMatch(fieldName, value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value
+    public TMold WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<bool>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value
+    public TMold WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<bool?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value
+    public TMold WhenPopulatedAddAll<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TFmt : ISpanFormattable? =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TFmt>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value
+    public TMold WhenPopulatedAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TFmtStruct : struct, ISpanFormattable =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TFmtStruct?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value
+    public TMold WhenPopulatedRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
@@ -153,7 +153,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TCloaked>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
+    public TMold WhenPopulatedRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCloakedStruct : struct =>
@@ -161,92 +161,92 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TCloakedStruct?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
+    public TMold WhenPopulatedRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer? =>
         value is { Length: > 0 }
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TBearer>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
+    public TMold WhenPopulatedRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer =>
         value is { Length: > 0 }
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TBearerStruct?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value
+    public TMold WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<string>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
+    public TMold WhenPopulatedAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAllNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<string?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
+    public TMold WhenPopulatedAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCharSeq : ICharSequence? =>
         value is { Length: > 0 }
             ? AlwaysAddAllCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TCharSeq>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
+    public TMold WhenPopulatedAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<StringBuilder>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
+    public TMold WhenPopulatedAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAllNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<StringBuilder?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
+    public TMold WhenPopulatedAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAllMatch(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TAny>), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
+    public TMold WhenPopulatedAddAllObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedAddAllMatch(fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
+    public TMold WhenPopulatedAddAllObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedAddAllMatch(fieldName, value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAll(string fieldName, bool[]? value
+    public TMold WhenPopulatedAddAll(string fieldName, bool[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(bool[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(string fieldName, bool?[]? value
+    public TMold WhenPopulatedAddAll(string fieldName, bool?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(bool?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll<TFmt>(string fieldName, TFmt[]? value
+    public TMold WhenPopulatedAddAll<TFmt>(string fieldName, TFmt[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TFmt : ISpanFormattable? =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TFmt?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll<TFmtStruct>(string fieldName, TFmtStruct?[]? value
+    public TMold WhenPopulatedAddAll<TFmtStruct>(string fieldName, TFmtStruct?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TFmtStruct : struct, ISpanFormattable =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TFmtStruct?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TCloaked, TRevealBase>(string fieldName, TCloaked[]? value, PalantírReveal<TRevealBase> palantírReveal
+    public TMold WhenPopulatedRevealAll<TCloaked, TRevealBase>(string fieldName, TCloaked[]? value, PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull =>
@@ -254,84 +254,84 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TCloaked?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TMold WhenPopulatedRevealAll<TCloakedStruct>(string fieldName, TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCloakedStruct : struct =>
         value is { Length: > 0 }
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TCloakedStruct?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TBearer>(string fieldName, TBearer[]? value
+    public TMold WhenPopulatedRevealAll<TBearer>(string fieldName, TBearer[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer? =>
         value is { Length: > 0 }
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TBearer?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value
+    public TMold WhenPopulatedRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TBearerStruct : struct, IStringBearer =>
         value is { Length: > 0 }
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TBearerStruct?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(string fieldName, string?[]? value
+    public TMold WhenPopulatedAddAll(string fieldName, string?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(string?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllCharSeq<TCharSeq>(string fieldName, TCharSeq[]? value
+    public TMold WhenPopulatedAddAllCharSeq<TCharSeq>(string fieldName, TCharSeq[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCharSeq : ICharSequence? =>
         value is { Length: > 0 }
             ? AlwaysAddAllCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TCharSeq?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(string fieldName, StringBuilder?[]? value
+    public TMold WhenPopulatedAddAll(string fieldName, StringBuilder?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(StringBuilder?[]), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllMatch<TAny>(string fieldName, TAny[]? value
+    public TMold WhenPopulatedAddAllMatch<TAny>(string fieldName, TAny[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Length: > 0 }
             ? AlwaysAddAllMatch(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TAny[]), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObject(string fieldName, object?[]? value
+    public TMold WhenPopulatedAddAllObject(string fieldName, object?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedAddAllMatch(fieldName, value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool>? value
+    public TMold WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Count: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<bool>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool?>? value
+    public TMold WhenPopulatedAddAll(string fieldName, IReadOnlyList<bool?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Count: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<bool?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt>? value
+    public TMold WhenPopulatedAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TFmt : ISpanFormattable? =>
         value is { Count: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TFmt>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
+    public TMold WhenPopulatedAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TFmtStruct : struct, ISpanFormattable =>
         value is { Count: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TFmtStruct?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TCloaked, TRevealBase>(string fieldName, IReadOnlyList<TCloaked>? value
+    public TMold WhenPopulatedRevealAll<TCloaked, TRevealBase>(string fieldName, IReadOnlyList<TCloaked>? value
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
@@ -340,7 +340,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TCloaked?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TCloakedStruct>(string fieldName, IReadOnlyList<TCloakedStruct?>? value
+    public TMold WhenPopulatedRevealAll<TCloakedStruct>(string fieldName, IReadOnlyList<TCloakedStruct?>? value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null , FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCloakedStruct : struct =>
@@ -348,47 +348,47 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TCloakedStruct?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TBearer>(string fieldName, IReadOnlyList<TBearer>? value
+    public TMold WhenPopulatedRevealAll<TBearer>(string fieldName, IReadOnlyList<TBearer>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer? =>
         value is { Count: > 0 }
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TBearer?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedRevealAll<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
+    public TMold WhenPopulatedRevealAll<TBearerStruct>(string fieldName, IReadOnlyList<TBearerStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer =>
         value is { Count: > 0 }
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TBearerStruct?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<string?>? value
+    public TMold WhenPopulatedAddAll(string fieldName, IReadOnlyList<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Count: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<string?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllCharSeq<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq>? value
+    public TMold WhenPopulatedAddAllCharSeq<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) 
         where TCharSeq : ICharSequence? =>
         value is { Count: > 0 }
             ? AlwaysAddAllCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TCharSeq>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAll(string fieldName, IReadOnlyList<StringBuilder?>? value
+    public TMold WhenPopulatedAddAll(string fieldName, IReadOnlyList<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Count: > 0 }
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<StringBuilder?>), fieldName, formatFlags);
 
-    public TExt WhenPopulatedAddAllMatch<TAny>(string fieldName, IReadOnlyList<TAny>? value
+    public TMold WhenPopulatedAddAllMatch<TAny>(string fieldName, IReadOnlyList<TAny>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         value is { Count: > 0 }
             ? AlwaysAddAllMatch(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TAny>), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllObject(string fieldName, IReadOnlyList<object?>? value
+    public TMold WhenPopulatedAddAllObject(string fieldName, IReadOnlyList<object?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedAddAllMatch(fieldName, value, formatString, formatFlags);
 }

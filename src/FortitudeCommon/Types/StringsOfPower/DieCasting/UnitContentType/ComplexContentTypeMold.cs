@@ -3,11 +3,9 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
-using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 
@@ -31,11 +29,6 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
                                  , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createContext);
 
         return this;
-    }
-
-    public override void FinishTypeOpening(FormatFlags formatFlags)
-    {
-      base.FinishTypeOpening(formatFlags);
     }
     
     public override bool IsComplexType => Mws.IsLog || Mws.MoldGraphVisit.IsARevisit;
@@ -448,6 +441,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, string value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
+      // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
       Mws.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, value?.Length ?? int.MaxValue, "", formatString ?? "", formatFlags);
 
     public ContentWithLogOnlyMold AsStringOrNull(ReadOnlySpan<char> nonJsonfieldName, string? value
@@ -472,6 +466,7 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
     , FormatFlags formatFlags = EncodeAll) =>
+      // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
       Mws.FieldStringOrDefaultNext(nonJsonfieldName, value, 0, value?.Length ?? int.MaxValue, "", formatString ?? "", formatFlags);
 
     public ContentWithLogOnlyMold AsString(ReadOnlySpan<char> nonJsonfieldName, char[] value, int startIndex = 0

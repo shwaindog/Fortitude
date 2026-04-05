@@ -10,9 +10,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<bool> value
@@ -22,7 +22,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<bool>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<bool?> value
@@ -32,7 +32,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<bool?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll<TFmt>(
+    public TMold WhenConditionMetAddAll<TFmt>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<TFmt> value
@@ -43,7 +43,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TFmt>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll<TFmtStruct>(
+    public TMold WhenConditionMetAddAll<TFmtStruct>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<TFmtStruct?> value
@@ -54,7 +54,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TFmtStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TCloaked, TRevealBase>(
+    public TMold WhenConditionMetRevealAll<TCloaked, TRevealBase>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<TCloaked> value
@@ -67,7 +67,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TCloaked>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TCloakedStruct>(
+    public TMold WhenConditionMetRevealAll<TCloakedStruct>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<TCloakedStruct?> value
@@ -79,7 +79,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TCloakedStruct>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TBearer>(
+    public TMold WhenConditionMetRevealAll<TBearer>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<TBearer> value
@@ -90,7 +90,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TBearer>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TBearerStruct>(
+    public TMold WhenConditionMetRevealAll<TBearerStruct>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<TBearerStruct?> value
@@ -101,7 +101,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TBearerStruct>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<string> value
@@ -111,7 +111,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<string>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllNullable(
+    public TMold WhenConditionMetAddAllNullable(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<string?> value
@@ -121,7 +121,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<string?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllCharSeq<TCharSeq>(
+    public TMold WhenConditionMetAddAllCharSeq<TCharSeq>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<TCharSeq> value
@@ -132,7 +132,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<TCharSeq>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<StringBuilder> value
@@ -142,7 +142,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<StringBuilder>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllNullable(
+    public TMold WhenConditionMetAddAllNullable(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<StringBuilder?> value
@@ -152,7 +152,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<StringBuilder?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllMatch<TAny>(
+    public TMold WhenConditionMetAddAllMatch<TAny>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<TAny> value
@@ -164,7 +164,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllObject(
+    public TMold WhenConditionMetAddAllObject(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<object> value
@@ -175,7 +175,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(Span<object>), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllObjectNullable(
+    public TMold WhenConditionMetAddAllObjectNullable(
         bool condition
       , ReadOnlySpan<char> fieldName
       , Span<object?> value
@@ -185,7 +185,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllMatch(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(Span<object?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<bool> value
@@ -195,7 +195,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<bool>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<bool?> value
@@ -205,7 +205,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<bool?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll<TFmt>(
+    public TMold WhenConditionMetAddAll<TFmt>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<TFmt> value
@@ -216,7 +216,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TFmt>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll<TFmtStruct>(
+    public TMold WhenConditionMetAddAll<TFmtStruct>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<TFmtStruct?> value
@@ -227,7 +227,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TFmtStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TCloaked, TRevealBase>(
+    public TMold WhenConditionMetRevealAll<TCloaked, TRevealBase>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<TCloaked> value
@@ -240,7 +240,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TCloaked>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TCloakedStruct>(
+    public TMold WhenConditionMetRevealAll<TCloakedStruct>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<TCloakedStruct?> value
@@ -252,7 +252,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TCloakedStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TBearer>(
+    public TMold WhenConditionMetRevealAll<TBearer>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<TBearer> value
@@ -263,7 +263,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TBearer>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TBearerStruct>(
+    public TMold WhenConditionMetRevealAll<TBearerStruct>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<TBearerStruct?> value
@@ -274,7 +274,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TBearerStruct>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<string> value
@@ -284,7 +284,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<string>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllNullable(
+    public TMold WhenConditionMetAddAllNullable(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<string?> value
@@ -294,7 +294,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<string?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllCharSeq<TCharSeq>(
+    public TMold WhenConditionMetAddAllCharSeq<TCharSeq>(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<TCharSeq> value
@@ -305,7 +305,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<TCharSeq>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<StringBuilder> value
@@ -315,7 +315,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<StringBuilder>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllNullable(
+    public TMold WhenConditionMetAddAllNullable(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<StringBuilder?> value
@@ -325,7 +325,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<StringBuilder>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllMatch<TAny>(
+    public TMold WhenConditionMetAddAllMatch<TAny>(
         bool condition
       , ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -335,7 +335,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(ReadOnlySpan<TAny>), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllObject(
+    public TMold WhenConditionMetAddAllObject(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<object> value
@@ -346,7 +346,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(ReadOnlySpan<object>), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllObjectNullable(
+    public TMold WhenConditionMetAddAllObjectNullable(
         bool condition
       , ReadOnlySpan<char> fieldName
       , ReadOnlySpan<object?> value
@@ -356,7 +356,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllMatch(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(ReadOnlySpan<object?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , string fieldName
       , bool[]? value
@@ -366,7 +366,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(bool[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , string fieldName
       , bool?[]? value
@@ -376,7 +376,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(bool?[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll<TFmt>(
+    public TMold WhenConditionMetAddAll<TFmt>(
         bool condition
       , string fieldName
       , TFmt[]? value
@@ -387,7 +387,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TFmt[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll<TFmtStruct>(
+    public TMold WhenConditionMetAddAll<TFmtStruct>(
         bool condition
       , string fieldName
       , TFmtStruct?[]? value
@@ -398,7 +398,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TFmtStruct?[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TCloaked, TRevealBase>(
+    public TMold WhenConditionMetRevealAll<TCloaked, TRevealBase>(
         bool condition
       , string fieldName
       , TCloaked[]? value
@@ -411,7 +411,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TCloaked?[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TCloakedStruct>(
+    public TMold WhenConditionMetRevealAll<TCloakedStruct>(
         bool condition
       , string fieldName
       , TCloakedStruct?[]? value
@@ -423,7 +423,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TCloakedStruct?[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TBearer>(
+    public TMold WhenConditionMetRevealAll<TBearer>(
         bool condition
       , string fieldName
       , TBearer[]? value
@@ -434,7 +434,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TBearer?[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TBearerStruct>(
+    public TMold WhenConditionMetRevealAll<TBearerStruct>(
         bool condition
       , string fieldName
       , TBearerStruct?[]? value
@@ -445,7 +445,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TBearerStruct?[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , string fieldName
       , string?[]? value
@@ -455,7 +455,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(string?[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllCharSeq<TCharSeq>(
+    public TMold WhenConditionMetAddAllCharSeq<TCharSeq>(
         bool condition
       , string fieldName
       , TCharSeq[]? value
@@ -466,7 +466,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TCharSeq?[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , string fieldName
       , StringBuilder?[]? value
@@ -476,7 +476,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(StringBuilder?[]), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllMatch<TAny>(
+    public TMold WhenConditionMetAddAllMatch<TAny>(
         bool condition
       , string fieldName
       , TAny[]? value
@@ -487,7 +487,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TAny[]), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllObject(
+    public TMold WhenConditionMetAddAllObject(
         bool condition
       , string fieldName
       , object?[]? value
@@ -495,7 +495,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenConditionMetAddAllMatch(condition, fieldName, value, formatString, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , string fieldName
       , IReadOnlyList<bool>? value
@@ -505,7 +505,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<bool>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , string fieldName
       , IReadOnlyList<bool?>? value
@@ -515,7 +515,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<bool?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll<TFmt>(
+    public TMold WhenConditionMetAddAll<TFmt>(
         bool condition
       , string fieldName
       , IReadOnlyList<TFmt>? value
@@ -526,7 +526,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TFmt>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll<TFmtStruct>(
+    public TMold WhenConditionMetAddAll<TFmtStruct>(
         bool condition
       , string fieldName
       , IReadOnlyList<TFmtStruct?>? value
@@ -537,7 +537,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TFmtStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TCloaked, TRevealBase>(
+    public TMold WhenConditionMetRevealAll<TCloaked, TRevealBase>(
         bool condition
       , string fieldName
       , IReadOnlyList<TCloaked>? value
@@ -550,7 +550,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TCloaked>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TCloakedStruct>(
+    public TMold WhenConditionMetRevealAll<TCloakedStruct>(
         bool condition
       , string fieldName
       , IReadOnlyList<TCloakedStruct?>? value
@@ -562,7 +562,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TCloakedStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TBearer>(
+    public TMold WhenConditionMetRevealAll<TBearer>(
         bool condition
       , string fieldName
       , IReadOnlyList<TBearer>? value
@@ -573,7 +573,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TBearer>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAll<TBearerStruct>(
+    public TMold WhenConditionMetRevealAll<TBearerStruct>(
         bool condition
       , string fieldName
       , IReadOnlyList<TBearerStruct?>? value
@@ -584,7 +584,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TBearerStruct?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , string fieldName
       , IReadOnlyList<string?>? value
@@ -594,7 +594,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<string?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllCharSeq<TCharSeq>(
+    public TMold WhenConditionMetAddAllCharSeq<TCharSeq>(
         bool condition
       , string fieldName
       , IReadOnlyList<TCharSeq>? value
@@ -605,7 +605,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<TCharSeq?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAll(
+    public TMold WhenConditionMetAddAll(
         bool condition
       , string fieldName
       , IReadOnlyList<StringBuilder?>? value
@@ -615,7 +615,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAll(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(IReadOnlyList<StringBuilder?>), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllMatch<TAny>(
+    public TMold WhenConditionMetAddAllMatch<TAny>(
         bool condition
       , string fieldName
       , IReadOnlyList<TAny>? value
@@ -626,7 +626,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(IReadOnlyList<TAny>), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllObject(
+    public TMold WhenConditionMetAddAllObject(
         bool condition
       , string fieldName
       , IReadOnlyList<object?>? value

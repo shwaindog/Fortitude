@@ -7,10 +7,10 @@ using FortitudeCommon.Types.StringsOfPower.Options;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
-public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where TExt : TypeMolder
+public abstract class MultiValueTypeMolder<TMold> : KnownTypeMolder<TMold> where TMold : TypeMolder
 {
-    private ComplexType.CollectionField.SelectTypeCollectionField<TExt>? logOnlyInternalCollectionField;
-    private ComplexType.UnitField.SelectTypeField<TExt>?                 logOnlyInternalField;
+    private ComplexType.CollectionField.SelectTypeCollectionField<TMold>? logOnlyInternalCollectionField;
+    private ComplexType.UnitField.SelectTypeField<TMold>?                 logOnlyInternalField;
     
     protected void InitializeMultiValueTypeBuilder
     (
@@ -30,14 +30,14 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
     }
 
 
-    public ComplexType.UnitField.SelectTypeField<TExt>? LogOnlyInternalField =>
+    public ComplexType.UnitField.SelectTypeField<TMold>? LogOnlyInternalField =>
         logOnlyInternalField ??= Settings.Style.AllowsUnstructured()
-            ? PortableState.Master.Recycler.Borrow<ComplexType.UnitField.SelectTypeField<TExt>>().Initialize(MoldStateField)
+            ? PortableState.Master.Recycler.Borrow<ComplexType.UnitField.SelectTypeField<TMold>>().Initialize(MoldStateField)
             : null;
 
-    public ComplexType.CollectionField.SelectTypeCollectionField<TExt>? LogOnlyInternalCollectionField =>
+    public ComplexType.CollectionField.SelectTypeCollectionField<TMold>? LogOnlyInternalCollectionField =>
         logOnlyInternalCollectionField ??= Settings.Style.AllowsUnstructured()
-            ? PortableState.Master.Recycler.Borrow<ComplexType.CollectionField.SelectTypeCollectionField<TExt>>().Initialize(MoldStateField)
+            ? PortableState.Master.Recycler.Borrow<ComplexType.CollectionField.SelectTypeCollectionField<TMold>>().Initialize(MoldStateField)
             : null;
 
     protected override void InheritedStateReset()
@@ -50,7 +50,7 @@ public abstract class MultiValueTypeMolder<TExt> : KnownTypeMolder<TExt> where T
         base.InheritedStateReset();
     }
 
-    public TExt AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
+    public TMold AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
         var msf                = MoldStateField;
         var visitResult        = msf.MoldGraphVisit;

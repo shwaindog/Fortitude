@@ -11,9 +11,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenConditionMetAddAllIterateBool<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateBool<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -24,7 +24,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateBool(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateBool<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateBool<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -35,7 +35,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateBool(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateNullableBool<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateNullableBool<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -46,7 +46,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateNullableBool(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateNullableBool<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateNullableBool<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -57,7 +57,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateNullableBool(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterate<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterate<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -68,7 +68,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterate<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterate<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -79,7 +79,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterate<TEnumtr, TFmt>(
+    public TMold WhenConditionMetAddAllIterate<TEnumtr, TFmt>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -91,7 +91,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterate<TEnumtr, TFmt>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterate<TEnumtr, TFmt>(
+    public TMold WhenConditionMetAddAllIterate<TEnumtr, TFmt>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -103,7 +103,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterate<TEnumtr, TFmt>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateNullable<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateNullable<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -114,7 +114,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateNullable<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateNullable<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -125,7 +125,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateNullable<TEnumtr, TFmtStruct>(
+    public TMold WhenConditionMetAddAllIterateNullable<TEnumtr, TFmtStruct>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -137,7 +137,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateNullable<TEnumtr, TFmtStruct>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateNullable<TEnumtr, TFmtStruct>(
+    public TMold WhenConditionMetAddAllIterateNullable<TEnumtr, TFmtStruct>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -149,7 +149,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateNullable<TEnumtr, TFmtStruct>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterate<TEnumtr, TRevealBase>(
+    public TMold WhenConditionMetRevealAllIterate<TEnumtr, TRevealBase>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -162,7 +162,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterate(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterate<TEnumtr, TRevealBase>(
+    public TMold WhenConditionMetRevealAllIterate<TEnumtr, TRevealBase>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -175,7 +175,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterate(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(
+    public TMold WhenConditionMetRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -189,7 +189,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(
+    public TMold WhenConditionMetRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -203,7 +203,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterateNullable<TEnumtr, TCloakedStruct>(
+    public TMold WhenConditionMetRevealAllIterateNullable<TEnumtr, TCloakedStruct>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -216,7 +216,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterateNullable(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterateNullable<TEnumtr, TCloakedStruct>(
+    public TMold WhenConditionMetRevealAllIterateNullable<TEnumtr, TCloakedStruct>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -229,7 +229,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterateNullable(fieldName, value, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterate<TEnumtr>(
+    public TMold WhenConditionMetRevealAllIterate<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -240,7 +240,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterate<TEnumtr>(
+    public TMold WhenConditionMetRevealAllIterate<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -251,7 +251,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterate(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterate<TEnumtr, TBearer>(
+    public TMold WhenConditionMetRevealAllIterate<TEnumtr, TBearer>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -263,7 +263,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterate<TEnumtr, TBearer>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterate<TEnumtr, TBearer>(
+    public TMold WhenConditionMetRevealAllIterate<TEnumtr, TBearer>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -275,7 +275,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterate<TEnumtr, TBearer>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterateNullable<TEnumtr>(
+    public TMold WhenConditionMetRevealAllIterateNullable<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -286,7 +286,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterateNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterateNullable<TEnumtr>(
+    public TMold WhenConditionMetRevealAllIterateNullable<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -297,7 +297,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterateNullable(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterateNullable<TEnumtr, TBearerStruct>(
+    public TMold WhenConditionMetRevealAllIterateNullable<TEnumtr, TBearerStruct>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -309,7 +309,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterateNullable<TEnumtr, TBearerStruct>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealAllIterateNullable<TEnumtr, TBearerStruct>(
+    public TMold WhenConditionMetRevealAllIterateNullable<TEnumtr, TBearerStruct>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -321,7 +321,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealAllIterateNullable<TEnumtr, TBearerStruct>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateString<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateString<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -332,7 +332,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateString(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateString<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateString<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -343,7 +343,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateString(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateCharSeq<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateCharSeq<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -354,7 +354,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateCharSeq<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateCharSeq<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -365,7 +365,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateCharSeq(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateCharSeq<TEnumtr, TCharSeq>(
+    public TMold WhenConditionMetAddAllIterateCharSeq<TEnumtr, TCharSeq>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -377,7 +377,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateCharSeq<TEnumtr, TCharSeq>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateCharSeq<TEnumtr, TCharSeq>(
+    public TMold WhenConditionMetAddAllIterateCharSeq<TEnumtr, TCharSeq>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -389,7 +389,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateCharSeq<TEnumtr, TCharSeq>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateStringBuilder<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateStringBuilder<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -400,7 +400,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateStringBuilder(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateStringBuilder<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateStringBuilder<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -411,7 +411,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateStringBuilder(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateMatch<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateMatch<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -422,7 +422,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateMatch(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateMatch<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateMatch<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -433,7 +433,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateMatch(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateMatch<TEnumtr, TAny>(
+    public TMold WhenConditionMetAddAllIterateMatch<TEnumtr, TAny>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -444,7 +444,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddAllIterateMatch<TEnumtr, TAny>(fieldName, value, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddAllIterateMatch<TEnumtr, TAny>(
+    public TMold WhenConditionMetAddAllIterateMatch<TEnumtr, TAny>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -456,7 +456,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumtr), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllIterateObject<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateObject<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value
@@ -466,7 +466,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         WhenConditionMetAddAllIterateMatch<TEnumtr, object?>(condition, fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddAllIterateObject<TEnumtr>(
+    public TMold WhenConditionMetAddAllIterateObject<TEnumtr>(
         bool condition
       , string fieldName
       , TEnumtr? value

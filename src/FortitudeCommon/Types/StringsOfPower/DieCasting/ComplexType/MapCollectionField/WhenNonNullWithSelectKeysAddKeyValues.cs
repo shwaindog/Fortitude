@@ -8,9 +8,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollectionField;
 
-public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectDerived[] selectKeys
@@ -20,7 +20,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , Span<TKSelectDerived> selectKeys
@@ -30,7 +30,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , ReadOnlySpan<TKSelectDerived> selectKeys
@@ -40,7 +40,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , IReadOnlyList<TKSelectDerived> selectKeys
@@ -50,7 +50,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -62,7 +62,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerate
             (value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -74,7 +74,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerate
             (value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -87,7 +87,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl, TKSelectDerived>
             (value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -100,7 +100,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl, TKSelectDerived>
             (value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr>(
+    public TMold WhenNonNullAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -111,7 +111,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : notnull =>
         WhenConditionMetAddWithSelectKeysIterate(value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr>(
+    public TMold WhenNonNullAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -122,7 +122,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKey : notnull =>
         WhenConditionMetAddWithSelectKeysIterate(value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -134,7 +134,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey =>
         WhenConditionMetAddWithSelectKeysIterate(value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -146,7 +146,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKSelectDerived : TKey =>
         WhenConditionMetAddWithSelectKeysIterate(value != null, fieldName, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectDerived[] selectKeys
@@ -159,7 +159,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectDerived[] selectKeys
@@ -171,7 +171,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct  =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , Span<TKSelectDerived> selectKeys
@@ -184,7 +184,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , Span<TKSelectDerived> selectKeys
@@ -196,7 +196,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct  =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , ReadOnlySpan<TKSelectDerived> selectKeys
@@ -209,7 +209,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , ReadOnlySpan<TKSelectDerived> selectKeys
@@ -221,7 +221,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct  =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , IReadOnlyList<TKSelectDerived> selectKeys
@@ -234,7 +234,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , IReadOnlyList<TKSelectDerived> selectKeys
@@ -246,7 +246,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TValue : struct  =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateValueRevealer<TKey, TValue, TKSelectEnumbl, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateValueRevealer<TKey, TValue, TKSelectEnumbl, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -261,7 +261,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateValueRevealer<TKey, TValue, TKSelectEnumbl, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateValueRevealer<TKey, TValue, TKSelectEnumbl, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -276,7 +276,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateValueRevealer<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateValueRevealer<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -292,7 +292,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateValueRevealer<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateValueRevealer<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -308,7 +308,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateNullValueRevealer<TKey, TValue, TKSelectEnumbl>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateNullValueRevealer<TKey, TValue, TKSelectEnumbl>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumbl? selectKeys
@@ -322,7 +322,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateNullValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateNullValueRevealer<TKey, TValue, TKSelectEnumbl>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateNullValueRevealer<TKey, TValue, TKSelectEnumbl>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumbl? selectKeys
@@ -336,7 +336,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateNullValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateNullValueRevealer<TKey, TValue, TKSelectEnumbl, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateNullValueRevealer<TKey, TValue, TKSelectEnumbl, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumbl? selectKeys
@@ -351,7 +351,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateNullValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateNullValueRevealer<TKey, TValue, TKSelectEnumbl, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateNullValueRevealer<TKey, TValue, TKSelectEnumbl, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumbl? selectKeys
@@ -366,7 +366,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateNullValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -381,7 +381,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -396,7 +396,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -412,7 +412,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -428,7 +428,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr>(
+    public TMold WhenNonNullAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumtr? selectKeys
@@ -442,7 +442,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateNullValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr>(
+    public TMold WhenNonNullAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumtr? selectKeys
@@ -456,7 +456,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateNullValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(
+    public TMold WhenNonNullAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumtr? selectKeys
@@ -471,7 +471,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateNullValueRevealer
             (value != null, fieldName, value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectDerived[] selectKeys
@@ -486,7 +486,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectDerived[] selectKeys
@@ -500,7 +500,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , Span<TKSelectDerived> selectKeys
@@ -515,7 +515,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
       where TVRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , Span<TKSelectDerived> selectKeys
@@ -529,7 +529,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , ReadOnlySpan<TKSelectDerived> selectKeys
@@ -544,7 +544,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , ReadOnlySpan<TKSelectDerived> selectKeys
@@ -558,7 +558,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , IReadOnlyList<TKSelectDerived> selectKeys
@@ -573,7 +573,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TVRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeys<TKey, TValue, TKSelectDerived, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , IReadOnlyList<TKSelectDerived> selectKeys
@@ -587,7 +587,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         where TKRevealBase : notnull =>
         WhenConditionMetAddWithSelectKeys(value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateBothRevealers<TKey, TValue, TKSelectEnumbl, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateBothRevealers<TKey, TValue, TKSelectEnumbl, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -603,7 +603,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateBothRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateBothRevealers<TKey, TValue, TKSelectEnumbl, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateBothRevealers<TKey, TValue, TKSelectEnumbl, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -619,7 +619,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateBothRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateBothRevealers<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateBothRevealers<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -636,7 +636,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateBothRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateBothRevealers<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateBothRevealers<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumbl? selectKeys
@@ -653,7 +653,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateBothRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumbl, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumbl, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumbl? selectKeys
@@ -668,7 +668,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateBothWithNulLValueRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumbl, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumbl, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumbl? selectKeys
@@ -683,7 +683,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateBothWithNulLValueRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumbl? selectKeys
@@ -699,7 +699,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateBothWithNulLValueRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysEnumerateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysEnumerateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumbl, TKSelectDerived, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumbl? selectKeys
@@ -715,7 +715,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysEnumerateBothWithNulLValueRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -731,7 +731,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateBothRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -747,7 +747,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateBothRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -764,7 +764,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateBothRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -781,7 +781,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateBothRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumtr? selectKeys
@@ -796,7 +796,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateBothWithNullValueRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumtr? selectKeys
@@ -811,7 +811,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateBothWithNullValueRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumtr? selectKeys
@@ -827,7 +827,7 @@ public partial class SelectTypeKeyedCollectionField<TExt> where TExt : TypeMolde
         WhenConditionMetAddWithSelectKeysIterateBothWithNullValueRevealers
             (value != null, fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
-    public TExt WhenNonNullAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>(
+    public TMold WhenNonNullAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>(
         string fieldName
       , IReadOnlyDictionary<TKey, TValue?>? value
       , TKSelectEnumtr? selectKeys

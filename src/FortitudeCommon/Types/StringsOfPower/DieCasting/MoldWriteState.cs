@@ -132,27 +132,27 @@ public record struct MoldSnapWriteState
         this with { MoldWrittenFlags = MoldWrittenFlags & ~(flagsToRemove) };
 };
 
-public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
-    where TExt : TypeMolder
+public class MoldWriteState<TMold> : RecyclableObject, IMoldWriteState<TMold>
+    where TMold : TypeMolder
 {
     TypeMolder IMoldWriteState.Mold => Mold;
 
     private TypeMoldFlags unregisteredVisitFlags = None;
-    public TExt Mold { get; private set; } = null!;
+    public TMold Mold { get; private set; } = null!;
 
     private TypeMolder.MoldPortableState typeBuilderState = null!;
 
-    public MoldWriteState<TExt> Initialize
-        (TExt externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WrittenAsFlags writeMethod)
+    public MoldWriteState<TMold> Initialize
+        (TMold externalTypeBuilder, TypeMolder.MoldPortableState typeBuilderPortableState, WrittenAsFlags writeMethod)
     {
         Mold                = externalTypeBuilder;
         typeBuilderState    = typeBuilderPortableState;
         RemainingGraphDepth = typeBuilderPortableState.RemainingGraphDepth;
 
-        var typeOfTExt = typeof(TExt);
-        var hasAnyStyleFields = typeOfTExt == typeof(ComplexPocoTypeMold)
-                             || typeOfTExt == typeof(KeyedCollectionMold)
-                             || typeof(MultiValueTypeMolder<TExt>).IsAssignableFrom(typeOfTExt);
+        var typeOfTMold = typeof(TMold);
+        var hasAnyStyleFields = typeOfTMold == typeof(ComplexPocoTypeMold)
+                             || typeOfTMold == typeof(KeyedCollectionMold)
+                             || typeof(MultiValueTypeMolder<TMold>).IsAssignableFrom(typeOfTMold);
 
         var fmtFlags       = typeBuilderPortableState.CreateFormatFlags;
         var shouldSuppress = MoldGraphVisit.IsARevisit && !writeMethod.HasShowSuppressedContents();
@@ -383,7 +383,7 @@ public class MoldWriteState<TExt> : RecyclableObject, IMoldWriteState<TExt>
     TypeMolder IMoldWriteState.WasSkipped(Type actualType, ReadOnlySpan<char> fieldName, FormatFlags formatFlags) => 
         WasSkipped(actualType, fieldName, formatFlags);
 
-    public virtual TExt WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
+    public virtual TMold WasSkipped(Type actualType, ReadOnlySpan<char> fieldName
       , FormatFlags formatFlags = FormatFlags.DefaultCallerTypeFlags)
 
     {

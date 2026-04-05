@@ -6,18 +6,18 @@ public interface ISelectKeyedCollectionField
 {
 }
 
-public partial class SelectTypeKeyedCollectionField<TExt> : RecyclableObject, ISelectKeyedCollectionField
-    where TExt : TypeMolder
+public partial class SelectTypeKeyedCollectionField<TMold> : RecyclableObject, ISelectKeyedCollectionField
+    where TMold : TypeMolder
 {
-    public IMoldWriteState<TExt> Mws { get; private set; } = null!;
+    public IMoldWriteState<TMold> Mws { get; private set; } = null!;
     
-    internal TExt Mold => Mws.Mold;
+    internal TMold Mold => Mws.Mold;
     
     public int ItemCount { get; set; }
     
     public Type? CollectionType { get; set; }
     
-    public SelectTypeKeyedCollectionField<TExt> Initialize(IMoldWriteState<TExt> moldWriteState)
+    public SelectTypeKeyedCollectionField<TMold> Initialize(IMoldWriteState<TMold> moldWriteState)
     {
         Mws = moldWriteState;
 

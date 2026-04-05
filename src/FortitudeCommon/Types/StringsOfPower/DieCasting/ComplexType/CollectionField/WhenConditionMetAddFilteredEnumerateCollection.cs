@@ -12,9 +12,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenConditionMetAddFilteredEnumerateBool<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateBool<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -26,7 +26,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerate(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
-    public TExt WhenConditionMetAddFilteredEnumerateBool<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateBool<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -39,7 +39,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetAddFilteredEnumerateNullableBool<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateNullableBool<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -51,7 +51,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateNullable(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateNullableBool<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateNullableBool<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -63,7 +63,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateNullable(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerate<TEnumbl, TFmtBase>(
+    public TMold WhenConditionMetAddFilteredEnumerate<TEnumbl, TFmtBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -76,7 +76,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetAddFilteredEnumerate<TEnumbl, TFmtBase>(
+    public TMold WhenConditionMetAddFilteredEnumerate<TEnumbl, TFmtBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -89,7 +89,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetAddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(
+    public TMold WhenConditionMetAddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -102,7 +102,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(
+    public TMold WhenConditionMetAddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -115,7 +115,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerate<TEnumbl, TFmt, TFmtBase>(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(
+    public TMold WhenConditionMetAddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -128,7 +128,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateNullable(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(
+    public TMold WhenConditionMetAddFilteredEnumerateNullable<TEnumbl, TFmtStruct>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -141,7 +141,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateNullable(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TFilterBase, TRevealBase>(
+    public TMold WhenConditionMetRevealFilteredEnumerate<TEnumbl, TFilterBase, TRevealBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -156,7 +156,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TFilterBase, TRevealBase>(
+    public TMold WhenConditionMetRevealFilteredEnumerate<TEnumbl, TFilterBase, TRevealBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -171,7 +171,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(
+    public TMold WhenConditionMetRevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -187,7 +187,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 (fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(
+    public TMold WhenConditionMetRevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -203,7 +203,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
                 (fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TCloakedStruct>(
+    public TMold WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TCloakedStruct>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -217,7 +217,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealFilteredEnumerateNullable(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TCloakedStruct>(
+    public TMold WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TCloakedStruct>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -231,7 +231,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealFilteredEnumerateNullable(fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TBearerBase>(
+    public TMold WhenConditionMetRevealFilteredEnumerate<TEnumbl, TBearerBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -244,7 +244,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TBearerBase>(
+    public TMold WhenConditionMetRevealFilteredEnumerate<TEnumbl, TBearerBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -257,7 +257,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(
+    public TMold WhenConditionMetRevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -270,7 +270,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(
+    public TMold WhenConditionMetRevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -283,7 +283,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealFilteredEnumerate<TEnumbl, TBearer, TBearerBase>(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(
+    public TMold WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -296,7 +296,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealFilteredEnumerateNullable(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(
+    public TMold WhenConditionMetRevealFilteredEnumerateNullable<TEnumbl, TBearerStruct>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -309,7 +309,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysRevealFilteredEnumerateNullable(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateString<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateString<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -321,7 +321,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateString(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateString<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateString<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -333,7 +333,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateString(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(
+    public TMold WhenConditionMetAddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -346,7 +346,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
     
-    public TExt WhenConditionMetAddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(
+    public TMold WhenConditionMetAddFilteredEnumerateCharSeq<TEnumbl, TCharSeqBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -359,7 +359,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetAddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(
+    public TMold WhenConditionMetAddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -372,7 +372,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(
+    public TMold WhenConditionMetAddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -385,7 +385,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateCharSeq<TEnumbl, TCharSeq, TCharSeqBase>(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateStringBuilder<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateStringBuilder<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -397,7 +397,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateStringBuilder(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateStringBuilder<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateStringBuilder<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -409,7 +409,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateStringBuilder(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateMatch<TEnumbl, TAnyBase>(
+    public TMold WhenConditionMetAddFilteredEnumerateMatch<TEnumbl, TAnyBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -422,7 +422,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetAddFilteredEnumerateMatch<TEnumbl, TAnyBase>(
+    public TMold WhenConditionMetAddFilteredEnumerateMatch<TEnumbl, TAnyBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -435,7 +435,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
     
 
-    public TExt WhenConditionMetAddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(
+    public TMold WhenConditionMetAddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -448,7 +448,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             ? AlwaysAddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(fieldName, value, filterPredicate, formatString, formatFlags)
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
-    public TExt WhenConditionMetAddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(
+    public TMold WhenConditionMetAddFilteredEnumerateMatch<TEnumbl, TAny, TAnyBase>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -462,7 +462,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
             : stb.WasSkipped(typeof(TEnumbl), fieldName, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddFilteredEnumerateObject<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateObject<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value
@@ -473,7 +473,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         WhenConditionMetAddFilteredEnumerateMatch<TEnumbl, object?, object>(condition, fieldName, value, filterPredicate, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenConditionMetAddFilteredEnumerateObject<TEnumbl>(
+    public TMold WhenConditionMetAddFilteredEnumerateObject<TEnumbl>(
         bool condition
       , string fieldName
       , TEnumbl? value

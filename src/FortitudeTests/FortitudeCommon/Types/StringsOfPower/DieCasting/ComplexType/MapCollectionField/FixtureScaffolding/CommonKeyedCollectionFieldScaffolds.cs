@@ -14,7 +14,6 @@ public interface IKeyedCollectionMoldScaffold
 
 public abstract class FormattedKeyValueFieldMoldScaffold<TKey, TValue> : FormattedMoldScaffold<List<KeyValuePair<TKey, TValue>>?>
   , ISupportsKeyFormatString, IKeyedCollectionMoldScaffold
-    where TKey : notnull
 {
     public string? KeyFormatString { get; set; }
     public abstract Type KeyedCollectionType { get; }
