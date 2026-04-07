@@ -10,7 +10,6 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollect
 
 public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMolder
 { 
-    
     public TMold WhenPopulatedAddAllIterate<TEnumtr>(
         string fieldName
       , TEnumtr? value
@@ -179,7 +178,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumtr, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllIterateValueRevealer(value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddAllIterateValueRevealer<TEnumtr, TKey, TValue, TVRevealBase>
+                (value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -268,7 +268,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumtr, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllIterateNullValueRevealer(value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddAllIterateNullValueRevealer<TEnumtr, TKey, TValue>
+                (value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -369,7 +370,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumtr, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllIterateBothRevealers(value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddAllIterateBothRevealers<TEnumtr, TKey, TValue, TKRevealBase, TVRevealBase>
+                (value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -468,7 +470,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumtr, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllIterateBothWithNullKeyRevealers(value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddAllIterateBothWithNullKeyRevealers<TEnumtr, TKey, TValue, TVRevealBase>
+                (value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -567,7 +570,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumtr, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllIterateBothWithNullValueRevealers(value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddAllIterateBothWithNullValueRevealers<TEnumtr, TKey, TValue, TKRevealBase>
+                (value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -595,7 +599,7 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         }
         return Mws.Mold;
     }
-    
+
     public TMold WhenPopulatedAddAllIterateBothNullRevealers<TEnumtr, TKey, TValue>(
         string fieldName
       , TEnumtr? value
@@ -604,12 +608,11 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<KeyValuePair<TKey?, TValue?>>?
-        where TKey : struct 
-        where TValue : struct 
+        where TKey : struct
+        where TValue : struct
     {
         var actualType = value?.GetType() ?? typeof(TEnumtr);
-        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
-            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags)) return Mws.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
         if (value != null)
         {
@@ -618,10 +621,7 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
             ekcm.AddAllIterateBothNullRevealers(value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
-            if (anyItems)
-            {
-                return Mws.AddGoToNext();
-            }
+            if (anyItems) { return Mws.AddGoToNext(); }
         }
         return Mws.Mold;
     }

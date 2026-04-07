@@ -206,7 +206,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
       where TEnumtr : struct, IEnumerator
         where TKey : struct  
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAllIterateBothWithNullKeyRevealers(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      WhenConditionMetAddAllIterateBothWithNullKeyRevealers
+        (value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
     public TMold WhenNonNullAddAllIterateBothNullKeyRevealers<TEnumtr, TKey, TVRevealBase>(
       string fieldName
@@ -218,7 +219,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
       where TEnumtr : IEnumerator?
         where TKey : struct  
         where TVRevealBase : notnull =>
-      WhenConditionMetAddAllIterateBothWithNullKeyRevealers(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      WhenConditionMetAddAllIterateBothWithNullKeyRevealers
+        (value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
     public TMold WhenNonNullAddAllIterateBothNullKeyRevealers<TEnumtr, TKey, TValue, TVRevealBase>(
       string fieldName
@@ -258,7 +260,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
       where TEnumtr : struct, IEnumerator 
         where TValue : struct 
         where TKRevealBase : notnull =>
-      WhenConditionMetAddAllIterateBothWithNullValueRevealers(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      WhenConditionMetAddAllIterateBothWithNullValueRevealers
+        (value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
     public TMold WhenNonNullAddAllIterateBothWithNullValueRevealers<TEnumtr, TValue, TKRevealBase>(
       string fieldName
@@ -270,7 +273,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
       where TEnumtr : IEnumerator? 
         where TValue : struct 
         where TKRevealBase : notnull =>
-      WhenConditionMetAddAllIterateBothWithNullValueRevealers(value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+      WhenConditionMetAddAllIterateBothWithNullValueRevealers
+        (value != null, fieldName, value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
 
     public TMold WhenNonNullAddAllIterateBothWithNullValueRevealers<TEnumtr, TKey, TValue, TKRevealBase>(
       string fieldName

@@ -94,7 +94,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<TEnumtr, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddFilteredIterate<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase>(value, filterPredicate, valueFormatString, keyFormatString, formatFlags);
+            ekcm.AddFilteredIterate<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase>
+                (value, filterPredicate, valueFormatString, keyFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)

@@ -93,9 +93,11 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
         if (value != null)
         {
-            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyDictionary<TKey, TValue>, TKey, TValue>(value, createFormatFlags | SuppressOpening);
+            var ekcm = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyDictionary<TKey, TValue>, TKey, TValue>
+                (value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl, TKSelectDerived>(value, selectKeys, valueFormatString, keyFormatString, formatFlags);
+            ekcm.AddWithSelectKeysEnumerate<TKey, TValue, TKSelectEnumbl, TKSelectDerived>
+                (value, selectKeys, valueFormatString, keyFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -136,13 +138,12 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectEnumbl : IEnumerable?
-        where TKey : notnull 
+        where TKey : notnull
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
         var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
-        if (Mws.HasSkipField(actualType, fieldName, formatFlags))
-            return Mws.WasSkipped(actualType, fieldName, formatFlags);
+        if (Mws.HasSkipField(actualType, fieldName, formatFlags)) return Mws.WasSkipped(actualType, fieldName, formatFlags);
         var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
         if (value != null)
         {
@@ -151,10 +152,7 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
             ekcm.AddWithSelectKeysEnumerateValueRevealer(value, selectKeys, valueRevealer, keyFormatString, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.Complete();
-            if (anyItems)
-            {
-                return Mws.AddGoToNext();
-            }
+            if (anyItems) { return Mws.AddGoToNext(); }
         }
         return Mws.Mold;
     }

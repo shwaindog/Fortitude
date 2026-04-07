@@ -9,7 +9,6 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollect
 
 public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMolder
 {
-
     public TMold WhenNonNullAddAllEnumerate<TEnumbl>(
       string fieldName
     , TEnumbl? value

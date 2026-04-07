@@ -93,9 +93,11 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         var createFormatFlags = Mws.StyleFormatter.ResolveContentFormatFlags(Mws.Sb, value, formatFlags);
         if (value != null)
         {
-            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyDictionary<TKey, TValue>, TKey, TValue>(value, createFormatFlags | SuppressOpening);
+            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyDictionary<TKey, TValue>, TKey, TValue>
+                (value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(value, selectKeys, valueFormatString, keyFormatString, formatFlags);
+            ekcm.AddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>
+                (value, selectKeys, valueFormatString, keyFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)

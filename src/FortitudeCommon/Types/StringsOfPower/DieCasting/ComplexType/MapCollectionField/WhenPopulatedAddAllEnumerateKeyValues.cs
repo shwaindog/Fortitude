@@ -179,7 +179,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumbl, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllEnumerateValueRevealer(value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddAllEnumerateValueRevealer<TEnumbl, TKey, TValue, TVRevealBase>
+                (value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -272,7 +273,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumbl, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllEnumerateNullValueRevealer(value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
+            ekcm.AddAllEnumerateNullValueRevealer<TEnumbl, TKey, TValue>
+                (value, valueRevealer, keyFormatString, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -373,7 +375,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumbl, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllEnumerateBothRevealers(value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddAllEnumerateBothRevealers<TEnumbl, TKey, TValue, TKRevealBase, TVRevealBase>
+                (value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -472,7 +475,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumbl, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllEnumerateBothWithNullKeyRevealers(value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddAllEnumerateBothWithNullKeyRevealers<TEnumbl, TKey, TValue, TVRevealBase>
+                (value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)
@@ -571,7 +575,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         {
             var ekcm = Mws.Master.StartExplicitKeyedCollectionType<TEnumbl, TKey, TValue>(value, createFormatFlags | SuppressOpening);
             ((IKeyedCollectionExtendFunctionality)ekcm).BeforeFirstElementWriteFieldName(fieldName);
-            ekcm.AddAllEnumerateBothWithNullValueRevealers(value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
+            ekcm.AddAllEnumerateBothWithNullValueRevealers<TEnumbl, TKey, TValue, TKRevealBase>
+                (value, valueRevealer, keyRevealer, valueFormatString, formatFlags);
             var anyItems = ekcm.ItemCount > 0;
             ekcm.AppendCollectionComplete();
             if (anyItems)

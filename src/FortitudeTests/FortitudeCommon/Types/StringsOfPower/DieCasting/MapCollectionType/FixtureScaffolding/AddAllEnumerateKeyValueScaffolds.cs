@@ -427,7 +427,7 @@ public class KeyedFromNullEnumerableKeyRevealerValueRevealerAddAllStringBearer<T
 
     public override Type KeyedCollectionType => 
         KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers?.GetType() 
-     ?? typeof(StructEnumerable<List<KeyValuePair<TKey, TValue?>>, KeyValuePair<TKey, TValue?>>?);
+     ?? typeof(StructEnumerable<List<KeyValuePair<TKey, TValue>>, KeyValuePair<TKey, TValue>>?);
 
     public override string PropertyName => nameof(KeyedCollectionTypeKeyedCollectionFieldAddAllEnumerableBothRevealers);
 

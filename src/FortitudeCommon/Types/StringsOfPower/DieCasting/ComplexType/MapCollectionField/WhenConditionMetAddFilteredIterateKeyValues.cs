@@ -44,11 +44,28 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TEnumtr : struct, IEnumerator<KeyValuePair<TKey, TValue>>
+        where TKey : TKFilterBase?
+        where TValue : TVFilterBase? =>
+        condition
+            ? AlwaysAddFilteredIterate<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase>
+                (fieldName, value, filterPredicate, valueFormatString  ?? "", keyFormatString  ?? "", formatFlags)
+            : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
+
+    public TMold WhenConditionMetAddFilteredIterate<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase>(
+        bool condition
+      , string fieldName
+      , TEnumtr? value
+      , KeyValuePredicate<TKFilterBase, TVFilterBase> filterPredicate
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue>>?
         where TKey : TKFilterBase?
         where TValue : TVFilterBase? =>
         condition
-            ? AlwaysAddFilteredIterate(fieldName, value, filterPredicate, valueFormatString  ?? "", keyFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterate<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase>
+                (fieldName, value, filterPredicate, valueFormatString  ?? "", keyFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateValueRevealer<TEnumtr, TKFilterBase, TVFilterBase, TVRevealBase>(
@@ -90,12 +107,13 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue>>?
+        where TEnumtr : struct, IEnumerator<KeyValuePair<TKey, TValue>>
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull =>
         condition
-            ? AlwaysAddFilteredIterateValueRevealer(fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateValueRevealer<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateValueRevealer<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>(
@@ -107,12 +125,13 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TEnumtr : struct, IEnumerator<KeyValuePair<TKey, TValue>>
+        where TEnumtr : IEnumerator<KeyValuePair<TKey, TValue>>?
         where TKey : TKFilterBase?
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull =>
         condition
-            ? AlwaysAddFilteredIterateValueRevealer(fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateValueRevealer<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase, TVRevealBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateNullValueRevealer<TEnumtr, TValue, TKFilterBase>(
@@ -158,7 +177,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKey : TKFilterBase?
         where TValue : struct =>
         condition
-            ? AlwaysAddFilteredIterateNullValueRevealer(fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateNullValueRevealer<TEnumtr, TKey, TValue, TKFilterBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateNullValueRevealer<TEnumtr, TKey, TValue, TKFilterBase>(
@@ -174,7 +194,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKey : TKFilterBase?
         where TValue : struct =>
         condition
-            ? AlwaysAddFilteredIterateNullValueRevealer(fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateNullValueRevealer<TEnumtr, TKey, TValue, TKFilterBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
     
     public TMold WhenConditionMetAddFilteredIterateBothRevealers<TEnumtr, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
@@ -224,7 +245,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
         condition
-            ? AlwaysAddFilteredIterateBothRevealers(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateBothRevealers<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateBothRevealers<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>(
@@ -242,7 +264,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
         condition
-            ? AlwaysAddFilteredIterateBothRevealers(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateBothRevealers<TEnumtr, TKey, TValue, TKFilterBase, TVFilterBase, TKRevealBase, TVRevealBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateBothWithNullKeyRevealers<TEnumtr, TKey, TVFilterBase, TVRevealBase>(
@@ -291,7 +314,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull =>
         condition
-            ? AlwaysAddFilteredIterateBothWithNullKeyRevealers(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateBothWithNullKeyRevealers<TEnumtr, TKey, TValue, TVFilterBase, TVRevealBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateBothWithNullKeyRevealers<TEnumtr, TKey, TValue, TVFilterBase, TVRevealBase>(
@@ -308,7 +332,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : TVFilterBase?, TVRevealBase?
         where TVRevealBase : notnull =>
         condition
-            ? AlwaysAddFilteredIterateBothWithNullKeyRevealers(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateBothWithNullKeyRevealers<TEnumtr, TKey, TValue, TVFilterBase, TVRevealBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateBothWithNullValueRevealers<TEnumtr, TValue, TKFilterBase, TKRevealBase>(
@@ -357,7 +382,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : struct
         where TKRevealBase : notnull =>
         condition
-            ? AlwaysAddFilteredIterateBothWithNullValueRevealers(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateBothWithNullValueRevealers<TEnumtr, TKey, TValue, TKFilterBase, TKRevealBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateBothWithNullValueRevealers<TEnumtr, TKey, TValue, TKFilterBase, TKRevealBase>(
@@ -374,7 +400,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : struct
         where TKRevealBase : notnull =>
         condition
-            ? AlwaysAddFilteredIterateBothWithNullValueRevealers(fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
+            ? AlwaysAddFilteredIterateBothWithNullValueRevealers<TEnumtr, TKey, TValue, TKFilterBase, TKRevealBase>
+                (fieldName, value, filterPredicate, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(TEnumtr), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddFilteredIterateBothNullRevealers<TEnumtr, TKey, TValue>(

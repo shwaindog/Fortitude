@@ -96,8 +96,10 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         Mws.FieldNameJoin(fieldName);
         if (value != null)
         {
-            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyDictionary<TKey, TValue>, TKey, TValue>(value, createFormatFlags);
-            ekcm.AddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(value, selectKeys, valueFormatString, keyFormatString, formatFlags);
+            var ekcm     = Mws.Master.StartExplicitKeyedCollectionType<IReadOnlyDictionary<TKey, TValue>, TKey, TValue>
+                (value, createFormatFlags);
+            ekcm.AddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>
+                (value, selectKeys, valueFormatString, keyFormatString, formatFlags);
             ekcm.Complete();
             return Mws.AddGoToNext();
         }

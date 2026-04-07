@@ -10,6 +10,37 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.MapCollect
 public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMolder
 {
 
+    public TMold WhenConditionMetAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr>(
+        bool condition
+      , string fieldName
+      , IReadOnlyDictionary<TKey, TValue>? value
+      , TKSelectEnumtr? selectKeys
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectEnumtr : struct, IEnumerator
+        where TKey : notnull
+        =>
+            !Mws.SkipFields && value != null
+                ? AlwaysWithSelectKeysIterate(fieldName, value, selectKeys, valueFormatString  ?? "", keyFormatString  ?? "", formatFlags)
+                : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
+
+    public TMold WhenConditionMetAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr>(
+        bool condition
+      , string fieldName
+      , IReadOnlyDictionary<TKey, TValue>? value
+      , TKSelectEnumtr? selectKeys
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        where TKSelectEnumtr : IEnumerator?
+        where TKey : notnull
+        =>
+            !Mws.SkipFields && value != null
+                ? AlwaysWithSelectKeysIterate(fieldName, value, selectKeys, valueFormatString  ?? "", keyFormatString  ?? "", formatFlags)
+                : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
+
+
     public TMold WhenConditionMetAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(
         bool condition
       , string fieldName
@@ -42,36 +73,6 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
             !Mws.SkipFields && value != null
                 ? AlwaysWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr, TKSelectDerived>
                     (fieldName, value, selectKeys, valueFormatString  ?? "", keyFormatString  ?? "", formatFlags)
-                : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
-
-    public TMold WhenConditionMetAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr>(
-        bool condition
-      , string fieldName
-      , IReadOnlyDictionary<TKey, TValue>? value
-      , TKSelectEnumtr? selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectEnumtr : struct, IEnumerator
-        where TKey : notnull
-        =>
-            !Mws.SkipFields && value != null
-                ? AlwaysWithSelectKeysIterate(fieldName, value, selectKeys, valueFormatString  ?? "", keyFormatString  ?? "", formatFlags)
-                : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
-
-    public TMold WhenConditionMetAddWithSelectKeysIterate<TKey, TValue, TKSelectEnumtr>(
-        bool condition
-      , string fieldName
-      , IReadOnlyDictionary<TKey, TValue>? value
-      , TKSelectEnumtr? selectKeys
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
-        where TKSelectEnumtr : IEnumerator?
-        where TKey : notnull
-        =>
-            !Mws.SkipFields && value != null
-                ? AlwaysWithSelectKeysIterate(fieldName, value, selectKeys, valueFormatString  ?? "", keyFormatString  ?? "", formatFlags)
                 : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TVRevealBase>(
@@ -123,7 +124,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateValueRevealer(fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealBase>
+                (fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealBase>(
@@ -141,7 +143,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : TVRevealBase? 
         where TVRevealBase : notnull =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateValueRevealer(fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealBase>
+                (fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr>(
@@ -157,7 +160,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKey : notnull 
         where TValue : struct  =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateNullValueRevealer(fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateNullValueRevealer
+                (fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr>(
@@ -173,7 +177,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKey : notnull 
         where TValue : struct  =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateNullValueRevealer(fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateNullValueRevealer
+                (fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(
@@ -190,7 +195,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKSelectDerived : TKey 
         where TValue : struct  =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateNullValueRevealer(fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived>
+                (fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived>(
@@ -207,7 +213,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKSelectDerived : TKey 
         where TValue : struct  =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateNullValueRevealer(fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectEnumtr, TKSelectDerived>
+                (fieldName, value, selectKeys, valueRevealer, keyFormatString  ?? "", valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
     
     public TMold WhenConditionMetAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>(
@@ -262,7 +269,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateBothRevealers(fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>
+                (fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>(
@@ -281,7 +289,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TKRevealBase : notnull
         where TVRevealBase : notnull =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateBothRevealers(fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>
+                (fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString  ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase>(
@@ -298,8 +307,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : struct 
         where TKRevealBase : notnull =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateBothWithNullValueRevealers(fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString  
-                                                                 ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateBothWithNullValueRevealers
+                (fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKRevealBase>(
@@ -316,8 +325,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : struct 
         where TKRevealBase : notnull =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateBothWithNullValueRevealers(fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString  
-                                                                 ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateBothWithNullValueRevealers
+                (fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>(
@@ -335,8 +344,8 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : struct 
         where TKRevealBase : notnull =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateBothWithNullValueRevealers(fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString  
-                                                                 ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>
+                (fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 
     public TMold WhenConditionMetAddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>(
@@ -354,7 +363,7 @@ public partial class SelectTypeKeyedCollectionField<TMold> where TMold : TypeMol
         where TValue : struct 
         where TKRevealBase : notnull =>
         !Mws.SkipFields && value != null
-            ? AlwaysWithSelectKeysIterateBothWithNullValueRevealers(fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString  
-                                                                 ?? "", formatFlags)
+            ? AlwaysWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>
+                (fieldName, value, selectKeys, valueRevealer, keyRevealer, valueFormatString ?? "", formatFlags)
             : Mws.WasSkipped(value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>), fieldName, formatFlags);
 }
