@@ -11,9 +11,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt AlwaysAddAll(ReadOnlySpan<char> fieldName, Span<bool> value
+    public TMold AlwaysAddAll(ReadOnlySpan<char> fieldName, Span<bool> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -32,7 +32,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(ReadOnlySpan<char> fieldName, Span<bool?> value
+    public TMold AlwaysAddAll(ReadOnlySpan<char> fieldName, Span<bool?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -51,7 +51,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll<TFmt>(ReadOnlySpan<char> fieldName, Span<TFmt> value
+    public TMold AlwaysAddAll<TFmt>(ReadOnlySpan<char> fieldName, Span<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
@@ -71,7 +71,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value
+    public TMold AlwaysAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
@@ -91,7 +91,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, Span<TCloaked> value
+    public TMold AlwaysRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, Span<TCloaked> value
       , PalantírReveal<TRevealBase> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
@@ -108,7 +108,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
+    public TMold AlwaysRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
       , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
@@ -127,7 +127,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value, string? formatString = null
+    public TMold AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, Span<TBearer> value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
@@ -146,7 +146,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value, string? formatString = null
+    public TMold AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
@@ -165,7 +165,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(ReadOnlySpan<char> fieldName, Span<string> value
+    public TMold AlwaysAddAll(ReadOnlySpan<char> fieldName, Span<string> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -184,7 +184,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllNullable(ReadOnlySpan<char> fieldName, Span<string?> value
+    public TMold AlwaysAddAllNullable(ReadOnlySpan<char> fieldName, Span<string?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -203,7 +203,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
+    public TMold AlwaysAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
@@ -224,7 +224,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
 
-    public TExt AlwaysAddAll(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
+    public TMold AlwaysAddAll(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -243,7 +243,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
+    public TMold AlwaysAddAllNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -262,7 +262,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, Span<TAny> value
+    public TMold AlwaysAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, Span<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -282,7 +282,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllObject(ReadOnlySpan<char> fieldName, Span<object> value
+    public TMold AlwaysAddAllObject(ReadOnlySpan<char> fieldName, Span<object> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -302,7 +302,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value
+    public TMold AlwaysAddAllObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -321,7 +321,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value
+    public TMold AlwaysAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -340,7 +340,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value
+    public TMold AlwaysAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -359,7 +359,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value
+    public TMold AlwaysAddAll<TFmt>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
@@ -379,7 +379,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value
+    public TMold AlwaysAddAll<TFmtStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
@@ -399,7 +399,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value
+    public TMold AlwaysRevealAll<TCloaked, TRevealBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
@@ -420,7 +420,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
+    public TMold AlwaysRevealAll<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
       , PalantírReveal<TCloakedStruct> palantírReveal, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
     {
@@ -439,7 +439,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value, string? formatString = null
+    public TMold AlwaysRevealAll<TBearer>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
@@ -458,7 +458,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value, string? formatString = null
+    public TMold AlwaysRevealAll<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
@@ -479,7 +479,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value
+    public TMold AlwaysAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -498,7 +498,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
+    public TMold AlwaysAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -517,7 +517,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
+    public TMold AlwaysAddAllCharSeq<TCharSeq>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
@@ -537,7 +537,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
+    public TMold AlwaysAddAll(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -558,7 +558,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
+    public TMold AlwaysAddAllNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -579,7 +579,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
+    public TMold AlwaysAddAllMatch<TAny>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -596,18 +596,18 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
+    public TMold AlwaysAddAllObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddAllMatch(fieldName, value, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
+    public TMold AlwaysAddAllObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddAllMatch(fieldName, value, formatString, formatFlags);
 
-    public TExt AlwaysAddAll(string fieldName, bool[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TMold AlwaysAddAll(string fieldName, bool[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(bool[]);
@@ -624,7 +624,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(string fieldName, bool?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
+    public TMold AlwaysAddAll(string fieldName, bool?[]? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         var actualType = value?.GetType() ?? typeof(bool?[]);
@@ -640,7 +640,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll<TFmt>(string fieldName, TFmt[]? value
+    public TMold AlwaysAddAll<TFmt>(string fieldName, TFmt[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
@@ -659,7 +659,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll<TFmtStruct>(string fieldName, TFmtStruct?[]? value
+    public TMold AlwaysAddAll<TFmtStruct>(string fieldName, TFmtStruct?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
@@ -681,7 +681,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TCloaked, TRevealBase>
+    public TMold AlwaysRevealAll<TCloaked, TRevealBase>
     (string fieldName, TCloaked[]? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
@@ -700,7 +700,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TCloakedStruct>
+    public TMold AlwaysRevealAll<TCloakedStruct>
     (string fieldName, TCloakedStruct?[]? value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloakedStruct : struct
@@ -722,7 +722,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearer>(string fieldName, TBearer[]? value
+    public TMold AlwaysRevealAll<TBearer>(string fieldName, TBearer[]? value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?
     {
@@ -739,7 +739,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value
+    public TMold AlwaysRevealAll<TBearerStruct>(string fieldName, TBearerStruct?[]? value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
     {
@@ -760,7 +760,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(string fieldName, string?[]? value
+    public TMold AlwaysAddAll(string fieldName, string?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -777,7 +777,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllCharSeq<TCharSeq>(string fieldName, TCharSeq[]? value
+    public TMold AlwaysAddAllCharSeq<TCharSeq>(string fieldName, TCharSeq[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
@@ -795,7 +795,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(string fieldName, StringBuilder?[]? value
+    public TMold AlwaysAddAll(string fieldName, StringBuilder?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -816,7 +816,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllMatch<TAny>(string fieldName, TAny[]? value
+    public TMold AlwaysAddAllMatch<TAny>(string fieldName, TAny[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -834,7 +834,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllObject(string fieldName, object?[]? value
+    public TMold AlwaysAddAllObject(string fieldName, object?[]? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -851,7 +851,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IReadOnlyList<bool>? value
+    public TMold AlwaysAddAll(string fieldName, IReadOnlyList<bool>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -872,7 +872,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IReadOnlyList<bool?>? value
+    public TMold AlwaysAddAll(string fieldName, IReadOnlyList<bool?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -893,7 +893,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt>? value
+    public TMold AlwaysAddAll<TFmt>(string fieldName, IReadOnlyList<TFmt>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmt : ISpanFormattable?
@@ -915,7 +915,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
+    public TMold AlwaysAddAll<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
@@ -937,7 +937,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TCloaked, TRevealBase>
+    public TMold AlwaysRevealAll<TCloaked, TRevealBase>
     (string fieldName, IReadOnlyList<TCloaked>? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCloaked : TRevealBase?
@@ -960,7 +960,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TCloakedStruct>
+    public TMold AlwaysRevealAll<TCloakedStruct>
     (string fieldName, IReadOnlyList<TCloakedStruct?>? value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -983,7 +983,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearer>(string fieldName
+    public TMold AlwaysRevealAll<TBearer>(string fieldName
       , IReadOnlyList<TBearer>? value
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1006,7 +1006,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAll<TBearerStruct>(string fieldName
+    public TMold AlwaysRevealAll<TBearerStruct>(string fieldName
       , IReadOnlyList<TBearerStruct?>? value
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1029,7 +1029,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IReadOnlyList<string?>? value
+    public TMold AlwaysAddAll(string fieldName, IReadOnlyList<string?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1050,7 +1050,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllCharSeq<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq>? value
+    public TMold AlwaysAddAllCharSeq<TCharSeq>(string fieldName, IReadOnlyList<TCharSeq>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?
@@ -1072,7 +1072,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAll(string fieldName, IReadOnlyList<StringBuilder?>? value
+    public TMold AlwaysAddAll(string fieldName, IReadOnlyList<StringBuilder?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1093,7 +1093,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllMatch<TAny>(string fieldName, IReadOnlyList<TAny>? value
+    public TMold AlwaysAddAllMatch<TAny>(string fieldName, IReadOnlyList<TAny>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1115,7 +1115,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllObject(string fieldName, IReadOnlyList<object?>? value
+    public TMold AlwaysAddAllObject(string fieldName, IReadOnlyList<object?>? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         AlwaysAddAllMatch(fieldName, value, formatString, formatFlags);

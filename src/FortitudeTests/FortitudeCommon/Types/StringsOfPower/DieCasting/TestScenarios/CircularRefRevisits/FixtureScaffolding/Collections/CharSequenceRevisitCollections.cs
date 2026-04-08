@@ -23,8 +23,7 @@ public class PreFieldCharSequenceArrayStructUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = null;
 
-    public PreFieldCharSequenceArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrArrayStructUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrArrayStructUnion([null, NewCharSequence(1), NewCharSequence(2), NewCharSequence(3)]
                                                       , isSimple, isValue, stringRevealer);
@@ -54,8 +53,7 @@ public class CharSequenceArrayPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = SingletonInst2;
 
-    public CharSequenceArrayPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrArrayStructUnion>? nodeRevealer = null)
+    public CharSequenceArrayPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrArrayStructUnion([SingletonInst1, SingletonInst2, SingletonInst3, null]
                                                       , isSimple, isValue, stringRevealer);
@@ -85,8 +83,7 @@ public class PreFieldCharSequenceArrayClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = null;
 
-    public PreFieldCharSequenceArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrArrayClassUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrArrayClassUnion([NewCharSequence(1), null, NewCharSequence(2), NewCharSequence(3)]
                                                      , isSimple, isValue, stringRevealer);
@@ -116,8 +113,7 @@ public class CharSequenceArrayPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = SingletonInst2;
 
-    public CharSequenceArrayPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrArrayClassUnion>? nodeRevealer = null)
+    public CharSequenceArrayPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrArrayClassUnion([SingletonInst1, SingletonInst2, null, SingletonInst3]
                                                      , isSimple, isValue, stringRevealer);
@@ -147,8 +143,7 @@ public class PreFieldCharSequenceSpanClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = SingletonInst2;
 
-    public PreFieldCharSequenceSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrSpanClassUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrSpanClassUnion([null, NewCharSequence(1), NewCharSequence(2), NewCharSequence(3)]
                                                     , isSimple, isValue, stringRevealer);
@@ -177,8 +172,7 @@ public class CharSequenceSpanPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = null;
 
-    public CharSequenceSpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrSpanClassUnion>? nodeRevealer = null)
+    public CharSequenceSpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrSpanClassUnion([SingletonInst1, SingletonInst2, SingletonInst3, null]
                                                     , isSimple, isValue, stringRevealer);
@@ -208,8 +202,7 @@ public class PreFieldCharSequenceReadOnlySpanClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = SingletonInst2;
 
-    public PreFieldCharSequenceReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrReadOnlySpanClassUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrReadOnlySpanClassUnion([NewCharSequence(1), null, NewCharSequence(2), null, NewCharSequence(3)]
                                                             , isSimple, isValue, stringRevealer);
@@ -238,8 +231,7 @@ public class CharSequenceReadOnlySpanPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = null;
 
-    public CharSequenceReadOnlySpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrReadOnlySpanClassUnion>? nodeRevealer = null)
+    public CharSequenceReadOnlySpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrReadOnlySpanClassUnion([null, SingletonInst1, SingletonInst2, SingletonInst3]
                                                             , isSimple, isValue, stringRevealer);
@@ -269,8 +261,7 @@ public class PreFieldCharSequenceListStructUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = null;
 
-    public PreFieldCharSequenceListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrListStructUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrListStructUnion([NewCharSequence(1), NewCharSequence(2), NewCharSequence(3), null]
                                                      , isSimple, isValue, stringRevealer);
@@ -299,8 +290,7 @@ public class CharSequenceListPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = SingletonInst2;
 
-    public CharSequenceListPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrArrayStructUnion>? nodeRevealer = null)
+    public CharSequenceListPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrListStructUnion([SingletonInst1, null, SingletonInst2, SingletonInst3]
                                                      , isSimple, isValue, stringRevealer);
@@ -330,8 +320,7 @@ public class PreFieldCharSequenceListClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = SingletonInst2;
 
-    public PreFieldCharSequenceListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrListClassUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrListClassUnion([NewCharSequence(1), NewCharSequence(2), null, NewCharSequence(3)]
                                                     , isSimple, isValue, stringRevealer);
@@ -360,8 +349,7 @@ public class CharSequenceListPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = null;
 
-    public CharSequenceListPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrListClassUnion>? nodeRevealer = null)
+    public CharSequenceListPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrListClassUnion([null, SingletonInst1, SingletonInst2, SingletonInst3]
                                                     , isSimple, isValue, stringRevealer);
@@ -391,8 +379,7 @@ public class PreFieldCharSequenceEnumerableStructUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = null;
 
-    public PreFieldCharSequenceEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrEnumerableStructUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrEnumerableStructUnion([NewCharSequence(1), null, NewCharSequence(2), NewCharSequence(3)]
                                                            , isSimple, isValue, stringRevealer);
@@ -413,7 +400,7 @@ public class PreFieldCharSequenceEnumerableStructUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<IEnumerable<CharSeqOrEnumerableStructUnion>, CharSeqOrEnumerableStructUnion>(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -422,8 +409,7 @@ public class CharSequenceEnumerablePostFieldStructUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = SingletonInst2;
 
-    public CharSequenceEnumerablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrArrayStructUnion>? nodeRevealer = null)
+    public CharSequenceEnumerablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrEnumerableStructUnion([SingletonInst1, SingletonInst2, null, SingletonInst3]
                                                            , isSimple, isValue, stringRevealer);
@@ -443,7 +429,7 @@ public class CharSequenceEnumerablePostFieldStructUnionRevisit : IStringBearer
     {
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<CharSeqOrEnumerableStructUnion>, CharSeqOrEnumerableStructUnion>(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAddCharSeq(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -453,8 +439,7 @@ public class PreFieldCharSequenceEnumerableClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = SingletonInst2;
 
-    public PreFieldCharSequenceEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrEnumerableClassUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrEnumerableClassUnion([null, NewCharSequence(1), NewCharSequence(2), NewCharSequence(3)]
                                                           , isSimple, isValue, stringRevealer);
@@ -475,8 +460,7 @@ public class PreFieldCharSequenceEnumerableClassUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<CharSeqOrEnumerableClassUnion>, CharSeqOrEnumerableClassUnion>
-               (nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -485,8 +469,7 @@ public class CharSequenceEnumerablePostFieldClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = null;
 
-    public CharSequenceEnumerablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrEnumerableClassUnion>? nodeRevealer = null)
+    public CharSequenceEnumerablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrEnumerableClassUnion([SingletonInst1, null, SingletonInst2, SingletonInst3]
                                                           , isSimple, isValue, stringRevealer);
@@ -507,8 +490,7 @@ public class CharSequenceEnumerablePostFieldClassUnionRevisit : IStringBearer
     {
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<CharSeqOrEnumerableClassUnion>, CharSeqOrEnumerableClassUnion>
-               (nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAddCharSeq(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -519,8 +501,7 @@ public class PreFieldCharSequenceEnumeratorStructUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = null;
 
-    public PreFieldCharSequenceEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrEnumeratorStructUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrEnumeratorStructUnion([NewCharSequence(1), NewCharSequence(2), null, NewCharSequence(3)]
                                                            , isSimple, isValue, stringRevealer);
@@ -542,8 +523,7 @@ public class PreFieldCharSequenceEnumeratorStructUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllIterate<List<CharSeqOrEnumeratorStructUnion>.Enumerator, CharSeqOrEnumeratorStructUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -552,8 +532,7 @@ public class CharSequenceEnumeratorPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = SingletonInst2;
 
-    public CharSequenceEnumeratorPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrArrayStructUnion>? nodeRevealer = null)
+    public CharSequenceEnumeratorPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrEnumeratorStructUnion([null, SingletonInst1, SingletonInst2, SingletonInst3]
                                                            , isSimple, isValue, stringRevealer);
@@ -574,8 +553,7 @@ public class CharSequenceEnumeratorPostFieldStructUnionRevisit : IStringBearer
         ((IEnumerator<CharSeqOrEnumeratorStructUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllIterate<List<CharSeqOrEnumeratorStructUnion>.Enumerator, CharSeqOrEnumeratorStructUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAddCharSeq(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -585,8 +563,7 @@ public class PreFieldCharSequenceEnumeratorClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPreField = SingletonInst2;
 
-    public PreFieldCharSequenceEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrEnumeratorClassUnion>? nodeRevealer = null)
+    public PreFieldCharSequenceEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrEnumeratorClassUnion([NewCharSequence(1), null, NewCharSequence(2), NewCharSequence(3)]
                                                           , isSimple, isValue, stringRevealer);
@@ -608,8 +585,7 @@ public class PreFieldCharSequenceEnumeratorClassUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAddCharSeq(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllIterate<List<CharSeqOrEnumeratorClassUnion>.Enumerator, CharSeqOrEnumeratorClassUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -618,8 +594,7 @@ public class CharSequenceEnumeratorPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly ICharSequence? firstPostField = null;
 
-    public CharSequenceEnumeratorPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null
-      , PalantírReveal<CharSeqOrEnumeratorClassUnion>? nodeRevealer = null)
+    public CharSequenceEnumeratorPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<ICharSequence>? stringRevealer = null)
     {
         var repeatedItem = new CharSeqOrEnumeratorClassUnion([SingletonInst1, SingletonInst2, null, SingletonInst3]
                                                           , isSimple, isValue, stringRevealer);
@@ -640,8 +615,7 @@ public class CharSequenceEnumeratorPostFieldClassUnionRevisit : IStringBearer
         ((IEnumerator<CharSeqOrEnumeratorClassUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllIterate<List<CharSeqOrEnumeratorClassUnion>.Enumerator, CharSeqOrEnumeratorClassUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAddCharSeq(nameof(firstPostField), firstPostField)
            .Complete();
     }

@@ -12,47 +12,47 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenNonNullAddFilteredIterateBool<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
+    public TMold WhenNonNullAddFilteredIterateBool<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumtr : struct, IEnumerator<bool> =>
         WhenConditionMetAddFilteredIterateBool(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
     
-    public TExt WhenNonNullAddFilteredIterateBool<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
+    public TMold WhenNonNullAddFilteredIterateBool<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumtr : IEnumerator<bool>? =>
         WhenConditionMetAddFilteredIterateBool(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateNullableBool<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TMold WhenNonNullAddFilteredIterateNullableBool<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumtr : struct, IEnumerator<bool?>  =>
         WhenConditionMetAddFilteredIterateNullableBool(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateNullableBool<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TMold WhenNonNullAddFilteredIterateNullableBool<TEnumtr>(string fieldName, TEnumtr? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumtr : IEnumerator<bool?>?  =>
         WhenConditionMetAddFilteredIterateNullableBool(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterate<TEnumtr, TFmtBase>
+    public TMold WhenNonNullAddFilteredIterate<TEnumtr, TFmtBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TEnumtr : struct, IEnumerator  =>
         WhenConditionMetAddFilteredIterate(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterate<TEnumtr, TFmtBase>
+    public TMold WhenNonNullAddFilteredIterate<TEnumtr, TFmtBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TEnumtr : IEnumerator?  =>
         WhenConditionMetAddFilteredIterate(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterate<TEnumtr, TFmt, TFmtBase>
+    public TMold WhenNonNullAddFilteredIterate<TEnumtr, TFmt, TFmtBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -60,7 +60,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       where TFmt : ISpanFormattable?, TFmtBase? =>
         WhenConditionMetAddFilteredIterate<TEnumtr, TFmt, TFmtBase>(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterate<TEnumtr, TFmt, TFmtBase>
+    public TMold WhenNonNullAddFilteredIterate<TEnumtr, TFmt, TFmtBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -68,7 +68,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       where TFmt : ISpanFormattable?, TFmtBase? =>
         WhenConditionMetAddFilteredIterate<TEnumtr, TFmt, TFmtBase>(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateNullable<TEnumtr, TFmtStruct>
+    public TMold WhenNonNullAddFilteredIterateNullable<TEnumtr, TFmtStruct>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -76,7 +76,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable =>
         WhenConditionMetAddFilteredIterateNullable(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateNullable<TEnumtr, TFmtStruct>
+    public TMold WhenNonNullAddFilteredIterateNullable<TEnumtr, TFmtStruct>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -84,7 +84,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TFmtStruct : struct, ISpanFormattable =>
         WhenConditionMetAddFilteredIterateNullable(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterate<TEnumtr, TFilterBase, TRevealBase>
+    public TMold WhenNonNullRevealFilteredIterate<TEnumtr, TFilterBase, TRevealBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
@@ -93,7 +93,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull =>
         WhenConditionMetRevealFilteredIterate(value != null, fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterate<TEnumtr, TFilterBase, TRevealBase>
+    public TMold WhenNonNullRevealFilteredIterate<TEnumtr, TFilterBase, TRevealBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
@@ -102,7 +102,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TRevealBase : notnull =>
         WhenConditionMetRevealFilteredIterate(value != null, fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterate<TEnumtr, TCloaked, TFilterBase, TRevealBase>
+    public TMold WhenNonNullRevealFilteredIterate<TEnumtr, TCloaked, TFilterBase, TRevealBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
@@ -113,7 +113,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         WhenConditionMetRevealFilteredIterate<TEnumtr, TCloaked, TFilterBase, TRevealBase>
           (value != null, fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterate<TEnumtr, TCloaked, TFilterBase, TRevealBase>
+    public TMold WhenNonNullRevealFilteredIterate<TEnumtr, TCloaked, TFilterBase, TRevealBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null
@@ -124,7 +124,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         WhenConditionMetRevealFilteredIterate<TEnumtr, TCloaked, TFilterBase, TRevealBase>
           (value != null, fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterateNullable<TEnumtr, TCloakedStruct>(string fieldName, TEnumtr? value
+    public TMold WhenNonNullRevealFilteredIterateNullable<TEnumtr, TCloakedStruct>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null
@@ -133,7 +133,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       where TCloakedStruct : struct =>
         WhenConditionMetRevealFilteredIterateNullable(value != null, fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterateNullable<TEnumtr, TCloakedStruct>(string fieldName, TEnumtr? value
+    public TMold WhenNonNullRevealFilteredIterateNullable<TEnumtr, TCloakedStruct>(string fieldName, TEnumtr? value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null
@@ -142,7 +142,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       where TCloakedStruct : struct =>
         WhenConditionMetRevealFilteredIterateNullable(value != null, fieldName, value, filterPredicate, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterate<TEnumtr, TBearerBase>(string fieldName
+    public TMold WhenNonNullRevealFilteredIterate<TEnumtr, TBearerBase>(string fieldName
       , TEnumtr? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
@@ -150,7 +150,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       where TEnumtr : struct, IEnumerator =>
         WhenConditionMetRevealFilteredIterate(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterate<TEnumtr, TBearerBase>(string fieldName
+    public TMold WhenNonNullRevealFilteredIterate<TEnumtr, TBearerBase>(string fieldName
       , TEnumtr? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
@@ -158,7 +158,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       where TEnumtr : IEnumerator? =>
         WhenConditionMetRevealFilteredIterate(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(string fieldName
+    public TMold WhenNonNullRevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(string fieldName
       , TEnumtr? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
@@ -167,7 +167,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       where TBearer : IStringBearer?, TBearerBase? =>
         WhenConditionMetRevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(string fieldName
+    public TMold WhenNonNullRevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(string fieldName
       , TEnumtr? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
@@ -176,7 +176,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       where TBearer : IStringBearer?, TBearerBase? =>
         WhenConditionMetRevealFilteredIterate<TEnumtr, TBearer, TBearerBase>(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterateNullable<TEnumtr, TBearerStruct>(
+    public TMold WhenNonNullRevealFilteredIterateNullable<TEnumtr, TBearerStruct>(
       string fieldName
       , TEnumtr? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
@@ -186,7 +186,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
        where TBearerStruct : struct, IStringBearer =>
         WhenConditionMetRevealFilteredIterateNullable(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullRevealFilteredIterateNullable<TEnumtr, TBearerStruct>(
+    public TMold WhenNonNullRevealFilteredIterateNullable<TEnumtr, TBearerStruct>(
       string fieldName
       , TEnumtr? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
@@ -196,35 +196,35 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
        where TBearerStruct : struct, IStringBearer =>
         WhenConditionMetRevealFilteredIterateNullable(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateString<TEnumtr>
+    public TMold WhenNonNullAddFilteredIterateString<TEnumtr>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumtr : struct, IEnumerator<string?> =>
         WhenConditionMetAddFilteredIterateString(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateString<TEnumtr>
+    public TMold WhenNonNullAddFilteredIterateString<TEnumtr>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumtr : IEnumerator<string?>? =>
         WhenConditionMetAddFilteredIterateString(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateCharSeq<TEnumtr, TCharSeqBase>
+    public TMold WhenNonNullAddFilteredIterateCharSeq<TEnumtr, TCharSeqBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator =>
         WhenConditionMetAddFilteredIterateCharSeq(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateCharSeq<TEnumtr, TCharSeqBase>
+    public TMold WhenNonNullAddFilteredIterateCharSeq<TEnumtr, TCharSeqBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator? =>
         WhenConditionMetAddFilteredIterateCharSeq(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>
+    public TMold WhenNonNullAddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -233,7 +233,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         WhenConditionMetAddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>
           (value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>
+    public TMold WhenNonNullAddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TCharSeqBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -242,35 +242,35 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         WhenConditionMetAddFilteredIterateCharSeq<TEnumtr, TCharSeq, TCharSeqBase>
           (value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateStringBuilder<TEnumtr>
+    public TMold WhenNonNullAddFilteredIterateStringBuilder<TEnumtr>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TEnumtr : struct, IEnumerator<StringBuilder?> =>
         WhenConditionMetAddFilteredIterateStringBuilder(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateStringBuilder<TEnumtr>
+    public TMold WhenNonNullAddFilteredIterateStringBuilder<TEnumtr>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
       where TEnumtr : IEnumerator<StringBuilder?>? =>
         WhenConditionMetAddFilteredIterateStringBuilder(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateMatch<TEnumtr, TAnyBase>
+    public TMold WhenNonNullAddFilteredIterateMatch<TEnumtr, TAnyBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
        where TEnumtr : struct, IEnumerator =>
         WhenConditionMetAddFilteredIterateMatch(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateMatch<TEnumtr, TAnyBase>
+    public TMold WhenNonNullAddFilteredIterateMatch<TEnumtr, TAnyBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
        where TEnumtr : IEnumerator? =>
         WhenConditionMetAddFilteredIterateMatch(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>
+    public TMold WhenNonNullAddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -278,7 +278,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         where TAny : TAnyBase? =>
         WhenConditionMetAddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenNonNullAddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>
+    public TMold WhenNonNullAddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) 
@@ -287,7 +287,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         WhenConditionMetAddFilteredIterateMatch<TEnumtr, TAny, TAnyBase>(value != null, fieldName, value, filterPredicate, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenNonNullAddFilteredIterateObject<TEnumtr>
+    public TMold WhenNonNullAddFilteredIterateObject<TEnumtr>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -295,7 +295,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       => WhenNonNullAddFilteredIterateMatch<TEnumtr, object?, object>(fieldName, value, filterPredicate, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenNonNullAddFilteredIterateObject<TEnumtr>
+    public TMold WhenNonNullAddFilteredIterateObject<TEnumtr>
     (string fieldName, TEnumtr? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)

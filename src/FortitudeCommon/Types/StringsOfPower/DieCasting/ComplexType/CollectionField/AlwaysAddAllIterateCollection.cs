@@ -11,9 +11,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt AlwaysAddAllIterateBool<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateBool<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<bool>
@@ -38,7 +38,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
     
-    public TExt AlwaysAddAllIterateBool<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateBool<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<bool>?
@@ -63,7 +63,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateNullableBool<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateNullableBool<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<bool?>
@@ -88,7 +88,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateNullableBool<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateNullableBool<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<bool?>?
@@ -113,7 +113,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterate<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterate<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator
@@ -138,7 +138,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterate<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterate<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
@@ -163,7 +163,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterate<TEnumtr, TFmt>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterate<TEnumtr, TFmt>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<TFmt>
@@ -189,7 +189,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterate<TEnumtr, TFmt>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterate<TEnumtr, TFmt>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TFmt>?
@@ -215,7 +215,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateNullable<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateNullable<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator
@@ -241,7 +241,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateNullable<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateNullable<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
@@ -267,7 +267,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateNullable<TEnumtr, TFmtStruct>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateNullable<TEnumtr, TFmtStruct>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<TFmtStruct?>
@@ -293,7 +293,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateNullable<TEnumtr, TFmtStruct>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateNullable<TEnumtr, TFmtStruct>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TFmtStruct?>?
@@ -319,7 +319,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterate<TEnumtr, TRevealBase>(string fieldName, TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
+    public TMold AlwaysRevealAllIterate<TEnumtr, TRevealBase>(string fieldName, TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator 
         where TRevealBase : notnull
@@ -346,7 +346,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterate<TEnumtr, TRevealBase>(string fieldName, TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
+    public TMold AlwaysRevealAllIterate<TEnumtr, TRevealBase>(string fieldName, TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator? 
         where TRevealBase : notnull
@@ -373,7 +373,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(string fieldName, TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
+    public TMold AlwaysRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(string fieldName, TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<TCloaked> 
         where TCloaked : TRevealBase?
@@ -399,7 +399,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(string fieldName, TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
+    public TMold AlwaysRevealAllIterate<TEnumtr, TCloaked, TRevealBase>(string fieldName, TEnumtr? value, PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TCloaked>? 
         where TCloaked : TRevealBase?
@@ -425,7 +425,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterateNullable<TEnumtr, TCloakedStruct>(string fieldName, TEnumtr? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TMold AlwaysRevealAllIterateNullable<TEnumtr, TCloakedStruct>(string fieldName, TEnumtr? value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<TCloakedStruct?> 
         where TCloakedStruct : struct
@@ -450,7 +450,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterateNullable<TEnumtr, TCloakedStruct>(string fieldName, TEnumtr? value, PalantírReveal<TCloakedStruct> palantírReveal
+    public TMold AlwaysRevealAllIterateNullable<TEnumtr, TCloakedStruct>(string fieldName, TEnumtr? value, PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TCloakedStruct?>? 
         where TCloakedStruct : struct
@@ -475,7 +475,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterate<TEnumtr>(string fieldName, TEnumtr? value, string? formatString = null
+    public TMold AlwaysRevealAllIterate<TEnumtr>(string fieldName, TEnumtr? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator 
     {
@@ -500,7 +500,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterate<TEnumtr>(string fieldName, TEnumtr? value, string? formatString = null
+    public TMold AlwaysRevealAllIterate<TEnumtr>(string fieldName, TEnumtr? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator? 
     {
@@ -525,7 +525,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterate<TEnumtr, TBearer>(string fieldName, TEnumtr? value, string? formatString = null
+    public TMold AlwaysRevealAllIterate<TEnumtr, TBearer>(string fieldName, TEnumtr? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<TBearer> 
         where TBearer : IStringBearer?
@@ -550,7 +550,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterate<TEnumtr, TBearer>(string fieldName, TEnumtr? value, string? formatString = null
+    public TMold AlwaysRevealAllIterate<TEnumtr, TBearer>(string fieldName, TEnumtr? value, string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TBearer>? 
         where TBearer : IStringBearer?
@@ -575,7 +575,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterateNullable<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysRevealAllIterateNullable<TEnumtr>(string fieldName, TEnumtr? value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator 
     {
@@ -600,7 +600,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterateNullable<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysRevealAllIterateNullable<TEnumtr>(string fieldName, TEnumtr? value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator? 
     {
@@ -625,7 +625,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterateNullable<TEnumtr, TBearerStruct>(string fieldName, TEnumtr? value
+    public TMold AlwaysRevealAllIterateNullable<TEnumtr, TBearerStruct>(string fieldName, TEnumtr? value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<TBearerStruct?> 
         where TBearerStruct : struct, IStringBearer
@@ -650,7 +650,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysRevealAllIterateNullable<TEnumtr, TBearerStruct>(string fieldName, TEnumtr? value
+    public TMold AlwaysRevealAllIterateNullable<TEnumtr, TBearerStruct>(string fieldName, TEnumtr? value
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TBearerStruct?>? 
         where TBearerStruct : struct, IStringBearer
@@ -675,7 +675,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateString<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateString<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<string?> 
@@ -700,7 +700,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateString<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateString<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<string?>? 
@@ -725,7 +725,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateCharSeq<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateCharSeq<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator 
@@ -750,7 +750,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateCharSeq<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateCharSeq<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator? 
@@ -775,7 +775,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateCharSeq<TEnumtr, TCharSeq>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateCharSeq<TEnumtr, TCharSeq>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<TCharSeq> 
@@ -801,7 +801,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateCharSeq<TEnumtr, TCharSeq>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateCharSeq<TEnumtr, TCharSeq>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TCharSeq>? 
@@ -827,7 +827,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateStringBuilder<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateStringBuilder<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<StringBuilder?>
@@ -852,7 +852,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateStringBuilder<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateStringBuilder<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<StringBuilder?>?
@@ -877,7 +877,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateMatch<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateMatch<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator
@@ -902,7 +902,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateMatch<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateMatch<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator?
@@ -927,7 +927,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateMatch<TEnumtr, TAny>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateMatch<TEnumtr, TAny>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<TAny>
@@ -952,7 +952,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.AddGoToNext(true);
     }
 
-    public TExt AlwaysAddAllIterateMatch<TEnumtr, TAny>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateMatch<TEnumtr, TAny>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<TAny>?
@@ -978,7 +978,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllIterateObject<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateObject<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : struct, IEnumerator<object?>
@@ -1004,7 +1004,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt AlwaysAddAllIterateObject<TEnumtr>(string fieldName, TEnumtr? value
+    public TMold AlwaysAddAllIterateObject<TEnumtr>(string fieldName, TEnumtr? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumtr : IEnumerator<object?>?

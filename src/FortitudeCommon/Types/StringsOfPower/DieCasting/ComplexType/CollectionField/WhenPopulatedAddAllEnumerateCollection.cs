@@ -14,14 +14,14 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenPopulatedAddAllEnumerateBool<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateBool<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<bool> =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateBool(fieldName, value.Value, formatString, formatFlags);
     
-    public TExt WhenPopulatedAddAllEnumerateBool<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateBool<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool>? 
     {
@@ -42,12 +42,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerateNullableBool<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateNullableBool<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<bool?> =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateNullableBool(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerateNullableBool<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateNullableBool<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<bool?>? 
     {
@@ -68,12 +68,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerate<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerate<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerate(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerate<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerate<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable? 
     {
@@ -94,13 +94,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerate<TEnumbl, TFmt>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerate<TEnumbl, TFmt>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TFmt>
         where TFmt : ISpanFormattable? =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerate<TEnumbl, TFmt>(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerate<TEnumbl, TFmt>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerate<TEnumbl, TFmt>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TFmt>?
         where TFmt : ISpanFormattable? 
@@ -122,12 +122,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerateNullable<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateNullable<TEnumbl>(string fieldName, TEnumbl? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumbl : struct, IEnumerable  =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateNullable(fieldName, value.Value, formatString, formatFlags);
     
-    public TExt WhenPopulatedAddAllEnumerateNullable<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateNullable<TEnumbl>(string fieldName, TEnumbl? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumbl : IEnumerable? 
     {
@@ -148,13 +148,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerateNullable<TEnumbl, TFmtStruct>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateNullable<TEnumbl, TFmtStruct>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TFmtStruct?>
         where TFmtStruct : struct, ISpanFormattable   =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateNullable(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerateNullable<TEnumbl, TFmtStruct>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateNullable<TEnumbl, TFmtStruct>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TFmtStruct?>?
         where TFmtStruct : struct, ISpanFormattable 
@@ -176,14 +176,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerate<TEnumbl, TRevealBase>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerate<TEnumbl, TRevealBase>(string fieldName, TEnumbl? value
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable
         where TRevealBase : notnull   =>
       value == null ? stb.Mold : WhenPopulatedRevealAllEnumerate(fieldName, value.Value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenPopulatedRevealAllEnumerate<TEnumbl, TRevealBase>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerate<TEnumbl, TRevealBase>(string fieldName, TEnumbl? value
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable?
@@ -206,7 +206,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(string fieldName, TEnumbl? value
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TCloaked>
@@ -216,7 +216,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         ? stb.Mold 
         : WhenPopulatedRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(fieldName, value.Value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenPopulatedRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerate<TEnumbl, TCloaked, TRevealBase>(string fieldName, TEnumbl? value
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TCloaked>?
@@ -240,14 +240,14 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerateNullable<TEnumbl, TCloakedStruct>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerateNullable<TEnumbl, TCloakedStruct>(string fieldName, TEnumbl? value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TCloakedStruct?>
         where TCloakedStruct : struct  =>
       value == null ? stb.Mold : WhenPopulatedRevealAllEnumerateNullable(fieldName, value.Value, palantírReveal, formatString, formatFlags);
 
-    public TExt WhenPopulatedRevealAllEnumerateNullable<TEnumbl, TCloakedStruct>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerateNullable<TEnumbl, TCloakedStruct>(string fieldName, TEnumbl? value
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TCloakedStruct?>?
@@ -270,12 +270,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerate<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerate<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable  =>
       value == null ? stb.Mold : WhenPopulatedRevealAllEnumerate(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedRevealAllEnumerate<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerate<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable? 
     {
@@ -296,13 +296,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerate<TEnumbl, TBearer>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerate<TEnumbl, TBearer>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TBearer>
         where TBearer : IStringBearer?  =>
       value == null ? stb.Mold : WhenPopulatedRevealAllEnumerate<TEnumbl, TBearer>(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedRevealAllEnumerate<TEnumbl, TBearer>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerate<TEnumbl, TBearer>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TBearer>?
         where TBearer : IStringBearer? 
@@ -324,12 +324,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerateNullable<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerateNullable<TEnumbl>(string fieldName, TEnumbl? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumbl : struct, IEnumerable   =>
       value == null ? stb.Mold : WhenPopulatedRevealAllEnumerateNullable(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedRevealAllEnumerateNullable<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerateNullable<TEnumbl>(string fieldName, TEnumbl? value
     , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
       where TEnumbl : IEnumerable?  
     {
@@ -350,13 +350,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedRevealAllEnumerateNullable<TEnumbl, TBearerStruct>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerateNullable<TEnumbl, TBearerStruct>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TBearerStruct?>
         where TBearerStruct : struct, IStringBearer =>
       value == null ? stb.Mold : WhenPopulatedRevealAllEnumerateNullable<TEnumbl, TBearerStruct>(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedRevealAllEnumerateNullable<TEnumbl, TBearerStruct>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedRevealAllEnumerateNullable<TEnumbl, TBearerStruct>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TBearerStruct?>?
         where TBearerStruct : struct, IStringBearer  
@@ -378,12 +378,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerateString<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateString<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<string?>  =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateString(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerateString<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateString<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<string?>? 
     {
@@ -404,12 +404,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerateCharSeq<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateCharSeq<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable  =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateCharSeq(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerateCharSeq<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateCharSeq<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable? 
     {
@@ -430,13 +430,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerateCharSeq<TEnumbl, TCharSeq>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateCharSeq<TEnumbl, TCharSeq>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TCharSeq>
         where TCharSeq : ICharSequence?  =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateCharSeq<TEnumbl, TCharSeq>(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerateCharSeq<TEnumbl, TCharSeq>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateCharSeq<TEnumbl, TCharSeq>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TCharSeq>?
         where TCharSeq : ICharSequence? 
@@ -458,12 +458,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerateStringBuilder<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateStringBuilder<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<StringBuilder?>  =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateStringBuilder(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerateStringBuilder<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateStringBuilder<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<StringBuilder?>? 
     {
@@ -484,12 +484,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerateMatch<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateMatch<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable  =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateMatch(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerateMatch<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateMatch<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable? 
     {
@@ -510,12 +510,12 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
       return stb.Mold;
     }
 
-    public TExt WhenPopulatedAddAllEnumerateMatch<TEnumbl, TAny>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateMatch<TEnumbl, TAny>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<TAny>  =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateMatch<TEnumbl, TAny>(fieldName, value.Value, formatString, formatFlags);
 
-    public TExt WhenPopulatedAddAllEnumerateMatch<TEnumbl, TAny>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateMatch<TEnumbl, TAny>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<TAny>? 
     {
@@ -537,13 +537,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
     
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllEnumerateObject<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateObject<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : struct, IEnumerable<object?>  =>
       value == null ? stb.Mold : WhenPopulatedAddAllEnumerateObject(fieldName, value.Value, formatString, formatFlags);
     
     [CallsObjectToString]
-    public TExt WhenPopulatedAddAllEnumerateObject<TEnumbl>(string fieldName, TEnumbl? value
+    public TMold WhenPopulatedAddAllEnumerateObject<TEnumbl>(string fieldName, TEnumbl? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TEnumbl : IEnumerable<object?>? 
     {

@@ -10,8 +10,7 @@ public class PreFieldBoolArrayStructUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = true;
 
-    public PreFieldBoolArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrArrayStructUnion>? nodeRevealer = null)
+    public PreFieldBoolArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrArrayStructUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrArrayStructUnion> firstAsList = [
@@ -39,8 +38,7 @@ public class BoolArrayPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = true;
 
-    public BoolArrayPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrArrayStructUnion>? nodeRevealer = null)
+    public BoolArrayPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrArrayStructUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrArrayStructUnion> firstAsList = [
@@ -68,8 +66,7 @@ public class NullablePreFieldNullableBoolArrayStructUnionRevisit : IStringBearer
 {
     private readonly bool? firstPreField = false;
 
-    public NullablePreFieldNullableBoolArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrArrayStructUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrArrayStructUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrArrayStructUnion> firstAsList = [
@@ -97,8 +94,7 @@ public class NullableBoolArrayNullablePostFieldStructUnionRevisit : IStringBeare
 {
     private readonly bool? firstPostField = true;
 
-    public NullableBoolArrayNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrArrayStructUnion>? nodeRevealer = null)
+    public NullableBoolArrayNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrArrayStructUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrArrayStructUnion> firstAsList = [
@@ -126,8 +122,7 @@ public class PreFieldBoolArrayClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = false;
 
-    public PreFieldBoolArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrArrayClassUnion>? nodeRevealer = null)
+    public PreFieldBoolArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrArrayClassUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrArrayClassUnion> firstAsList = [
@@ -155,8 +150,7 @@ public class BoolArrayPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = false;
 
-    public BoolArrayPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrArrayClassUnion>? nodeRevealer = null)
+    public BoolArrayPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrArrayClassUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrArrayClassUnion> firstAsList = [
@@ -182,10 +176,9 @@ public class BoolArrayPostFieldClassUnionRevisit : IStringBearer
 
 public class NullablePreFieldNullableBoolArrayClassUnionRevisit : IStringBearer
 {
-    private readonly bool? firstPreField = null;
+    private readonly bool?                                                firstPreField = null;
 
-    public NullablePreFieldNullableBoolArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrArrayClassUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrArrayClassUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrArrayClassUnion> firstAsList = [
@@ -213,8 +206,7 @@ public class NullableBoolArrayNullablePostFieldClassUnionRevisit : IStringBearer
 {
     private readonly bool? firstPostField = null;
 
-    public NullableBoolArrayNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrArrayClassUnion>? nodeRevealer = null)
+    public NullableBoolArrayNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrArrayClassUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrArrayClassUnion> firstAsList = [
@@ -242,8 +234,7 @@ public class PreFieldBoolSpanClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = false;
 
-    public PreFieldBoolSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrSpanClassUnion>? nodeRevealer = null)
+    public PreFieldBoolSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrSpanClassUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrSpanClassUnion> firstAsList = [
@@ -271,8 +262,7 @@ public class BoolSpanPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = false;
 
-    public BoolSpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrSpanClassUnion>? nodeRevealer = null)
+    public BoolSpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrSpanClassUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrSpanClassUnion> firstAsList = [
@@ -300,8 +290,7 @@ public class NullablePreFieldNullableBoolSpanClassUnionRevisit : IStringBearer
 {
     private readonly bool? firstPreField = null;
 
-    public NullablePreFieldNullableBoolSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrSpanClassUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrSpanClassUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrSpanClassUnion> firstAsList = [
@@ -329,8 +318,7 @@ public class NullableBoolSpanNullablePostFieldClassUnionRevisit : IStringBearer
 {
     private readonly bool? firstPostField = null;
 
-    public NullableBoolSpanNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrSpanClassUnion>? nodeRevealer = null)
+    public NullableBoolSpanNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrSpanClassUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrSpanClassUnion> firstAsList = [
@@ -358,8 +346,7 @@ public class PreFieldBoolReadOnlySpanClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = false;
 
-    public PreFieldBoolReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrReadOnlySpanClassUnion>? nodeRevealer = null)
+    public PreFieldBoolReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrReadOnlySpanClassUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrReadOnlySpanClassUnion> firstAsList = [
@@ -387,8 +374,7 @@ public class BoolReadOnlySpanPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = false;
 
-    public BoolReadOnlySpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrReadOnlySpanClassUnion>? nodeRevealer = null)
+    public BoolReadOnlySpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrReadOnlySpanClassUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrReadOnlySpanClassUnion> firstAsList = [
@@ -416,8 +402,7 @@ public class NullablePreFieldNullableBoolReadOnlySpanClassUnionRevisit : IString
 {
     private readonly bool? firstPreField = null;
 
-    public NullablePreFieldNullableBoolReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrReadOnlySpanClassUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrReadOnlySpanClassUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrReadOnlySpanClassUnion> firstAsList = [
@@ -445,8 +430,7 @@ public class NullableBoolReadOnlySpanNullablePostFieldClassUnionRevisit : IStrin
 {
     private readonly bool? firstPostField = null;
 
-    public NullableBoolReadOnlySpanNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrReadOnlySpanClassUnion>? nodeRevealer = null)
+    public NullableBoolReadOnlySpanNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrReadOnlySpanClassUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrReadOnlySpanClassUnion> firstAsList = [
@@ -474,8 +458,7 @@ public class PreFieldBoolListStructUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = true;
 
-    public PreFieldBoolListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrListStructUnion>? nodeRevealer = null)
+    public PreFieldBoolListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrListStructUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrListStructUnion> firstAsList = [
@@ -503,8 +486,7 @@ public class BoolListPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = true;
 
-    public BoolListPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrArrayStructUnion>? nodeRevealer = null)
+    public BoolListPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrListStructUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrListStructUnion> firstAsList = [
@@ -532,8 +514,7 @@ public class NullablePreFieldNullableBoolListStructUnionRevisit : IStringBearer
 {
     private readonly bool? firstPreField = false;
 
-    public NullablePreFieldNullableBoolListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrListStructUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrListStructUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrListStructUnion> firstAsList = [
@@ -561,8 +542,7 @@ public class NullableBoolListNullablePostFieldStructUnionRevisit : IStringBearer
 {
     private readonly bool? firstPostField = true;
 
-    public NullableBoolListNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrListStructUnion>? nodeRevealer = null)
+    public NullableBoolListNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrListStructUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrListStructUnion> firstAsList = [
@@ -590,8 +570,7 @@ public class PreFieldBoolListClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = false;
 
-    public PreFieldBoolListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrListClassUnion>? nodeRevealer = null)
+    public PreFieldBoolListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrListClassUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrListClassUnion> firstAsList = [
@@ -619,8 +598,7 @@ public class BoolListPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = false;
 
-    public BoolListPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrListClassUnion>? nodeRevealer = null)
+    public BoolListPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrListClassUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrListClassUnion> firstAsList = [
@@ -648,8 +626,7 @@ public class NullablePreFieldNullableBoolListClassUnionRevisit : IStringBearer
 {
     private readonly bool? firstPreField = null;
 
-    public NullablePreFieldNullableBoolListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrListClassUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrListClassUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrListClassUnion> firstAsList = [
@@ -677,8 +654,7 @@ public class NullableBoolListNullablePostFieldClassUnionRevisit : IStringBearer
 {
     private readonly bool? firstPostField = null;
 
-    public NullableBoolListNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrListClassUnion>? nodeRevealer = null)
+    public NullableBoolListNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrListClassUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrListClassUnion> firstAsList = [
@@ -706,8 +682,7 @@ public class PreFieldBoolEnumerableStructUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = true;
 
-    public PreFieldBoolEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrEnumerableStructUnion>? nodeRevealer = null)
+    public PreFieldBoolEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrEnumerableStructUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrEnumerableStructUnion> firstAsEnumerable = [
@@ -727,7 +702,7 @@ public class PreFieldBoolEnumerableStructUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<IEnumerable<BoolOrEnumerableStructUnion>, BoolOrEnumerableStructUnion>(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -736,8 +711,7 @@ public class BoolEnumerablePostFieldStructUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = true;
 
-    public BoolEnumerablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrArrayStructUnion>? nodeRevealer = null)
+    public BoolEnumerablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrEnumerableStructUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrEnumerableStructUnion> firstAsEnumerable = [
@@ -756,7 +730,7 @@ public class BoolEnumerablePostFieldStructUnionRevisit : IStringBearer
     {
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<BoolOrEnumerableStructUnion>, BoolOrEnumerableStructUnion>(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -766,8 +740,7 @@ public class NullablePreFieldNullableBoolEnumerableStructUnionRevisit : IStringB
 {
     private readonly bool? firstPreField = false;
 
-    public NullablePreFieldNullableBoolEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrEnumerableStructUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrEnumerableStructUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrEnumerableStructUnion> firstAsEnumerable = [
@@ -787,8 +760,7 @@ public class NullablePreFieldNullableBoolEnumerableStructUnionRevisit : IStringB
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<NullableStructBoolOrEnumerableStructUnion>, NullableStructBoolOrEnumerableStructUnion>
-               (nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -797,8 +769,7 @@ public class NullableBoolEnumerableNullablePostFieldStructUnionRevisit : IString
 {
     private readonly bool? firstPostField = true;
 
-    public NullableBoolEnumerableNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrEnumerableStructUnion>? nodeRevealer = null)
+    public NullableBoolEnumerableNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrEnumerableStructUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrEnumerableStructUnion> firstAsEnumerable = [
@@ -817,8 +788,7 @@ public class NullableBoolEnumerableNullablePostFieldStructUnionRevisit : IString
     {
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<NullableStructBoolOrEnumerableStructUnion>, NullableStructBoolOrEnumerableStructUnion>
-               (nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -828,8 +798,7 @@ public class PreFieldBoolEnumerableClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = false;
 
-    public PreFieldBoolEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrEnumerableClassUnion>? nodeRevealer = null)
+    public PreFieldBoolEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrEnumerableClassUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrEnumerableClassUnion> firstAsEnumerable = [
@@ -849,8 +818,7 @@ public class PreFieldBoolEnumerableClassUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<BoolOrEnumerableClassUnion>, BoolOrEnumerableClassUnion>
-               (nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -859,8 +827,7 @@ public class BoolEnumerablePostFieldClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = false;
 
-    public BoolEnumerablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrEnumerableClassUnion>? nodeRevealer = null)
+    public BoolEnumerablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrEnumerableClassUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrEnumerableClassUnion> firstAsEnumerable = [
@@ -879,8 +846,7 @@ public class BoolEnumerablePostFieldClassUnionRevisit : IStringBearer
     {
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<BoolOrEnumerableClassUnion>, BoolOrEnumerableClassUnion>
-               (nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -890,8 +856,7 @@ public class NullablePreFieldNullableBoolEnumerableClassUnionRevisit : IStringBe
 {
     private readonly bool? firstPreField = null;
 
-    public NullablePreFieldNullableBoolEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrEnumerableClassUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrEnumerableClassUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrEnumerableClassUnion> firstAsEnumerable = [
@@ -911,8 +876,7 @@ public class NullablePreFieldNullableBoolEnumerableClassUnionRevisit : IStringBe
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<NullableStructBoolOrEnumerableClassUnion>, NullableStructBoolOrEnumerableClassUnion>
-               (nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -921,8 +885,7 @@ public class NullableBoolEnumerableNullablePostFieldClassUnionRevisit : IStringB
 {
     private readonly bool? firstPostField = null;
 
-    public NullableBoolEnumerableNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrEnumerableClassUnion>? nodeRevealer = null)
+    public NullableBoolEnumerableNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrEnumerableClassUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrEnumerableClassUnion> firstAsEnumerable = [
@@ -941,8 +904,7 @@ public class NullableBoolEnumerableNullablePostFieldClassUnionRevisit : IStringB
     {
         return tos.StartComplexType(this)
                   .CollectionField
-                  .AlwaysRevealAllEnumerate<List<NullableStructBoolOrEnumerableClassUnion>, NullableStructBoolOrEnumerableClassUnion>
-                      (nameof(firstEnumerable), firstEnumerable)
+                  .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
                   .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
                   .Complete();
     }
@@ -953,8 +915,7 @@ public class PreFieldBoolEnumeratorStructUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = true;
 
-    public PreFieldBoolEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrEnumeratorStructUnion>? nodeRevealer = null)
+    public PreFieldBoolEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrEnumeratorStructUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrEnumeratorStructUnion> firstAsEnumerator = [
@@ -975,8 +936,7 @@ public class PreFieldBoolEnumeratorStructUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllIterate<List<BoolOrEnumeratorStructUnion>.Enumerator, BoolOrEnumeratorStructUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -985,8 +945,7 @@ public class BoolEnumeratorPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = true;
 
-    public BoolEnumeratorPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrArrayStructUnion>? nodeRevealer = null)
+    public BoolEnumeratorPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrEnumeratorStructUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrEnumeratorStructUnion> firstAsEnumerator = [
@@ -1006,8 +965,7 @@ public class BoolEnumeratorPostFieldStructUnionRevisit : IStringBearer
         ((IEnumerator<BoolOrEnumeratorStructUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllIterate<List<BoolOrEnumeratorStructUnion>.Enumerator, BoolOrEnumeratorStructUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -1017,8 +975,7 @@ public class NullablePreFieldNullableBoolEnumeratorStructUnionRevisit : IStringB
 {
     private readonly bool? firstPreField = false;
 
-    public NullablePreFieldNullableBoolEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrEnumeratorStructUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrEnumeratorStructUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrEnumeratorStructUnion> firstAsEnumerator = [
@@ -1039,8 +996,7 @@ public class NullablePreFieldNullableBoolEnumeratorStructUnionRevisit : IStringB
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllIterate<List<NullableStructBoolOrEnumeratorStructUnion>.Enumerator, NullableStructBoolOrEnumeratorStructUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1049,8 +1005,7 @@ public class NullableBoolEnumeratorNullablePostFieldStructUnionRevisit : IString
 {
     private readonly bool? firstPostField = true;
 
-    public NullableBoolEnumeratorNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrEnumeratorStructUnion>? nodeRevealer = null)
+    public NullableBoolEnumeratorNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrEnumeratorStructUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrEnumeratorStructUnion> firstAsEnumerator = [
@@ -1070,8 +1025,7 @@ public class NullableBoolEnumeratorNullablePostFieldStructUnionRevisit : IString
         ((IEnumerator<NullableStructBoolOrEnumeratorStructUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllIterate<List<NullableStructBoolOrEnumeratorStructUnion>.Enumerator, NullableStructBoolOrEnumeratorStructUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -1081,8 +1035,7 @@ public class PreFieldBoolEnumeratorClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPreField = false;
 
-    public PreFieldBoolEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrEnumeratorClassUnion>? nodeRevealer = null)
+    public PreFieldBoolEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrEnumeratorClassUnion([true, false, true], isSimple, isValue, boolRevealer);
         List<BoolOrEnumeratorClassUnion> firstAsEnumerator = [
@@ -1103,8 +1056,7 @@ public class PreFieldBoolEnumeratorClassUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllIterate<List<BoolOrEnumeratorClassUnion>.Enumerator, BoolOrEnumeratorClassUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1113,8 +1065,7 @@ public class BoolEnumeratorPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly bool firstPostField = false;
 
-    public BoolEnumeratorPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<BoolOrEnumeratorClassUnion>? nodeRevealer = null)
+    public BoolEnumeratorPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new BoolOrEnumeratorClassUnion([false, true, false], isSimple, isValue, boolRevealer);
         List<BoolOrEnumeratorClassUnion> firstAsEnumerator = [
@@ -1134,8 +1085,7 @@ public class BoolEnumeratorPostFieldClassUnionRevisit : IStringBearer
         ((IEnumerator<BoolOrEnumeratorClassUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllIterate<List<BoolOrEnumeratorClassUnion>.Enumerator, BoolOrEnumeratorClassUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -1145,8 +1095,7 @@ public class NullablePreFieldNullableBoolEnumeratorClassUnionRevisit : IStringBe
 {
     private readonly bool? firstPreField = null;
 
-    public NullablePreFieldNullableBoolEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrEnumeratorClassUnion>? nodeRevealer = null)
+    public NullablePreFieldNullableBoolEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrEnumeratorClassUnion([null, true, false, true], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrEnumeratorClassUnion> firstAsEnumerator = [
@@ -1167,8 +1116,7 @@ public class NullablePreFieldNullableBoolEnumeratorClassUnionRevisit : IStringBe
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllIterate<List<NullableStructBoolOrEnumeratorClassUnion>.Enumerator, NullableStructBoolOrEnumeratorClassUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1177,8 +1125,7 @@ public class NullableBoolEnumeratorNullablePostFieldClassUnionRevisit : IStringB
 {
     private readonly bool? firstPostField = null;
 
-    public NullableBoolEnumeratorNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null
-      , PalantírReveal<NullableStructBoolOrEnumeratorClassUnion>? nodeRevealer = null)
+    public NullableBoolEnumeratorNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<bool>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructBoolOrEnumeratorClassUnion([false, true, null, false], isSimple, isValue, boolRevealer);
         List<NullableStructBoolOrEnumeratorClassUnion> firstAsEnumerator = [
@@ -1198,8 +1145,7 @@ public class NullableBoolEnumeratorNullablePostFieldClassUnionRevisit : IStringB
         ((IEnumerator<NullableStructBoolOrEnumeratorClassUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
                   .CollectionField
-                  .AlwaysRevealAllIterate<List<NullableStructBoolOrEnumeratorClassUnion>.Enumerator, NullableStructBoolOrEnumeratorClassUnion>
-                      (nameof(firstEnumerator), firstEnumerator)
+                  .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
                   .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
                   .Complete();
     }

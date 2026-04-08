@@ -1,0 +1,621 @@
+﻿// Licensed under the MIT license.
+// Copyright Alexis Sawenko 2025 all rights reserved
+
+using FortitudeCommon.Types.StringsOfPower;
+using FortitudeCommon.Types.StringsOfPower.DieCasting;
+using FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations;
+using static FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestExpectations.ScaffoldingStringBuilderInvokeFlags;
+
+namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType.FixtureScaffolding;
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites 
+                | SubsetListFilter | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyedFromKeyValueDictionaryAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived>
+    : SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelectDerived>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromArrayBothFormatStrings
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromArrayBothFormatStrings?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromArrayBothFormatStrings);
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromArrayBothFormatStrings
+              , DisplayKeys?.ToArray()!
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites 
+                | SubsetListFilter | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyedFromKeyValueDictionaryAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived>
+    : SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelectDerived>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromSpanBothFormatStrings
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromSpanBothFormatStrings?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromSpanBothFormatStrings);
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromSpanBothFormatStrings
+              , (DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : Span<TKSelectDerived>.Empty)
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan 
+                | AlwaysWrites | SubsetListFilter | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyedFromKeyValueDictionaryAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived>
+    : SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelectDerived>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromReadOnlySpanBothFormatStrings
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromReadOnlySpanBothFormatStrings?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanBothFormatStrings);
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromReadOnlySpanBothFormatStrings
+              , (DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : ReadOnlySpan<TKSelectDerived>.Empty)
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AlwaysWrites
+                | SubsetListFilter | AcceptsAnyGeneric | SupportsValueFormatString | SupportsKeyFormatString)]
+public class KeyedFromKeyValueDictionaryAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived>
+    : SelectFormattedKeyValueMoldScaffold<TKey, TValue, TKSelectDerived>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromListBothFormatStrings
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromListBothFormatStrings?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromListBothFormatStrings);
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromListBothFormatStrings
+              , DisplayKeys!
+              , ValueFormatString
+              , KeyFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites 
+                | SubsetListFilter | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
+public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+    : SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+    where TValue : TVRevealBase?
+    where TVRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromArrayValueRevealerKeyFormatString 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromArrayValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromArrayValueRevealerKeyFormatString );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromArrayValueRevealerKeyFormatString
+              , DisplayKeys?.ToArray()!
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites 
+                | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
+public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived>
+    : SelectFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+    where TValue : struct
+{
+    public IReadOnlyDictionary<TKey, TValue?>? AddWithSelectKeysFromArrayValueRevealerKeyFormatString 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromArrayValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromArrayValueRevealerKeyFormatString );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromArrayValueRevealerKeyFormatString
+              , DisplayKeys?.ToArray()!
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites 
+                | SubsetListFilter | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
+public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+    : SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+    where TValue : TVRevealBase?
+    where TVRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromSpanValueRevealerKeyFormatString 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromSpanValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromSpanValueRevealerKeyFormatString );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromSpanValueRevealerKeyFormatString
+              , DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : Span<TKSelectDerived>.Empty
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites 
+                | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
+public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived>
+    : SelectFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+    where TValue : struct
+{
+    public IReadOnlyDictionary<TKey, TValue?>? AddWithSelectKeysFromSpanValueRevealerKeyFormatString 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromSpanValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromSpanValueRevealerKeyFormatString );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromSpanValueRevealerKeyFormatString
+              , DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : Span<TKSelectDerived>.Empty
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan 
+                | AlwaysWrites | SubsetListFilter | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyFormatString
+                | SupportsValueFormatString)]
+public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+    : SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+    where TValue : TVRevealBase?
+    where TVRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
+              , (DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : ReadOnlySpan<TKSelectDerived>.Empty)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan 
+                | AlwaysWrites | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyFormatString
+                | SupportsValueFormatString)]
+public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived>
+    : SelectFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+    where TValue : struct
+{
+    public IReadOnlyDictionary<TKey, TValue?>? AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromReadOnlySpanValueRevealerKeyFormatString
+              , (DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : ReadOnlySpan<TKSelectDerived>.Empty)
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AlwaysWrites
+                | SubsetListFilter | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
+public class KeyedFromKeyValueRevealerDictionaryAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TVRevealBase>
+    : SelectFormattedKeyValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TVRevealBase>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+    where TValue : TVRevealBase?
+    where TVRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromListValueRevealerKeyFormatString 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromListValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromListValueRevealerKeyFormatString );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromListValueRevealerKeyFormatString
+              , DisplayKeys!
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AlwaysWrites
+                | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyFormatString | SupportsValueFormatString)]
+public class KeyedFromKeyStructValueRevealerDictionaryAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived>
+    : SelectFormattedKeyStructValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived>
+    where TKey : notnull
+    where TKSelectDerived : TKey
+    where TValue : struct
+{
+    public IReadOnlyDictionary<TKey, TValue?>? AddWithSelectKeysFromListValueRevealerKeyFormatString 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromListValueRevealerKeyFormatString?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromListValueRevealerKeyFormatString );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromListValueRevealerKeyFormatString
+              , DisplayKeys!
+              , ValueRevealer
+              , KeyFormatString
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites
+                | SubsetListFilter | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
+public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    : SelectKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    where TKey : TKRevealBase
+    where TKSelectDerived : TKey
+    where TValue : TVRevealBase?
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromArrayBothRevealers 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromArrayBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromArrayBothRevealers );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromArrayBothRevealers
+              , DisplayKeys?.ToArray()!
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AcceptsArray | AlwaysWrites
+                | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
+public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysArrayStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase>
+    : SelectKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase>
+    where TKey : TKRevealBase
+    where TKSelectDerived : TKey
+    where TValue : struct
+    where TKRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue?>? AddWithSelectKeysFromArrayBothRevealers 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromArrayBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromArrayBothRevealers );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromArrayBothRevealers
+              , DisplayKeys?.ToArray()!
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites
+                | SubsetListFilter | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
+public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    : SelectKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    where TKey : TKRevealBase
+    where TKSelectDerived : TKey
+    where TValue : TVRevealBase?
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromSpanBothRevealers 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromSpanBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromSpanBothRevealers );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromSpanBothRevealers
+              , (DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : Span<TKSelectDerived>.Empty)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsSpan | AlwaysWrites
+                | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
+public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysSpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase>
+    : SelectKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase>
+    where TKey : TKRevealBase
+    where TKSelectDerived : TKey
+    where TValue : struct
+    where TKRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue?>? AddWithSelectKeysFromSpanBothRevealers 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromSpanBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromSpanBothRevealers );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromSpanBothRevealers
+              , (DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : Span<TKSelectDerived>.Empty)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan
+                | AlwaysWrites | SubsetListFilter | SubsetListFilter | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyRevealer
+                | SupportsValueFormatString)]
+public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    : SelectKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    where TKey : TKRevealBase
+    where TKSelectDerived : TKey
+    where TValue : TVRevealBase?
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromReadOnlySpanBothRevealers 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromReadOnlySpanBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanBothRevealers );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromReadOnlySpanBothRevealers
+              , (DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : ReadOnlySpan<TKSelectDerived>.Empty)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | CallsAsReadOnlySpan
+                | AlwaysWrites | SubsetListFilter | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyRevealer
+                | SupportsValueFormatString)]
+public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysReadOnlySpanStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase>
+    : SelectKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase>
+    where TKey : TKRevealBase
+    where TKSelectDerived : TKey
+    where TValue : struct
+    where TKRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue?>? AddWithSelectKeysFromReadOnlySpanBothRevealers 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromReadOnlySpanBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromReadOnlySpanBothRevealers );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromReadOnlySpanBothRevealers
+              , (DisplayKeys != null ? DisplayKeys.ToArray().AsSpan() : ReadOnlySpan<TKSelectDerived>.Empty)
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AlwaysWrites
+                | SubsetListFilter | AcceptsAnyExceptNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
+public class KeyedFromKeyRevealerValueRevealerDictionaryAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    : SelectKeyRevealerValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase, TVRevealBase>
+    where TKey : TKRevealBase
+    where TKSelectDerived : TKey
+    where TValue : TVRevealBase?
+    where TKRevealBase : notnull
+    where TVRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue>? AddWithSelectKeysFromListBothRevealers 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromListBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromListBothRevealers );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromListBothRevealers
+              , DisplayKeys!
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}
+
+[TypeGeneratePart(IsKeyedCollectionType | IsContentType | KeyValueCardinality | AcceptsDictionary | AcceptsList | AlwaysWrites
+                | SubsetListFilter | AcceptsNullableStruct | SupportsValueRevealer | SupportsKeyRevealer | SupportsValueFormatString)]
+public class KeyedFromKeyRevealerStructValueRevealerDictionaryAddWithSelectKeysListStringBearer<TKey, TValue, TKSelectDerived, TKRevealBase>
+    : SelectKeyRevealerStructValueRevealerMoldScaffold<TKey, TValue, TKSelectDerived, TKRevealBase>
+    where TKey : TKRevealBase
+    where TKSelectDerived : TKey
+    where TValue : struct
+    where TKRevealBase : notnull
+{
+    public IReadOnlyDictionary<TKey, TValue?>? AddWithSelectKeysFromListBothRevealers 
+    {
+        get => Value?.ToDictionary();
+        set => Value = value?.ToList();
+    }
+
+    public override Type KeyedCollectionType =>
+        AddWithSelectKeysFromListBothRevealers?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue?>);
+
+    public override string PropertyName => nameof(AddWithSelectKeysFromListBothRevealers );
+
+    public override AppendSummary RevealState(ITheOneString tos) =>
+        tos.StartKeyedCollectionType(this)
+           .AddWithSelectKeys
+               (AddWithSelectKeysFromListBothRevealers
+              , DisplayKeys!
+              , ValueRevealer
+              , KeyRevealer
+              , ValueFormatString, FormattingFlags)
+           .Complete();
+}

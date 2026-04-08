@@ -110,26 +110,65 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToTripleGenericInvokerDelegate)));
-        genericParamTypes[0] = enumblParamType;
-        genericParamTypes[1] = elementType;
-        var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
-
         methodParamTypes[1] = enumblParamType;
+        var fullGenericInvoke =
+            BuildAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>(toInvokeOn, enumblParamType, enumblType, methodParamTypes.AsArray);
 
-        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-        invokeReflectedArgs[0] = toInvokeOn;
-        invokeReflectedArgs[1] = enumblParamType;
-        invokeReflectedArgs[2] = enumblType;
-        invokeReflectedArgs[3] = methodParamTypes.AsArray;
-
-        return (InputTypeInvoke<TEnumbl, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+        return fullGenericInvoke;
     }
 
-    private static InputTypeInvoke<TEnumbl, TFilterBase> BuildAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TElement, TFilterBase>(
+    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAnyEnumblToDoubleGenericInvokerDelegate<TEnumbl, TFilterBase>(
+        Type enumblParamType, Type enumblType, Type elementType, string toInvokeMethodName)
+        where TEnumbl : IEnumerable?
+    {
+        var itemType = elementType.IfNullableGetUnderlyingTypeOrThis();
+
+        using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
+        genericParamTypes[0] = enumblType;
+        genericParamTypes[1] = itemType;
+
+        using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
+        methodParamTypes[0] = typeof(ICollectionMoldWriteState);
+        methodParamTypes[1] = enumblType;
+        methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase>);
+        methodParamTypes[3] = typeof(string);
+        methodParamTypes[4] = typeof(FormatFlags);
+
+        var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
+
+        methodParamTypes[1] = enumblParamType;
+        var fullGenericInvoke =
+            BuildAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>(toInvokeOn, enumblParamType, enumblType, methodParamTypes.AsArray);
+
+        return fullGenericInvoke;
+    }
+
+    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilterBase>(
+        Type enumblParamType, Type enumblType, string toInvokeMethodName)
+        where TEnumbl : IEnumerable?
+    {
+        using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(1);
+        genericParamTypes[0] = enumblType;
+
+        using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
+        methodParamTypes[0] = typeof(ICollectionMoldWriteState);
+        methodParamTypes[1] = enumblType;
+        methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase>);
+        methodParamTypes[3] = typeof(string);
+        methodParamTypes[4] = typeof(FormatFlags);
+
+        var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
+
+        methodParamTypes[1] = enumblParamType;
+        var fullGenericInvoke =
+            BuildAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>(toInvokeOn, enumblParamType, enumblType, methodParamTypes.AsArray);
+
+        return fullGenericInvoke;
+    }
+
+    private static InputTypeInvoke<TEnumbl, TFilterBase> BuildAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>(
         MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
-        where TEnumbl : IEnumerable<TElement>?
-        where TElement : TFilterBase?
+        where TEnumbl : IEnumerable?
     {
         var requiresCast     = enumblParamType != enumblType;
         var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
@@ -159,170 +198,14 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         ilGenerator.Emit(OpCodes.Ldarg_S, 4);
         ilGenerator.Emit(OpCodes.Call, methodInfo);
         ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeInvoke<TEnumbl, TElement, TFilterBase>));
-        var createInvoker = (InputTypeInvoke<TEnumbl, TElement, TFilterBase>)methodInvoker;
-
-        return Wrapped;
-
-        void Wrapped(ICollectionMoldWriteState mws, TEnumbl? enumbl, OrderedCollectionPredicate<TFilterBase> filterPredicate
-          , string? valueFmtStr, FormatFlags flags) =>
-            createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags);
-    }
-
-    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAnyEnumblToDoubleGenericInvokerDelegate<TEnumbl, TFilterBase>(
-        Type enumblParamType, Type enumblType, Type elementType, string toInvokeMethodName)
-        where TEnumbl : IEnumerable?
-    {
-        var itemType = elementType.IfNullableGetUnderlyingTypeOrThis();
-
-        using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
-        genericParamTypes[0] = enumblType;
-        genericParamTypes[1] = itemType;
-
-        using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
-        methodParamTypes[0] = typeof(ICollectionMoldWriteState);
-        methodParamTypes[1] = enumblType;
-        methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase>);
-        methodParamTypes[3] = typeof(string);
-        methodParamTypes[4] = typeof(FormatFlags);
-
-        var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
-
-        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToDoubleGenericInvoker)));
-        genericParamTypes[0] = enumblParamType;
-        genericParamTypes[1] = elementType;
-        var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
-
-        methodParamTypes[1] = enumblParamType;
-
-        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-        invokeReflectedArgs[0] = toInvokeOn;
-        invokeReflectedArgs[1] = enumblParamType;
-        invokeReflectedArgs[2] = enumblType;
-        invokeReflectedArgs[3] = methodParamTypes.AsArray;
-
-        return (InputTypeInvoke<TEnumbl, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
-    }
-
-    private static InputTypeInvoke<TEnumbl, TElement> BuildAnyEnumblToDoubleGenericInvoker<TEnumbl, TElement>(
-        MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
-        where TEnumbl : IEnumerable<TElement>?
-    {
-        var requiresCast     = enumblParamType != enumblType;
-        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
-
-        var helperMethod =
-            new DynamicMethod
-                ($"{methodInfo.Name}_DynamicEnumeratorInvoke", null,
-                 methodParamTypes, typeof(OrderedCollectionAddFilteredEnumerateExtensions).Module, false);
-        var ilGenerator = helperMethod.GetILGenerator();
-        if (requiresCast || requiresUnboxing)
-        {
-            // Make space for enumblType local variables
-            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-
-            // cast TEnumbl value => (enumblType)value
-            ilGenerator.Emit(OpCodes.Ldarg_1);
-            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
-            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
-            ilGenerator.Emit(OpCodes.Stloc_0);
-        }
-
-        // call AddAllEnumerate(KeyedCollectionMold, TEnumbl, valueFmtStr, keyFmtStr, valueFmtStr, FormatFlags)
-        ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Ldarg_2);
-        ilGenerator.Emit(OpCodes.Ldarg_3);
-        ilGenerator.Emit(OpCodes.Ldarg_S, 4);
-        ilGenerator.Emit(OpCodes.Call, methodInfo);
-        ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeInvoke<TEnumbl, TElement>));
-        var createInvoker = (InputTypeInvoke<TEnumbl, TElement>)methodInvoker;
-
-        return Wrapped;
-
-        void Wrapped(ICollectionMoldWriteState mws, TEnumbl? enumbl, OrderedCollectionPredicate<TElement> filterPredicate
-          , string? valueFmtStr, FormatFlags flags) =>
-            createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags);
-    }
-
-    private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilterBase>(
-        Type enumblParamType, Type enumblType, Type itemType, string toInvokeMethodName)
-        where TEnumbl : IEnumerable?
-    {
-        using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(1);
-        genericParamTypes[0] = enumblType;
-
-        using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
-        methodParamTypes[0] = typeof(ICollectionMoldWriteState);
-        methodParamTypes[1] = enumblType;
-        methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase>);
-        methodParamTypes[3] = typeof(string);
-        methodParamTypes[4] = typeof(FormatFlags);
-
-        var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
-
-        var       genGenMethod            = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToSingleGenericInvoker)));
-        using var invokeGenericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
-        invokeGenericParamTypes[0] = enumblParamType;
-        invokeGenericParamTypes[1] = itemType;
-        var concreteGenMethod = genGenMethod.MakeGenericMethod(invokeGenericParamTypes.AsArray);
-
-        methodParamTypes[1] = enumblParamType;
-
-        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-        invokeReflectedArgs[0] = toInvokeOn;
-        invokeReflectedArgs[1] = enumblParamType;
-        invokeReflectedArgs[2] = enumblType;
-        invokeReflectedArgs[3] = methodParamTypes.AsArray;
-
-        return (InputTypeInvoke<TEnumbl, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
-    }
-
-    private static InputTypeInvoke<TEnumbl, TFilterBase> BuildAnyEnumblToSingleGenericInvoker<TEnumbl, TFilterBase>(
-        MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
-        where TEnumbl : IEnumerable?
-    {
-        var requiresCast     = enumblParamType != enumblType;
-        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
-
-        var helperMethod =
-            new DynamicMethod
-                ($"{methodInfo.Name}_DynamicEnumeratorInvoke", null,
-                 methodParamTypes, typeof(OrderedCollectionAddFilteredEnumerateExtensions).Module, false);
-        var ilGenerator = helperMethod.GetILGenerator();
-        if (requiresCast || requiresUnboxing)
-        {
-            // Make space for enumblType local variables
-            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-
-            // cast TEnumbl value => (enumblType)value
-            ilGenerator.Emit(OpCodes.Ldarg_1);
-            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
-            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
-            ilGenerator.Emit(OpCodes.Stloc_0);
-        }
-
-        // call AddAllEnumerate(KeyedCollectionMold, TEnumbl, valueFmtStr, keyFmtStr, valueFmtStr, FormatFlags)
-        ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Ldarg_2);
-        ilGenerator.Emit(OpCodes.Ldarg_3);
-        ilGenerator.Emit(OpCodes.Ldarg_S, 4);
-        ilGenerator.Emit(OpCodes.Call, methodInfo);
-        ilGenerator.Emit(OpCodes.Ret);
         var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeInvoke<TEnumbl, TFilterBase>));
         var createInvoker = (InputTypeInvoke<TEnumbl, TFilterBase>)methodInvoker;
 
-        return Wrapped;
-
-        void Wrapped(ICollectionMoldWriteState mws, TEnumbl? enumbl, OrderedCollectionPredicate<TFilterBase> filterPredicate
-          , string? valueFmtStr, FormatFlags flags) =>
-            createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags);
+        return createInvoker;
     }
 
     private static InputTypeInvoke<TEnumbl, TFilterBase> CreateAddFilteredBoolDelegate<TEnumbl, TFilterBase>(Type enumblParamType
-      , Type enumblType, Type filterType)
+      , Type enumblType)
         where TEnumbl : IEnumerable?
     {
         var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
@@ -333,7 +216,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         string toInvokeMethodName = isNullable ? nameof(AddFilteredEnumerateNullableBool) : nameof(AddFilteredEnumerateBool);
 
-        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType, toInvokeMethodName);
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, toInvokeMethodName);
     }
 
     internal static InputTypeInvoke<TEnumbl, TFilterBase> GetAddFilteredSpanFormattable<TEnumbl, TFilterBase>(Type enumblType)
@@ -421,26 +304,18 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         var toInvokeOn = GetStaticMethodInfo(nameof(RevealFilteredEnumerate), genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddFilteredCloakedRevealerInvoker)));
-        genericParamTypes[0] = enumblParamType;
-        var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
-
         methodParamTypes[1] = enumblParamType;
+        var fullGenericInvoke =
+            BuildAddFilteredCloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase>
+                (toInvokeOn, enumblParamType, enumblType, methodParamTypes.AsArray);
 
-        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-        invokeReflectedArgs[0] = toInvokeOn;
-        invokeReflectedArgs[1] = enumblParamType;
-        invokeReflectedArgs[2] = enumblType;
-        invokeReflectedArgs[3] = methodParamTypes.AsArray;
-
-        return (CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+        return fullGenericInvoke;
     }
 
     private static CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase>
-        BuildAddFilteredCloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>(
+        BuildAddFilteredCloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase>(
             MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
-        where TEnumbl : IEnumerable<TElement>?
-        where TElement : TFilterBase?, TRevealBase?
+        where TEnumbl : IEnumerable?
         where TRevealBase : notnull
     {
         var requiresCast     = enumblParamType != enumblType;
@@ -472,14 +347,10 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         ilGenerator.Emit(OpCodes.Ldarg_S, 5);
         ilGenerator.Emit(OpCodes.Call, methodInfo);
         ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker = helperMethod.CreateDelegate(typeof(CloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>));
-        var createInvoker = (CloakedRevealerInvoker<TEnumbl, TElement, TFilterBase, TRevealBase>)methodInvoker;
+        var methodInvoker = helperMethod.CreateDelegate(typeof(CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase>));
+        var createInvoker = (CloakedRevealerInvoker<TEnumbl, TFilterBase, TRevealBase>)methodInvoker;
 
-        return Wrapped;
-
-        void Wrapped(ICollectionMoldWriteState mws, TEnumbl? enumbl, OrderedCollectionPredicate<TFilterBase> filterPredicate
-          , PalantírReveal<TRevealBase> revealer, string? valueFmtStr, FormatFlags flags) =>
-            createInvoker(mws, enumbl, filterPredicate, revealer, valueFmtStr, flags);
+        return createInvoker;
     }
 
     internal static InputTypeInvoke<TEnumbl, TFilterBase> GetAddFilteredStringBearer<TEnumbl, TFilterBase>(Type enumblType)
@@ -525,8 +396,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         if (!elementType.IsString()) throw new ArgumentException("Expected to receive a string collection");
 
-        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilter>(enumblParamType, enumblType, typeof(string)
-                                                                             , nameof(AddFilteredEnumerateString));
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilter>(enumblParamType, enumblType, nameof(AddFilteredEnumerateString));
     }
 
     internal static InputTypeInvoke<TEnumbl, TFilterBase> GetAddFilteredCharSequence<TEnumbl, TFilterBase>(Type enumblType)
@@ -566,7 +436,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
 
         if (!elementType.IsStringBuilder()) throw new ArgumentException("Expected to receive a StringBuilder collection");
 
-        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, typeof(StringBuilder)
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType
                                                                                  , nameof(AddFilteredEnumerateStringBuilder));
     }
 
@@ -607,7 +477,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         {
             return CreateAddFilteredCharSequenceDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType);
         }
-        if (itemType.IsBool()) { return CreateAddFilteredBoolDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType, filterType); }
+        if (itemType.IsBool()) { return CreateAddFilteredBoolDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType); }
 
         return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumbl, TFilterBase>(enumblParamType, enumblType
                                                                                  , elementType, filterType, nameof(AddFilteredEnumerateMatch));
@@ -1647,7 +1517,7 @@ public static class OrderedCollectionAddFilteredEnumerateExtensions
         if (value != null)
         {
             mws.RevealFilteredEnumerate<TEnumbl, TCloaked, TFilterBase, TRevealBase>
-                (value.Value, filterPredicate, palantírReveal, formatString , formatFlags);
+                (value.Value, filterPredicate, palantírReveal, formatString, formatFlags);
             return;
         }
         var elementType = typeof(TRevealBase);

@@ -17,6 +17,7 @@ using static System.Reflection.BindingFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.CollectionPurification.CollectionItemResult;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
+
 #pragma warning disable CS0618 // Type or member is obsolete
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
@@ -26,12 +27,12 @@ public static class OrderedCollectionAddFilteredIterateExtensions
     private static MethodInfo[]? myMethodInfosCached;
 
     private static readonly ConcurrentDictionary<(Type, Type, Type), MethodInfo> BuiltInTypeInvoke = new();
-    
-    private static readonly ConcurrentDictionary<(Type, Type, Type, Type), MethodInfo> CloakedTypeInvoke = new();
-    private static readonly ConcurrentDictionary<(Type, Type, Type), MethodInfo> NullableCloakedTypeInvoke = new();
-    
+
+    private static readonly ConcurrentDictionary<(Type, Type, Type, Type), MethodInfo> CloakedTypeInvoke         = new();
+    private static readonly ConcurrentDictionary<(Type, Type, Type), MethodInfo>       NullableCloakedTypeInvoke = new();
+
     private static readonly ConcurrentDictionary<(Type, Type), Delegate> InputTypeInvokeCache = new();
-    
+
     private static readonly ConcurrentDictionary<(Type, Type, Type), Delegate> CloakedInvokeCache = new();
 
     internal delegate void InputTypeInvoke<in TEnumtr, out TFilterBase>(
@@ -86,8 +87,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                  {
                      bool isNullable = key.elementType.IsNullable();
                      var  itemType   = key.elementType.IfNullableGetUnderlyingTypeOrThis();
-                     
-                     if (!itemType.IsInputConstructionType()) 
+
+                     if (!itemType.IsInputConstructionType())
                          throw new ArgumentException("Expected to receive a a built in enumerator type.  Got " + key.elementType.FullName);
 
 
@@ -101,7 +102,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                      methodParamTypes[3] = typeof(string);
                      methodParamTypes[4] = typeof(FormatFlags);
                      methodParamTypes[5] = typeof(bool?);
-                     
+
                      var methodName = isNullable ? nameof(AddFilteredIterateNullableBool) : nameof(AddFilteredIterateBool);
 
                      return GetStaticMethodInfo(methodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
@@ -117,9 +118,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 ((enumtrType, elementType, filterType)
                , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
                  {
-                     var  itemType = key.elementType.IfNullableGetUnderlyingTypeOrThis();
-                     
-                     if (!itemType.IsInputConstructionType()) 
+                     var itemType = key.elementType.IfNullableGetUnderlyingTypeOrThis();
+
+                     if (!itemType.IsInputConstructionType())
                          throw new ArgumentException("Expected to receive a a built in enumerator type.  Got " + key.elementType.FullName);
 
 
@@ -151,11 +152,11 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 ((enumtrType, elementType, filterType)
                , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
                  {
-                     var  itemType = key.elementType.IfNullableGetUnderlyingTypeOrThis();
-                     
-                     if (!itemType.IsInputConstructionType()) 
+                     var itemType = key.elementType.IfNullableGetUnderlyingTypeOrThis();
+
+                     if (!itemType.IsInputConstructionType())
                          throw new ArgumentException("Expected to receive a a built in enumerator type.  Got " + key.elementType.FullName);
-                     
+
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
                      genericParamTypes[0] = key.enumeratorType;
                      genericParamTypes[1] = key.elementType;
@@ -183,14 +184,13 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 ((enumtrType, elementType, filterType)
                , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
                  {
-                     
                      bool isNullable = key.elementType.IsNullable();
                      var  itemType   = key.elementType.IfNullableGetUnderlyingTypeOrThis();
-                     
-                     if (isNullable || !itemType.IsStringBearerOrNullableCached()) 
-                         throw new ArgumentException("Expected to receive a non nullable struct IStringBearer enumeratortype." +
+
+                     if (isNullable || !itemType.IsStringBearerOrNullableCached())
+                         throw new ArgumentException("Expected to receive a non nullable struct IStringBearer enumerator type." +
                                                      "  Got " + key.elementType.FullName);
-                     
+
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(3);
                      genericParamTypes[0] = key.enumeratorType;
                      genericParamTypes[1] = key.elementType;
@@ -219,11 +219,10 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 ((enumtrType, elementType, filterType)
                , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
                  {
-                     
                      bool isNullable = key.elementType.IsNullable();
                      var  itemType   = key.elementType.IfNullableGetUnderlyingTypeOrThis();
-                     
-                     if (!isNullable || !itemType.IsStringBearerOrNullableCached()) 
+
+                     if (!isNullable || !itemType.IsStringBearerOrNullableCached())
                          throw new ArgumentException("Expected to receive a nullable struct IStringBearer enumerator type.  " +
                                                      "Got " + key.elementType.FullName);
 
@@ -255,8 +254,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 ((enumtrType, elementType, typeof(string))
                , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
                  {
-                     
-                     if (!key.elementType.IsString()) 
+                     if (!key.elementType.IsString())
                          throw new ArgumentException("Expected to receive a string enumerator type.  Got " + key.elementType.FullName);
 
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(1);
@@ -283,7 +281,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 ((enumtrType, elementType, filterType)
                , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
                  {
-                     if (!key.elementType.IsCharSequence()) 
+                     if (!key.elementType.IsCharSequence())
                          throw new ArgumentException("Expected to receive a ICharSequence enumerator type.  Got " + key.elementType.FullName);
 
 
@@ -313,8 +311,7 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 ((enumtrType, elementType, filterType)
                , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
                  {
-                     
-                     if (!key.elementType.IsStringBuilder()) 
+                     if (!key.elementType.IsStringBuilder())
                          throw new ArgumentException("Expected to receive a StringBuilder enumerator type.  Got " + key.elementType.FullName);
 
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(1);
@@ -393,11 +390,12 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                , static ((Type enumeratorType, Type elementType, Type filterType, Type cloakedRevealType) key) =>
                  {
                      bool isNullable = key.elementType.IsNullable();
-                     var  itemType = key.elementType.IfNullableGetUnderlyingTypeOrThis();
-                     
-                     if (isNullable || !itemType.IsAssignableTo(key.cloakedRevealType)) 
+                     var  itemType   = key.elementType.IfNullableGetUnderlyingTypeOrThis();
+
+                     if (isNullable || !itemType.IsAssignableTo(key.cloakedRevealType))
                          throw new ArgumentException
-                             ( $"Expected to receive a non nullable Type compatible with {key.cloakedRevealType} enumerator type.  Got " + key.elementType.FullName);
+                             ($"Expected to receive a non nullable Type compatible with {key.cloakedRevealType} enumerator type.  Got " +
+                              key.elementType.FullName);
 
 
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(4);
@@ -430,12 +428,12 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                , static ((Type enumeratorType, Type elementType, Type filterType) key) =>
                  {
                      bool isNullable = key.elementType.IsNullable();
-                     
+
                      var itemType = key.elementType.IfNullableGetUnderlyingTypeOrThis();
-                     
-                     if (!isNullable) 
+
+                     if (!isNullable)
                          throw new ArgumentException
-                             ( $"Expected to receive a nullable Type struct type.  Got " + key.elementType.FullName);
+                             ($"Expected to receive a nullable Type struct type.  Got " + key.elementType.FullName);
 
 
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
@@ -450,19 +448,19 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                      methodParamTypes[4] = typeof(string);
                      methodParamTypes[5] = typeof(FormatFlags);
                      methodParamTypes[6] = typeof(bool?);
-                     
+
                      return GetStaticMethodInfo(nameof(RevealFilteredIterateNullable), genericParamTypes.AsArray, methodParamTypes.AsArray);
                  });
         return methInf;
     }
 
     private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>(
-        Type enumblParamType, Type enumtrType, Type elementType, string toInvokeMethodName)
+        Type enumtrParamType, Type enumtrType, Type elementType, string toInvokeMethodName)
         where TEnumtr : IEnumerator?
     {
         var itemType   = elementType.IfNullableGetUnderlyingTypeOrThis();
         var filterType = typeof(TFilterBase);
-        
+
         using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(3);
         genericParamTypes[0] = enumtrType;
         genericParamTypes[1] = itemType;
@@ -478,184 +476,67 @@ public static class OrderedCollectionAddFilteredIterateExtensions
 
         var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-        var genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToTripleGenericInvoker)));
-        genericParamTypes[0] = enumblParamType;
-        genericParamTypes[1] = elementType;
-        var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
+        methodParamTypes[1] = enumtrParamType;
+        var fullGenericInvoke =
+            BuildAnyEnumblToTripleGenericInvoker<TEnumtr, TFilterBase>(toInvokeOn, enumtrParamType, enumtrType, methodParamTypes.AsArray);
 
-        methodParamTypes[1] = enumblParamType;
-
-        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-        invokeReflectedArgs[0] = toInvokeOn;
-        invokeReflectedArgs[1] = enumblParamType;
-        invokeReflectedArgs[2] = enumtrType;
-        invokeReflectedArgs[3] = methodParamTypes.AsArray;
-
-        return (InputTypeInvoke<TEnumtr, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
-    }
-
-    private static InputTypeInvoke<TEnumtr, TFilterBase> BuildAnyEnumblToTripleGenericInvoker<TEnumtr, TElement, TFilterBase>(
-        MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
-        where TEnumtr : IEnumerator<TElement>?
-        where TElement : TFilterBase?
-    {
-        var requiresCast     = enumblParamType != enumblType;
-        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
-
-        var helperMethod =
-            new DynamicMethod
-                ($"{methodInfo.Name}_DynamicEnumeratorInvoke", null,
-                 methodParamTypes, typeof(OrderedCollectionAddAllEnumerateExtensions).Module, false);
-        var ilGenerator = helperMethod.GetILGenerator();
-        if (requiresCast || requiresUnboxing)
-        {
-            // Make space for enumblType local variables
-            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-
-            // cast TEnumbl value => (enumblType)value
-            ilGenerator.Emit(OpCodes.Ldarg_1);
-            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
-            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
-            ilGenerator.Emit(OpCodes.Stloc_0);
-        }
-
-        // call AddAllEnumerate(KeyedCollectionMold, TEnumbl, valueFmtStr, keyFmtStr, valueFmtStr, FormatFlags)
-        ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Ldarg_2);
-        ilGenerator.Emit(OpCodes.Ldarg_3);
-        ilGenerator.Emit(OpCodes.Ldarg_S, 4);
-        ilGenerator.Emit(OpCodes.Ldarg_S, 5);
-        ilGenerator.Emit(OpCodes.Call, methodInfo);
-        ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeInvoke<TEnumtr, TFilterBase>));
-        var createInvoker = (InputTypeInvoke<TEnumtr, TFilterBase>)methodInvoker;
-
-        return Wrapped;
-
-        void Wrapped(ICollectionMoldWriteState mws, TEnumtr? enumbl, OrderedCollectionPredicate<TFilterBase> filterPredicate
-          , string? valueFmtStr = null, FormatFlags flags = DefaultCallerTypeFlags, bool? hasValue = null) =>
-            createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags);
+        return fullGenericInvoke;
     }
 
     private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAnyEnumblToDoubleNullableStructGenericInvokerDelegate<TEnumtr, TFilterBase>(
-        Type enumblParamType, Type enumblType, Type elementType, string toInvokeMethodName)
+        Type enumtrParamType, Type enumtrType, Type elementType, string toInvokeMethodName)
         where TEnumtr : IEnumerator?
     {
         var itemType = elementType.IfNullableGetUnderlyingTypeOrThis();
-        
+
         using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(2);
-        genericParamTypes[0] = enumblType;
+        genericParamTypes[0] = enumtrType;
         genericParamTypes[1] = itemType;
 
         using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(6);
         methodParamTypes[0] = typeof(ICollectionMoldWriteState);
-        methodParamTypes[1] = enumblType;
+        methodParamTypes[1] = enumtrType;
         methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase?>);
         methodParamTypes[3] = typeof(string);
         methodParamTypes[4] = typeof(FormatFlags);
         methodParamTypes[5] = typeof(bool?);
 
-        var toInvokeOn              = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
-        
-        var       genGenMethod = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToDoubleNullableStructGenericInvoker)));
-        genericParamTypes[0] = enumblParamType;
-        var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
+        var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-        methodParamTypes[1]  = enumblParamType;
+        methodParamTypes[1] = enumtrParamType;
+        var fullGenericInvoke =
+            BuildAnyEnumblToTripleGenericInvoker<TEnumtr, TFilterBase>(toInvokeOn, enumtrParamType, enumtrType, methodParamTypes.AsArray);
 
-        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-        invokeReflectedArgs[0] = toInvokeOn;
-        invokeReflectedArgs[1] = enumblParamType;
-        invokeReflectedArgs[2] = enumblType;
-        invokeReflectedArgs[3] = methodParamTypes.AsArray;
-
-        return (InputTypeInvoke<TEnumtr, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
-    }
-
-    private static InputTypeInvoke<TEnumtr, TElement?> BuildAnyEnumblToDoubleNullableStructGenericInvoker<TEnumtr, TElement>(
-        MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
-        where TEnumtr : IEnumerator<TElement?>?
-        where TElement : struct
-    {
-        var requiresCast     = enumblParamType != enumblType;
-        var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
-
-        var helperMethod =
-            new DynamicMethod
-                ($"{methodInfo.Name}_DynamicEnumeratorInvoke", null,
-                 methodParamTypes, typeof(OrderedCollectionAddAllEnumerateExtensions).Module, false);
-        var ilGenerator = helperMethod.GetILGenerator();
-        if (requiresCast || requiresUnboxing)
-        {
-            // Make space for enumblType local variables
-            var enumblLocalType = ilGenerator.DeclareLocal(enumblType);
-
-            // cast TEnumbl value => (enumblType)value
-            ilGenerator.Emit(OpCodes.Ldarg_1);
-            if (requiresUnboxing) { ilGenerator.Emit(OpCodes.Unbox_Any, enumblLocalType.LocalType); }
-            else { ilGenerator.Emit(OpCodes.Castclass, enumblLocalType.LocalType); }
-            ilGenerator.Emit(OpCodes.Stloc_0);
-        }
-
-        // call AddAllEnumerate(KeyedCollectionMold, TEnumbl, valueFmtStr, keyFmtStr, valueFmtStr, FormatFlags)
-        ilGenerator.Emit(OpCodes.Ldarg_0);
-        ilGenerator.Emit(requiresCast || requiresUnboxing ? OpCodes.Ldloc_0 : OpCodes.Ldarg_1);
-        ilGenerator.Emit(OpCodes.Ldarg_2);
-        ilGenerator.Emit(OpCodes.Ldarg_3);
-        ilGenerator.Emit(OpCodes.Ldarg_S, 4);
-        ilGenerator.Emit(OpCodes.Ldarg_S, 5);
-        ilGenerator.Emit(OpCodes.Call, methodInfo);
-        ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeNullableInvoke<TEnumtr, TElement>));
-        var createInvoker = (InputTypeNullableInvoke<TEnumtr, TElement>)methodInvoker;
-
-        return Wrapped;
-
-        void Wrapped(ICollectionMoldWriteState mws, TEnumtr? enumbl, OrderedCollectionPredicate<TElement?> filterPredicate
-          , string? valueFmtStr = null, FormatFlags flags = DefaultCallerTypeFlags, bool? hasValues = null) =>
-            createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags, hasValues);
+        return fullGenericInvoke;
     }
 
     private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>(
-        Type enumblParamType, Type enumblType, Type elementType, Type filterType, string toInvokeMethodName)
+        Type enumtrParamType, Type enumtrType, string toInvokeMethodName)
         where TEnumtr : IEnumerator?
     {
         using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(1);
-        genericParamTypes[0] = enumblType;
+        genericParamTypes[0] = enumtrType;
 
         using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(6);
         methodParamTypes[0] = typeof(ICollectionMoldWriteState);
-        methodParamTypes[1] = enumblType;
+        methodParamTypes[1] = enumtrType;
         methodParamTypes[2] = typeof(OrderedCollectionPredicate<TFilterBase>);
         methodParamTypes[3] = typeof(string);
         methodParamTypes[4] = typeof(FormatFlags);
         methodParamTypes[5] = typeof(bool?);
 
-        var toInvokeOn              = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
-        
-        var       genGenMethod            = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAnyEnumblToSingleGenericInvoker)));
-        using var invokeGenericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(3);
-        invokeGenericParamTypes[0] = enumblParamType;
-        invokeGenericParamTypes[1] = elementType;
-        invokeGenericParamTypes[2] = filterType;
-        var concreteGenMethod = genGenMethod.MakeGenericMethod(invokeGenericParamTypes.AsArray);
+        var toInvokeOn = GetStaticMethodInfo(toInvokeMethodName, genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-        methodParamTypes[1]  = enumblParamType;
+        methodParamTypes[1] = enumtrParamType;
+        var fullGenericInvoke =
+            BuildAnyEnumblToTripleGenericInvoker<TEnumtr, TFilterBase>(toInvokeOn, enumtrParamType, enumtrType, methodParamTypes.AsArray);
 
-        using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-        invokeReflectedArgs[0] = toInvokeOn;
-        invokeReflectedArgs[1] = enumblParamType;
-        invokeReflectedArgs[2] = enumblType;
-        invokeReflectedArgs[3] = methodParamTypes.AsArray;
-
-        return (InputTypeInvoke<TEnumtr, TFilterBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+        return fullGenericInvoke;
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> BuildAnyEnumblToSingleGenericInvoker<TEnumtr, TElement, TFilterBase>(
+    private static InputTypeInvoke<TEnumtr, TFilterBase> BuildAnyEnumblToTripleGenericInvoker<TEnumtr, TFilterBase>(
         MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
-        where TEnumtr : IEnumerator<TElement>?
-        where TElement : TFilterBase?
+        where TEnumtr : IEnumerator?
     {
         var requiresCast     = enumblParamType != enumblType;
         var requiresUnboxing = !enumblParamType.IsValueType && enumblType.IsValueType;
@@ -689,28 +570,24 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         var methodInvoker = helperMethod.CreateDelegate(typeof(InputTypeInvoke<TEnumtr, TFilterBase>));
         var createInvoker = (InputTypeInvoke<TEnumtr, TFilterBase>)methodInvoker;
 
-        return Wrapped;
-
-        void Wrapped(ICollectionMoldWriteState mws, TEnumtr? enumbl, OrderedCollectionPredicate<TFilterBase> filterPredicate
-          , string? valueFmtStr = null, FormatFlags flags = DefaultCallerTypeFlags, bool? hasValues = null) =>
-            createInvoker(mws, enumbl, filterPredicate, valueFmtStr, flags, hasValues);
+        return createInvoker;
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllBoolDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType) 
+
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllBoolDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType)
         where TEnumtr : IEnumerator?
     {
         var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
         var isNullable  = elementType.IsNullable();
-        var filterType  = typeof(TFilterBase);
         var itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
-         
+
         if (!itemType.IsBool()) throw new ArgumentException("Expected to receive a Boolean(?) collection");
 
         var toInvokeMethodName = isNullable ? nameof(AddFilteredIterateNullableBool) : nameof(AddFilteredIterateBool);
 
-        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, filterType, toInvokeMethodName);
+        return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, toInvokeMethodName);
     }
-    
+
     internal static InputTypeInvoke<TEnumtr, TFilterBase> GetAddAllSpanFormattable<TEnumtr, TFilterBase>(Type enumblType)
         where TEnumtr : IEnumerator?
     {
@@ -721,24 +598,26 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             InputTypeInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType)
-                   , static ((Type enumblParamType, Type enumblType) key, bool _) => 
+                   , static ((Type enumblParamType, Type enumblType) key, bool _) =>
                          CreateAddAllSpanFormattableDelegate<TEnumtr, TFilterBase>(key.enumblParamType, key.enumblType), callAsFactory);
         return invoker;
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllSpanFormattableDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType) 
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllSpanFormattableDelegate<TEnumtr, TFilterBase>(Type enumblParamType
+      , Type enumblType)
         where TEnumtr : IEnumerator?
     {
-        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+        var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
         var isNullable  = elementType.IsNullable();
-        var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
-         
-        if (isNullable || !itemType.IsSpanFormattableCached()) throw new ArgumentException("Expected to receive a non nullable ISpanFormattable collection");
+        var itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
+
+        if (isNullable || !itemType.IsSpanFormattableCached())
+            throw new ArgumentException("Expected to receive a non nullable ISpanFormattable collection");
 
         return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>
             (enumblParamType, enumblType, elementType, nameof(AddFilteredIterate));
     }
-    
+
     internal static InputTypeInvoke<TEnumtr, TFilterBase> GetAddAllNullableSpanFormattable<TEnumtr, TFilterBase>(Type enumblType)
         where TEnumtr : IEnumerator?
         where TFilterBase : struct
@@ -750,27 +629,28 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             InputTypeInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType)
-                   , static ((Type enumblParamType, Type enumblType) key, bool _) => 
+                   , static ((Type enumblParamType, Type enumblType) key, bool _) =>
                          CreateAddAllNullableSpanFormattableDelegate<TEnumtr, TFilterBase>(key.enumblParamType, key.enumblType), callAsFactory);
         return invoker;
     }
 
     private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllNullableSpanFormattableDelegate<TEnumtr, TFilterBase>(
-        Type enumblParamType, Type enumblType) 
+        Type enumblParamType, Type enumblType)
         where TEnumtr : IEnumerator?
     {
-        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+        var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
         var isNullable  = elementType.IsNullable();
-        var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
-         
-        if (!isNullable || !itemType.IsSpanFormattableCached()) 
+        var itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
+
+        if (!isNullable || !itemType.IsSpanFormattableCached())
             throw new ArgumentException("Expected to receive a nullable ISpanFormattable struct collection");
 
         return CreateAnyEnumblToDoubleNullableStructGenericInvokerDelegate<TEnumtr, TFilterBase>
-                (enumblParamType, enumblType, itemType, nameof(AddFilteredIterateNullable));
+            (enumblParamType, enumblType, itemType, nameof(AddFilteredIterateNullable));
     }
 
-    private static CloakedRevealerInvoker<TEnumtr, TFilterBase, TRevealBase> GetAddAllCloakedRevealer<TEnumtr, TFilterBase, TRevealBase>(Type enumblType)
+    private static CloakedRevealerInvoker<TEnumtr, TFilterBase, TRevealBase>
+        GetAddAllCloakedRevealer<TEnumtr, TFilterBase, TRevealBase>(Type enumblType)
         where TEnumtr : IEnumerator?
         where TRevealBase : notnull
     {
@@ -782,20 +662,20 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             CloakedInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType, revealType)
-                   , static ((Type enumblParamType, Type enumblType, Type revealType) key, bool _) => 
+                   , static ((Type enumblParamType, Type enumblType, Type revealType) key, bool _) =>
                          CreateAddAllCloakedRevealerDelegate<TEnumtr, TFilterBase, TRevealBase>(key.enumblParamType, key.enumblType, key.revealType)
                    , callAsFactory);
         return invoker;
     }
 
     private static CloakedRevealerInvoker<TEnumtr, TFilterBase, TRevealBase> CreateAddAllCloakedRevealerDelegate<TEnumtr, TFilterBase, TRevealBase>
-        (Type enumblParamType, Type enumblType, Type revealType) 
-        where TEnumtr : IEnumerator? 
+        (Type enumblParamType, Type enumblType, Type revealType)
+        where TEnumtr : IEnumerator?
         where TRevealBase : notnull
     {
         var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-                     
-        if (!elementType.IsAssignableTo(revealType)) 
+
+        if (!elementType.IsAssignableTo(revealType))
             throw new ArgumentException($"Expected to receive a enumerable element " +
                                         $"{elementType.Name} to be equatable to {revealType.Name}");
 
@@ -831,7 +711,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
         return (CloakedRevealerInvoker<TEnumtr, TFilterBase, TRevealBase>)concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
     }
 
-    private static CloakedRevealerInvoker<TEnumtr, TFilterBase, TRevealBase> BuildAddAllCloakedRevealerInvoker<TEnumtr, TElement, TFilterBase, TRevealBase>(
+    private static CloakedRevealerInvoker<TEnumtr, TFilterBase, TRevealBase> BuildAddAllCloakedRevealerInvoker<
+        TEnumtr, TElement, TFilterBase, TRevealBase>(
         MethodInfo methodInfo, Type enumblParamType, Type enumblType, Type[] methodParamTypes)
         where TEnumtr : IEnumerator<TElement>?
         where TElement : TFilterBase?, TRevealBase?
@@ -887,18 +768,18 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             InputTypeInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType)
-                   , static ((Type enumblParamType, Type enumblType) key, bool _) => 
+                   , static ((Type enumblParamType, Type enumblType) key, bool _) =>
                          CreateAddAllStringBearerDelegate<TEnumtr, TFilterBase>(key.enumblParamType, key.enumblType), callAsFactory);
         return invoker;
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllStringBearerDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType) 
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllStringBearerDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType)
         where TEnumtr : IEnumerator?
     {
         var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
         bool isNullable  = elementType.IsNullable();
         var  itemType    = elementType.IfNullableGetUnderlyingTypeOrThis();
-         
+
         if (!itemType.IsStringBearer()) throw new ArgumentException("Expected to receive a IStringBearer collection");
 
         if (isNullable)
@@ -910,15 +791,15 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             (enumblParamType, enumblType, elementType, nameof(RevealFilteredIterate));
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllStringDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType) 
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllStringDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType)
         where TEnumtr : IEnumerator?
     {
-        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-         
+        var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+
         if (!elementType.IsString()) throw new ArgumentException("Expected to receive a string collection");
 
         return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>
-            (enumblParamType, enumblType, elementType, elementType, nameof(AddFilteredIterateString));
+            (enumblParamType, enumblType, nameof(AddFilteredIterateString));
     }
 
     internal static InputTypeInvoke<TEnumtr, TFilterBase> GetAddAllCharSequence<TEnumtr, TFilterBase>(Type enumblType)
@@ -931,30 +812,32 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             InputTypeInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType)
-                   , static ((Type enumblParamType, Type enumblType) key, bool _) => 
+                   , static ((Type enumblParamType, Type enumblType) key, bool _) =>
                          CreateAddAllCharSequenceDelegate<TEnumtr, TFilterBase>(key.enumblParamType, key.enumblType), callAsFactory);
         return invoker;
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllCharSequenceDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType) 
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllCharSequenceDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType)
         where TEnumtr : IEnumerator?
     {
-        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-                         
+        var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+
         if (!elementType.IsCharSequence()) throw new ArgumentException("Expected to receive a ICharSequence collection");
 
-        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, nameof(AddFilteredIterateCharSeq));
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType
+                                                                                 , nameof(AddFilteredIterateCharSeq));
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllStringBuilderDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType) 
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllStringBuilderDelegate<TEnumtr, TFilterBase>(Type enumblParamType
+      , Type enumblType)
         where TEnumtr : IEnumerator?
     {
-        var  elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
-         
+        var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
+
         if (!elementType.IsStringBuilder()) throw new ArgumentException("Expected to receive a StringBuilder collection");
 
         return CreateAnyEnumblToSingleGenericInvokerDelegate<TEnumtr, TFilterBase>
-            (enumblParamType, enumblType, elementType, elementType, nameof(AddFilteredIterateStringBuilder));
+            (enumblParamType, enumblType, nameof(AddFilteredIterateStringBuilder));
     }
 
     internal static InputTypeInvoke<TEnumtr, TFilterBase> GetAddAllMatch<TEnumtr, TFilterBase>(Type enumblType)
@@ -967,12 +850,12 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             InputTypeInvokeCache
                 .GetOrAdd
                     ((enumblParamType, enumblType)
-                   , static ((Type enumblParamType, Type enumblType) key, bool _) => 
+                   , static ((Type enumblParamType, Type enumblType) key, bool _) =>
                          CreateAddAllMatchDelegate<TEnumtr, TFilterBase>(key.enumblParamType, key.enumblType), callAsFactory);
         return invoker;
     }
 
-    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllMatchDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType) 
+    private static InputTypeInvoke<TEnumtr, TFilterBase> CreateAddAllMatchDelegate<TEnumtr, TFilterBase>(Type enumblParamType, Type enumblType)
         where TEnumtr : IEnumerator?
     {
         var elementType = enumblType.GetIterableElementType() ?? throw new ArgumentException("Expected IEnumerator<T>");
@@ -981,39 +864,22 @@ public static class OrderedCollectionAddFilteredIterateExtensions
 
         if (itemType.IsSpanFormattable())
         {
-            if (isNullable)
-            {
-                return CreateAddAllNullableSpanFormattableDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
-            }
+            if (isNullable) { return CreateAddAllNullableSpanFormattableDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType); }
             return CreateAddAllSpanFormattableDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
         }
-        if (itemType.IsStringBearer())
-        {
-            return CreateAddAllStringBearerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
-        }
-        if (itemType.IsString())
-        {
-            return CreateAddAllStringDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
-        }
-        if (itemType.IsStringBuilder())
-        {
-            return CreateAddAllStringBuilderDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
-        }
-        if (itemType.IsCharSequence())
-        {
-            return CreateAddAllCharSequenceDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
-        }
-        if (itemType.IsBool())
-        {
-            return CreateAddAllBoolDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType);
-        }
+        if (itemType.IsStringBearer()) { return CreateAddAllStringBearerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType); }
+        if (itemType.IsString()) { return CreateAddAllStringDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType); }
+        if (itemType.IsStringBuilder()) { return CreateAddAllStringBuilderDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType); }
+        if (itemType.IsCharSequence()) { return CreateAddAllCharSequenceDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType); }
+        if (itemType.IsBool()) { return CreateAddAllBoolDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType); }
 
-        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType, nameof(AddFilteredIterateMatch));
+        return CreateAnyEnumblToTripleGenericInvokerDelegate<TEnumtr, TFilterBase>(enumblParamType, enumblType, elementType
+                                                                                 , nameof(AddFilteredIterateMatch));
     }
 
     internal static MethodInfo GetStaticMethodInfo(string findMethodName, Type[] findGenericParams, params Type[] findParamTypes)
     {
-        myMethodInfosCached ??= typeof(OrderedCollectionAddFilteredIterateExtensions).GetMethods( NonPublic | Public | Static);
+        myMethodInfosCached ??= typeof(OrderedCollectionAddFilteredIterateExtensions).GetMethods(NonPublic | Public | Static);
 
         MethodInfo? genTypeDefMeth = null;
         var         findEnumtrType = findParamTypes[1];
@@ -1103,9 +969,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(bool);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(bool);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1136,12 +1002,10 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 }
                 if (!any)
                 {
-                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true, new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
+                                                              , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
@@ -1150,9 +1014,10 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = 
-                mws.ConditionalCollectionPrefix
-                    (value, elementType, false, new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold =
+                    mws.ConditionalCollectionPrefix
+                        (value, elementType, false, new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -1194,9 +1059,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(bool?);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(bool?);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1229,11 +1094,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
@@ -1242,8 +1104,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) mws.ConditionalCollectionPrefix(value, elementType, false
-                                                    , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                mws.ConditionalCollectionPrefix(value, elementType, false
+                                              , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -1320,9 +1183,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(TFmt);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(TFmt);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1355,11 +1218,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
@@ -1368,8 +1228,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -1413,9 +1274,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(TFmtStruct?);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(TFmtStruct?);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1448,11 +1309,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.AppendFormattedCollectionItem(item, mws.ItemCount, formatString, formatFlags | FormatFlags.AsCollection);
@@ -1461,8 +1319,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -1548,9 +1407,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(TCloaked);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(TCloaked);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1582,11 +1441,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
@@ -1595,8 +1451,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -1642,9 +1499,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(TCloakedStruct);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(TCloakedStruct);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1676,11 +1533,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealNullableCloakedBearerOrNull(item, palantírReveal, formatString ?? "", formatFlags, AsCollectionItem);
@@ -1689,8 +1543,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -1767,9 +1622,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(TBearer);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(TBearer);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1801,11 +1656,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
@@ -1814,8 +1666,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -1859,9 +1712,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(TBearerStruct);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(TBearerStruct);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1893,11 +1746,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.RevealNullableStringBearerOrNull(item, formatString ?? "", formatFlags, AsCollectionItem);
@@ -1906,8 +1756,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -1949,9 +1800,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(string);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(string);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -1984,11 +1835,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
@@ -1997,8 +1845,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -2076,9 +1925,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(TCharSeq);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(TCharSeq);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -2111,11 +1960,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
@@ -2124,8 +1970,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 if (filterResult is { KeepProcessing: false }) break;
                 skipCount = filterResult.SkipNextCount;
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -2167,9 +2014,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(StringBuilder);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(StringBuilder);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -2202,11 +2049,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.AppendFormattedCollectionItemOrNull(item, mws.ItemCount, formatString, formatFlags);
@@ -2215,8 +2059,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -2294,9 +2139,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(TAny);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(TAny);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -2329,11 +2174,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
@@ -2342,8 +2184,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();
@@ -2387,9 +2230,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
             mws.WasSkipped(actualType, "", formatFlags);
             return;
         }
-        var  elementType     = typeof(object);
-        var  any             = false;
-        hasValue        ??= value?.MoveNext() ?? false;
+        var elementType = typeof(object);
+        var any         = false;
+        hasValue ??= value?.MoveNext() ?? false;
         int? collectionItems = value == null ? null : 0;
 
         TrackedInstanceMold? valueMold = null;
@@ -2422,11 +2265,8 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 {
                     valueMold = mws.ConditionalCollectionPrefix(value, elementType, true
                                                               , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
-                    any       = true;
-                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true)
-                    {
-                        break;
-                    }
+                    any = true;
+                    if (mws.SkipBody || valueMold?.ShouldSuppressBody == true) { break; }
                     formatFlags = formatFlags.RemoveEmbeddedContentFlags();
                 }
                 mws.AppendFormattedCollectionItemMatchOrNull(item, mws.ItemCount, formatString, formatFlags);
@@ -2435,8 +2275,9 @@ public static class OrderedCollectionAddFilteredIterateExtensions
                 skipCount = filterResult.SkipNextCount;
                 hasValue  = value.MoveNext();
             }
-            if (!any) valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
-                                                                , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
+            if (!any)
+                valueMold = mws.ConditionalCollectionPrefix(value, elementType, false
+                                                          , new CreateContext(formatFlags: formatFlags, displayAsType: mws.DisplayAsType));
             collectionItems = count;
         }
         value?.Dispose();

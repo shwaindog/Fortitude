@@ -330,7 +330,7 @@ public class MapEnumeratorBothFormatStringsUnion<TOther, TKey, TValue> : IString
                .StartKeyedCollectionType(this)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
-               .AddAllEnumerate<List<KeyValuePair<TKey, TValue>>, TKey, TValue>(mapCollection, valueFormatString, keyFormatString)
+               .AddAllEnumerate(mapCollection, valueFormatString, keyFormatString)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();

@@ -11,9 +11,9 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.ComplexType.CollectionField;
 
 #pragma warning disable CS0618 // Type or member is obsolete
-public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
+public partial class SelectTypeCollectionField<TMold> where TMold : TypeMolder
 {
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<bool> value, OrderedCollectionPredicate<bool> filterPredicate
+    public TMold WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<bool> value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -56,7 +56,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TMold WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -99,7 +99,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmt, TFmtBase>
+    public TMold WhenPopulatedWithFilter<TFmt, TFmtBase>
     (ReadOnlySpan<char> fieldName, Span<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -144,7 +144,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmtStruct>
+    public TMold WhenPopulatedWithFilter<TFmtStruct>
     (ReadOnlySpan<char> fieldName, Span<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -189,7 +189,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
+    public TMold WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
     (ReadOnlySpan<char> fieldName, Span<TCloaked> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -234,7 +234,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
+    public TMold WhenPopulatedWithFilterReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, Span<TCloakedStruct?> value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null
@@ -278,7 +278,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TBearer, TFilterBase>(ReadOnlySpan<char> fieldName, Span<TBearer> value
+    public TMold WhenPopulatedWithFilterReveal<TBearer, TFilterBase>(ReadOnlySpan<char> fieldName, Span<TBearer> value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TFilterBase?
@@ -321,7 +321,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
+    public TMold WhenPopulatedWithFilterReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, Span<TBearerStruct?> value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
@@ -364,7 +364,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<string> value, OrderedCollectionPredicate<string> filterPredicate
+    public TMold WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<string> value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -407,7 +407,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, Span<string?> value, OrderedCollectionPredicate<string> filterPredicate
+    public TMold WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, Span<string?> value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -450,7 +450,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
+    public TMold WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, Span<TCharSeq> value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?, TCharSeqBase?
@@ -494,7 +494,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
+    public TMold WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, Span<StringBuilder> value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -537,7 +537,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
+    public TMold WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, Span<StringBuilder?> value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -581,7 +581,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny> value
+    public TMold WhenPopulatedWithFilterMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, Span<TAny> value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -627,19 +627,19 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt WhenPopulatedWithFilterObject(ReadOnlySpan<char> fieldName, Span<object> value, OrderedCollectionPredicate<object> filterPredicate
+    public TMold WhenPopulatedWithFilterObject(ReadOnlySpan<char> fieldName, Span<object> value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString, formatFlags);
 
     [CallsObjectToString]
-    public TExt WhenPopulatedWithFilterObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value
+    public TMold WhenPopulatedWithFilterObjectNullable(ReadOnlySpan<char> fieldName, Span<object?> value
       , OrderedCollectionPredicate<object?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value, OrderedCollectionPredicate<bool> filterPredicate
+    public TMold WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool> value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -682,7 +682,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TMold WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<bool?> value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -725,7 +725,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmt, TFmtBase>
+    public TMold WhenPopulatedWithFilter<TFmt, TFmtBase>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmt> value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -769,7 +769,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmtStruct>
+    public TMold WhenPopulatedWithFilter<TFmtStruct>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TFmtStruct?> value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -813,7 +813,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
+    public TMold WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
     (ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloaked> value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -859,7 +859,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
+    public TMold WhenPopulatedWithFilterReveal<TCloakedStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCloakedStruct?> value
       , OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
@@ -905,7 +905,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TBearer, TFilterBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
+    public TMold WhenPopulatedWithFilterReveal<TBearer, TFilterBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearer> value
       , OrderedCollectionPredicate<TFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearer : IStringBearer?, TFilterBase?
@@ -948,7 +948,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
+    public TMold WhenPopulatedWithFilterReveal<TBearerStruct>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TBearerStruct?> value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TBearerStruct : struct, IStringBearer
@@ -993,7 +993,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
+    public TMold WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<string> value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1035,7 +1035,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
+    public TMold WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<string?> value
       , OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1078,7 +1078,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
+    public TMold WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TCharSeq> value
       , OrderedCollectionPredicate<TCharSeqBase> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TCharSeq : ICharSequence?, TCharSeqBase?
@@ -1121,7 +1121,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
+    public TMold WhenPopulatedWithFilter(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder> value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1166,7 +1166,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
+    public TMold WhenPopulatedWithFilterNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<StringBuilder?> value
       , OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1211,7 +1211,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
+    public TMold WhenPopulatedWithFilterMatch<TAny, TAnyBase>(ReadOnlySpan<char> fieldName, ReadOnlySpan<TAny> value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1256,7 +1256,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt WhenPopulatedWithFilterObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
+    public TMold WhenPopulatedWithFilterObject(ReadOnlySpan<char> fieldName, ReadOnlySpan<object> value
       , OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
@@ -1264,13 +1264,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
 
 
     [CallsObjectToString]
-    public TExt WhenPopulatedWithFilterObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
+    public TMold WhenPopulatedWithFilterObjectNullable(ReadOnlySpan<char> fieldName, ReadOnlySpan<object?> value
       , OrderedCollectionPredicate<object?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString, formatFlags);
 
-    public TExt WhenPopulatedWithFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate
+    public TMold WhenPopulatedWithFilter(string fieldName, bool[]? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1312,7 +1312,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TMold WhenPopulatedWithFilter(string fieldName, bool?[]? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1354,7 +1354,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmt, TFmtBase>
+    public TMold WhenPopulatedWithFilter<TFmt, TFmtBase>
     (string fieldName, TFmt[]? value, OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1398,7 +1398,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmtStruct>
+    public TMold WhenPopulatedWithFilter<TFmtStruct>
     (string fieldName, TFmtStruct?[]? value, OrderedCollectionPredicate<TFmtStruct?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1443,7 +1443,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
+    public TMold WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, TCloaked[]? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1488,7 +1488,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TCloakedStruct>
+    public TMold WhenPopulatedWithFilterReveal<TCloakedStruct>
     (string fieldName, TCloakedStruct?[]? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags) where TCloakedStruct : struct
@@ -1530,7 +1530,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TBearer, TBearerBase>(string fieldName, TBearer[]? value
+    public TMold WhenPopulatedWithFilterReveal<TBearer, TBearerBase>(string fieldName, TBearer[]? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearer : IStringBearer?, TBearerBase?
@@ -1572,7 +1572,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TBearerStruct>(string fieldName, TBearerStruct?[]? value
+    public TMold WhenPopulatedWithFilterReveal<TBearerStruct>(string fieldName, TBearerStruct?[]? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TBearerStruct : struct, IStringBearer
@@ -1614,7 +1614,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter
+    public TMold WhenPopulatedWithFilter
     (string fieldName, string?[]? value, OrderedCollectionPredicate<string> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1657,7 +1657,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqFilterBase>
+    public TMold WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqFilterBase>
     (string fieldName, TCharSeq?[]? value, OrderedCollectionPredicate<TCharSeqFilterBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1701,7 +1701,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
+    public TMold WhenPopulatedWithFilter(string fieldName, StringBuilder?[]? value, OrderedCollectionPredicate<StringBuilder> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1743,7 +1743,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(string fieldName, TAny?[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
+    public TMold WhenPopulatedWithFilterMatch<TAny, TAnyBase>(string fieldName, TAny?[]? value, OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TAny : TAnyBase
@@ -1787,13 +1787,13 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt WhenPopulatedWithFilterObject(string fieldName, object?[]? value, OrderedCollectionPredicate<object> filterPredicate
+    public TMold WhenPopulatedWithFilterObject(string fieldName, object?[]? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString, formatFlags);
 
 
-    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
+    public TMold WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool>? value, OrderedCollectionPredicate<bool> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1835,7 +1835,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
+    public TMold WhenPopulatedWithFilter(string fieldName, IReadOnlyList<bool?>? value, OrderedCollectionPredicate<bool?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -1877,7 +1877,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmt, TFmtBase>(string fieldName, IReadOnlyList<TFmt?>? value
+    public TMold WhenPopulatedWithFilter<TFmt, TFmtBase>(string fieldName, IReadOnlyList<TFmt?>? value
       , OrderedCollectionPredicate<TFmtBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1922,7 +1922,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
+    public TMold WhenPopulatedWithFilter<TFmtStruct>(string fieldName, IReadOnlyList<TFmtStruct?>? value
       , OrderedCollectionPredicate<TFmtStruct?> filterPredicate, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TFmtStruct : struct, ISpanFormattable
@@ -1965,7 +1965,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
+    public TMold WhenPopulatedWithFilterReveal<TCloaked, TFilterBase, TRevealBase>
     (string fieldName, IReadOnlyList<TCloaked>? value, OrderedCollectionPredicate<TFilterBase> filterPredicate
       , PalantírReveal<TRevealBase> palantírReveal
       , string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -2009,7 +2009,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TCloakedStruct>
+    public TMold WhenPopulatedWithFilterReveal<TCloakedStruct>
     (string fieldName, IReadOnlyList<TCloakedStruct?>? value, OrderedCollectionPredicate<TCloakedStruct?> filterPredicate
       , PalantírReveal<TCloakedStruct> palantírReveal
       , string? formatString = null
@@ -2052,7 +2052,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TBearer, TBearerBase>(string fieldName
+    public TMold WhenPopulatedWithFilterReveal<TBearer, TBearerBase>(string fieldName
       , IReadOnlyList<TBearer>? value
       , OrderedCollectionPredicate<TBearerBase> filterPredicate
       , string? formatString = null
@@ -2097,7 +2097,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterReveal<TBearerStruct>(string fieldName
+    public TMold WhenPopulatedWithFilterReveal<TBearerStruct>(string fieldName
       , IReadOnlyList<TBearerStruct?>? value
       , OrderedCollectionPredicate<TBearerStruct?> filterPredicate
       , string? formatString = null
@@ -2141,7 +2141,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
+    public TMold WhenPopulatedWithFilter(string fieldName, IReadOnlyList<string?>? value, OrderedCollectionPredicate<string?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
@@ -2183,7 +2183,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqFilterBase>(string fieldName, IReadOnlyList<TCharSeq?>? value
+    public TMold WhenPopulatedWithFilterCharSeq<TCharSeq, TCharSeqFilterBase>(string fieldName, IReadOnlyList<TCharSeq?>? value
       , OrderedCollectionPredicate<TCharSeqFilterBase?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) where TCharSeq : ICharSequence, TCharSeqFilterBase
@@ -2226,7 +2226,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilter(string fieldName, IReadOnlyList<StringBuilder?>? value
+    public TMold WhenPopulatedWithFilter(string fieldName, IReadOnlyList<StringBuilder?>? value
       , OrderedCollectionPredicate<StringBuilder?> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -2269,7 +2269,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
         return stb.Mold;
     }
 
-    public TExt WhenPopulatedWithFilterMatch<TAny, TAnyBase>(string fieldName, IReadOnlyList<TAny?>? value
+    public TMold WhenPopulatedWithFilterMatch<TAny, TAnyBase>(string fieldName, IReadOnlyList<TAny?>? value
       , OrderedCollectionPredicate<TAnyBase> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -2314,7 +2314,7 @@ public partial class SelectTypeCollectionField<TExt> where TExt : TypeMolder
     }
 
     [CallsObjectToString]
-    public TExt WhenPopulatedWithFilterObject(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object> filterPredicate
+    public TMold WhenPopulatedWithFilterObject(string fieldName, IReadOnlyList<object?>? value, OrderedCollectionPredicate<object> filterPredicate
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? formatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags) =>
         WhenPopulatedWithFilterMatch(fieldName, value, filterPredicate, formatString, formatFlags);

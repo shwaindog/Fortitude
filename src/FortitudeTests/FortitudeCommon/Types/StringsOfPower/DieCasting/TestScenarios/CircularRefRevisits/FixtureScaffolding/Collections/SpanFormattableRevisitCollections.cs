@@ -10,8 +10,7 @@ public class PreFieldDoubleArrayStructUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrArrayStructUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrArrayStructUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrArrayStructUnion<double, double>> firstAsList = [
@@ -39,8 +38,7 @@ public class DoubleArrayPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleArrayPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrArrayStructUnion<double, double>>? nodeRevealer = null)
+    public DoubleArrayPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrArrayStructUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrArrayStructUnion<double, double>> firstAsList = [
@@ -68,8 +66,7 @@ public class NullablePreFieldNullableDoubleArrayStructUnionRevisit : IStringBear
 {
     private readonly double? firstPreField = Math.E;
 
-    public NullablePreFieldNullableDoubleArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrArrayStructUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrArrayStructUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrArrayStructUnion<double>> firstAsList = [
@@ -97,8 +94,7 @@ public class NullableDoubleArrayNullablePostFieldStructUnionRevisit : IStringBea
 {
     private readonly double? firstPostField = Math.PI;
 
-    public NullableDoubleArrayNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrArrayStructUnion<double>>? nodeRevealer = null)
+    public NullableDoubleArrayNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrArrayStructUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrArrayStructUnion<double>> firstAsList = [
@@ -126,8 +122,7 @@ public class PreFieldDoubleArrayClassUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrArrayClassUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrArrayClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrArrayClassUnion<double, double>> firstAsList = [
@@ -155,8 +150,7 @@ public class DoubleArrayPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleArrayPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrArrayClassUnion<double, double>>? nodeRevealer = null)
+    public DoubleArrayPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrArrayClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrArrayClassUnion<double, double>> firstAsList = [
@@ -184,8 +178,7 @@ public class NullablePreFieldNullableDoubleArrayClassUnionRevisit : IStringBeare
 {
     private readonly double? firstPreField = null;
 
-    public NullablePreFieldNullableDoubleArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrArrayClassUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrArrayClassUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrArrayClassUnion<double>> firstAsList = [
@@ -213,8 +206,7 @@ public class NullableDoubleArrayNullablePostFieldClassUnionRevisit : IStringBear
 {
     private readonly double? firstPostField = null;
 
-    public NullableDoubleArrayNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrArrayClassUnion<double>>? nodeRevealer = null)
+    public NullableDoubleArrayNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrArrayClassUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrArrayClassUnion<double>> firstAsList = [
@@ -242,8 +234,7 @@ public class PreFieldDoubleSpanClassUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrSpanClassUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrSpanClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrSpanClassUnion<double, double>> firstAsList = [
@@ -271,8 +262,7 @@ public class DoubleSpanPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleSpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrSpanClassUnion<double, double>>? nodeRevealer = null)
+    public DoubleSpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrSpanClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrSpanClassUnion<double, double>> firstAsList = [
@@ -300,8 +290,7 @@ public class NullablePreFieldNullableDoubleSpanClassUnionRevisit : IStringBearer
 {
     private readonly double? firstPreField = null;
 
-    public NullablePreFieldNullableDoubleSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrSpanClassUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrSpanClassUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrSpanClassUnion<double>> firstAsList = [
@@ -329,8 +318,7 @@ public class NullableDoubleSpanNullablePostFieldClassUnionRevisit : IStringBeare
 {
     private readonly double? firstPostField = null;
 
-    public NullableDoubleSpanNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrSpanClassUnion<double>>? nodeRevealer = null)
+    public NullableDoubleSpanNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrSpanClassUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrSpanClassUnion<double>> firstAsList = [
@@ -358,8 +346,7 @@ public class PreFieldDoubleReadOnlySpanClassUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrReadOnlySpanClassUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrReadOnlySpanClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrReadOnlySpanClassUnion<double, double>> firstAsList = [
@@ -387,8 +374,7 @@ public class DoubleReadOnlySpanPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleReadOnlySpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrReadOnlySpanClassUnion<double, double>>? nodeRevealer = null)
+    public DoubleReadOnlySpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrReadOnlySpanClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrReadOnlySpanClassUnion<double, double>> firstAsList = [
@@ -416,8 +402,7 @@ public class NullablePreFieldNullableDoubleReadOnlySpanClassUnionRevisit : IStri
 {
     private readonly double? firstPreField = null;
 
-    public NullablePreFieldNullableDoubleReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>> firstAsList = [
@@ -445,8 +430,7 @@ public class NullableDoubleReadOnlySpanNullablePostFieldClassUnionRevisit : IStr
 {
     private readonly double? firstPostField = null;
 
-    public NullableDoubleReadOnlySpanNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>>? nodeRevealer = null)
+    public NullableDoubleReadOnlySpanNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrReadOnlySpanClassUnion<double>> firstAsList = [
@@ -474,8 +458,7 @@ public class PreFieldDoubleListStructUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrListStructUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrListStructUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrListStructUnion<double, double>> firstAsList = [
@@ -503,8 +486,7 @@ public class DoubleListPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleListPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrArrayStructUnion<double, double>>? nodeRevealer = null)
+    public DoubleListPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrListStructUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrListStructUnion<double, double>> firstAsList = [
@@ -532,8 +514,7 @@ public class NullablePreFieldNullableDoubleListStructUnionRevisit : IStringBeare
 {
     private readonly double? firstPreField = Math.E;
 
-    public NullablePreFieldNullableDoubleListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrListStructUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrListStructUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrListStructUnion<double>> firstAsList = [
@@ -561,8 +542,7 @@ public class NullableDoubleListNullablePostFieldStructUnionRevisit : IStringBear
 {
     private readonly double? firstPostField = Math.PI;
 
-    public NullableDoubleListNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrListStructUnion<double>>? nodeRevealer = null)
+    public NullableDoubleListNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrListStructUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrListStructUnion<double>> firstAsList = [
@@ -590,8 +570,7 @@ public class PreFieldDoubleListClassUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrListClassUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrListClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrListClassUnion<double, double>> firstAsList = [
@@ -619,8 +598,7 @@ public class DoubleListPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleListPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrListClassUnion<double, double>>? nodeRevealer = null)
+    public DoubleListPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrListClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrListClassUnion<double, double>> firstAsList = [
@@ -648,8 +626,7 @@ public class NullablePreFieldNullableDoubleListClassUnionRevisit : IStringBearer
 {
     private readonly double? firstPreField = null;
 
-    public NullablePreFieldNullableDoubleListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrListClassUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrListClassUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrListClassUnion<double>> firstAsList = [
@@ -677,8 +654,7 @@ public class NullableDoubleListNullablePostFieldClassUnionRevisit : IStringBeare
 {
     private readonly double? firstPostField = null;
 
-    public NullableDoubleListNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrListClassUnion<double>>? nodeRevealer = null)
+    public NullableDoubleListNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrListClassUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrListClassUnion<double>> firstAsList = [
@@ -706,8 +682,7 @@ public class PreFieldDoubleEnumerableStructUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrEnumerableStructUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrEnumerableStructUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrEnumerableStructUnion<double, double>> firstAsEnumerable = [
@@ -727,10 +702,7 @@ public class PreFieldDoubleEnumerableStructUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<
-                   List<SpanFormattableOrEnumerableStructUnion<double, double>>
-                     , SpanFormattableOrEnumerableStructUnion<double, double>
-               >(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -739,8 +711,7 @@ public class DoubleEnumerablePostFieldStructUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleEnumerablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrArrayStructUnion<double, double>>? nodeRevealer = null)
+    public DoubleEnumerablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrEnumerableStructUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrEnumerableStructUnion<double, double>> firstAsEnumerable = [
@@ -758,10 +729,7 @@ public class DoubleEnumerablePostFieldStructUnionRevisit : IStringBearer
     public AppendSummary RevealState(ITheOneString tos)
     {
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllEnumerate<
-               List<SpanFormattableOrEnumerableStructUnion<double, double>>
-             , SpanFormattableOrEnumerableStructUnion<double, double>
-           >(nameof(firstEnumerable), firstEnumerable)
+           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -771,8 +739,7 @@ public class NullablePreFieldNullableDoubleEnumerableStructUnionRevisit : IStrin
 {
     private readonly double? firstPreField = Math.E;
 
-    public NullablePreFieldNullableDoubleEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrEnumerableStructUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrEnumerableStructUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrEnumerableStructUnion<double>> firstAsEnumerable = [
@@ -791,10 +758,7 @@ public class NullablePreFieldNullableDoubleEnumerableStructUnionRevisit : IStrin
     {
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllEnumerate<
-               List<NullableStructSpanFormattableOrEnumerableStructUnion<double>>
-             , NullableStructSpanFormattableOrEnumerableStructUnion<double>
-           >(nameof(firstEnumerable), firstEnumerable)
+           .CollectionField.AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -803,8 +767,7 @@ public class NullableDoubleEnumerableNullablePostFieldStructUnionRevisit : IStri
 {
     private readonly double? firstPostField = Math.PI;
 
-    public NullableDoubleEnumerableNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrEnumerableStructUnion<double>>? nodeRevealer = null)
+    public NullableDoubleEnumerableNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrEnumerableStructUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrEnumerableStructUnion<double>> firstAsEnumerable = [
@@ -823,10 +786,7 @@ public class NullableDoubleEnumerableNullablePostFieldStructUnionRevisit : IStri
     {
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllEnumerate<
-               List<NullableStructSpanFormattableOrEnumerableStructUnion<double>>
-             , NullableStructSpanFormattableOrEnumerableStructUnion<double>
-           >(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -836,8 +796,7 @@ public class PreFieldDoubleEnumerableClassUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrEnumerableClassUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrEnumerableClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrEnumerableClassUnion<double, double>> firstAsEnumerable = [
@@ -857,10 +816,7 @@ public class PreFieldDoubleEnumerableClassUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<
-               List<SpanFormattableOrEnumerableClassUnion<double, double>>
-             , SpanFormattableOrEnumerableClassUnion<double, double>
-           >(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -869,8 +825,7 @@ public class DoubleEnumerablePostFieldClassUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleEnumerablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrEnumerableClassUnion<double, double>>? nodeRevealer = null)
+    public DoubleEnumerablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrEnumerableClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrEnumerableClassUnion<double, double>> firstAsEnumerable = [
@@ -889,10 +844,7 @@ public class DoubleEnumerablePostFieldClassUnionRevisit : IStringBearer
     {
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllEnumerate<
-               List<SpanFormattableOrEnumerableClassUnion<double, double>>
-             , SpanFormattableOrEnumerableClassUnion<double, double>
-           >(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -902,8 +854,7 @@ public class NullablePreFieldNullableDoubleEnumerableClassUnionRevisit : IString
 {
     private readonly double? firstPreField = null;
 
-    public NullablePreFieldNullableDoubleEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrEnumerableClassUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrEnumerableClassUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrEnumerableClassUnion<double>> firstAsEnumerable = [
@@ -923,10 +874,7 @@ public class NullablePreFieldNullableDoubleEnumerableClassUnionRevisit : IString
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<
-               List<NullableStructSpanFormattableOrEnumerableClassUnion<double>>
-             , NullableStructSpanFormattableOrEnumerableClassUnion<double>
-           >(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -935,8 +883,7 @@ public class NullableDoubleEnumerableNullablePostFieldClassUnionRevisit : IStrin
 {
     private readonly double? firstPostField = null;
 
-    public NullableDoubleEnumerableNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrEnumerableClassUnion<double>>? nodeRevealer = null)
+    public NullableDoubleEnumerableNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrEnumerableClassUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrEnumerableClassUnion<double>> firstAsEnumerable = [
@@ -955,22 +902,17 @@ public class NullableDoubleEnumerableNullablePostFieldClassUnionRevisit : IStrin
     {
         return tos.StartComplexType(this)
                   .CollectionField
-                  .AlwaysRevealAllEnumerate<
-                      List<NullableStructSpanFormattableOrEnumerableClassUnion<double>>
-                    , NullableStructSpanFormattableOrEnumerableClassUnion<double>
-                  >(nameof(firstEnumerable), firstEnumerable)
+                  .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
                   .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
                   .Complete();
     }
 }
 
-
 public class PreFieldDoubleEnumeratorStructUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrEnumeratorStructUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrEnumeratorStructUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrEnumeratorStructUnion<double, double>> firstAsEnumerator = [
@@ -990,10 +932,7 @@ public class PreFieldDoubleEnumeratorStructUnionRevisit : IStringBearer
         ((IEnumerator<SpanFormattableOrEnumeratorStructUnion<double, double>>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllIterate<
-               List<SpanFormattableOrEnumeratorStructUnion<double, double>>.Enumerator
-             , SpanFormattableOrEnumeratorStructUnion<double, double>
-           >(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField.AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1002,8 +941,7 @@ public class DoubleEnumeratorPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleEnumeratorPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrArrayStructUnion<double, double>>? nodeRevealer = null)
+    public DoubleEnumeratorPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrEnumeratorStructUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrEnumeratorStructUnion<double, double>> firstAsEnumerator = [
@@ -1022,10 +960,7 @@ public class DoubleEnumeratorPostFieldStructUnionRevisit : IStringBearer
     {
         ((IEnumerator<SpanFormattableOrEnumeratorStructUnion<double, double>>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllIterate<
-               List<SpanFormattableOrEnumeratorStructUnion<double, double>>.Enumerator
-             , SpanFormattableOrEnumeratorStructUnion<double, double>
-           >(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField.AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -1035,8 +970,7 @@ public class NullablePreFieldNullableDoubleEnumeratorStructUnionRevisit : IStrin
 {
     private readonly double? firstPreField = Math.E;
 
-    public NullablePreFieldNullableDoubleEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrEnumeratorStructUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrEnumeratorStructUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrEnumeratorStructUnion<double>> firstAsEnumerator = [
@@ -1056,10 +990,7 @@ public class NullablePreFieldNullableDoubleEnumeratorStructUnionRevisit : IStrin
         ((IEnumerator<NullableStructSpanFormattableOrEnumeratorStructUnion<double>>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllIterate<
-               List<NullableStructSpanFormattableOrEnumeratorStructUnion<double>>.Enumerator
-             , NullableStructSpanFormattableOrEnumeratorStructUnion<double>
-           >(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField.AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1068,8 +999,7 @@ public class NullableDoubleEnumeratorNullablePostFieldStructUnionRevisit : IStri
 {
     private readonly double? firstPostField = Math.PI;
 
-    public NullableDoubleEnumeratorNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrEnumeratorStructUnion<double>>? nodeRevealer = null)
+    public NullableDoubleEnumeratorNullablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrEnumeratorStructUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrEnumeratorStructUnion<double>> firstAsEnumerator = [
@@ -1088,10 +1018,7 @@ public class NullableDoubleEnumeratorNullablePostFieldStructUnionRevisit : IStri
     {
         ((IEnumerator<NullableStructSpanFormattableOrEnumeratorStructUnion<double>>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllIterate<
-               List<NullableStructSpanFormattableOrEnumeratorStructUnion<double>>.Enumerator
-             , NullableStructSpanFormattableOrEnumeratorStructUnion<double>
-           >(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField.AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -1101,8 +1028,7 @@ public class PreFieldDoubleEnumeratorClassUnionRevisit : IStringBearer
 {
     private readonly double firstPreField = Math.E;
 
-    public PreFieldDoubleEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrEnumeratorClassUnion<double, double>>? nodeRevealer = null)
+    public PreFieldDoubleEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrEnumeratorClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrEnumeratorClassUnion<double, double>> firstAsEnumerator = [
@@ -1122,10 +1048,7 @@ public class PreFieldDoubleEnumeratorClassUnionRevisit : IStringBearer
         ((IEnumerator<SpanFormattableOrEnumeratorClassUnion<double, double>>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllIterate<
-               List<SpanFormattableOrEnumeratorClassUnion<double, double>>.Enumerator
-             , SpanFormattableOrEnumeratorClassUnion<double, double>
-           >(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField.AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1134,8 +1057,7 @@ public class DoubleEnumeratorPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly double firstPostField = Math.PI;
 
-    public DoubleEnumeratorPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<SpanFormattableOrEnumeratorClassUnion<double, double>>? nodeRevealer = null)
+    public DoubleEnumeratorPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new SpanFormattableOrEnumeratorClassUnion<double, double>([1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<SpanFormattableOrEnumeratorClassUnion<double, double>> firstAsEnumerator = [
@@ -1154,10 +1076,7 @@ public class DoubleEnumeratorPostFieldClassUnionRevisit : IStringBearer
     {
         ((IEnumerator<SpanFormattableOrEnumeratorClassUnion<double, double>>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
-           .CollectionField.AlwaysRevealAllIterate<
-               List<SpanFormattableOrEnumeratorClassUnion<double, double>>.Enumerator
-             , SpanFormattableOrEnumeratorClassUnion<double, double>
-           >(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField.AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -1167,8 +1086,7 @@ public class NullablePreFieldNullableDoubleEnumeratorClassUnionRevisit : IString
 {
     private readonly double? firstPreField = null;
 
-    public NullablePreFieldNullableDoubleEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrEnumeratorClassUnion<double>>? nodeRevealer = null)
+    public NullablePreFieldNullableDoubleEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrEnumeratorClassUnion<double>([null, 1.0, 2.0, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrEnumeratorClassUnion<double>> firstAsEnumerator = [
@@ -1188,10 +1106,7 @@ public class NullablePreFieldNullableDoubleEnumeratorClassUnionRevisit : IString
         ((IEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<double>>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
-           .CollectionField.AlwaysRevealAllIterate<
-               List<NullableStructSpanFormattableOrEnumeratorClassUnion<double>>.Enumerator
-             , NullableStructSpanFormattableOrEnumeratorClassUnion<double>
-           >(nameof(firstEnumerator), firstEnumerator)
+           .CollectionField.AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -1200,8 +1115,7 @@ public class NullableDoubleEnumeratorNullablePostFieldClassUnionRevisit : IStrin
 {
     private readonly double? firstPostField = null;
 
-    public NullableDoubleEnumeratorNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null
-      , PalantírReveal<NullableStructSpanFormattableOrEnumeratorClassUnion<double>>? nodeRevealer = null)
+    public NullableDoubleEnumeratorNullablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<double>? boolRevealer = null)
     {
         var repeatedItem = new NullableStructSpanFormattableOrEnumeratorClassUnion<double>([1.0, 2.0, null, 3.0], isSimple, isValue, boolRevealer);
         List<NullableStructSpanFormattableOrEnumeratorClassUnion<double>> firstAsEnumerator = [
@@ -1220,10 +1134,7 @@ public class NullableDoubleEnumeratorNullablePostFieldClassUnionRevisit : IStrin
     {
         ((IEnumerator<NullableStructSpanFormattableOrEnumeratorClassUnion<double>>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
-                  .CollectionField.AlwaysRevealAllIterate<
-                      List<NullableStructSpanFormattableOrEnumeratorClassUnion<double>>.Enumerator
-                    , NullableStructSpanFormattableOrEnumeratorClassUnion<double>
-                  >(nameof(firstEnumerator), firstEnumerator)
+                  .CollectionField.AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
                   .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
                   .Complete();
     }

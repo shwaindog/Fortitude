@@ -21,8 +21,7 @@ public class PreFieldStringBuilderArrayStructUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = null;
 
-    public PreFieldStringBuilderArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrArrayStructUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderArrayStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrArrayStructUnion([null, NewStringBuilder(1), NewStringBuilder(2), NewStringBuilder(3)]
                                                       , isSimple, isValue, stringRevealer);
@@ -52,8 +51,7 @@ public class StringBuilderArrayPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = SingletonInst2;
 
-    public StringBuilderArrayPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrArrayStructUnion>? nodeRevealer = null)
+    public StringBuilderArrayPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrArrayStructUnion([SingletonInst1, SingletonInst2, SingletonInst3, null]
                                                       , isSimple, isValue, stringRevealer);
@@ -83,8 +81,7 @@ public class PreFieldStringBuilderArrayClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = null;
 
-    public PreFieldStringBuilderArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrArrayClassUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderArrayClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrArrayClassUnion([NewStringBuilder(1), null, NewStringBuilder(2), NewStringBuilder(3)]
                                                      , isSimple, isValue, stringRevealer);
@@ -114,8 +111,7 @@ public class StringBuilderArrayPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = SingletonInst2;
 
-    public StringBuilderArrayPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrArrayClassUnion>? nodeRevealer = null)
+    public StringBuilderArrayPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrArrayClassUnion([SingletonInst1, SingletonInst2, null, SingletonInst3]
                                                      , isSimple, isValue, stringRevealer);
@@ -145,8 +141,7 @@ public class PreFieldStringBuilderSpanClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = SingletonInst2;
 
-    public PreFieldStringBuilderSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrSpanClassUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderSpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrSpanClassUnion([null, NewStringBuilder(1), NewStringBuilder(2), NewStringBuilder(3)]
                                                     , isSimple, isValue, stringRevealer);
@@ -175,8 +170,7 @@ public class StringBuilderSpanPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = null;
 
-    public StringBuilderSpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrSpanClassUnion>? nodeRevealer = null)
+    public StringBuilderSpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrSpanClassUnion([SingletonInst1, SingletonInst2, SingletonInst3, null]
                                                     , isSimple, isValue, stringRevealer);
@@ -206,8 +200,7 @@ public class PreFieldStringBuilderReadOnlySpanClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = SingletonInst2;
 
-    public PreFieldStringBuilderReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrReadOnlySpanClassUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderReadOnlySpanClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrReadOnlySpanClassUnion([NewStringBuilder(1), null, NewStringBuilder(2), null, NewStringBuilder(3)]
                                                             , isSimple, isValue, stringRevealer);
@@ -236,8 +229,7 @@ public class StringBuilderReadOnlySpanPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = null;
 
-    public StringBuilderReadOnlySpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrReadOnlySpanClassUnion>? nodeRevealer = null)
+    public StringBuilderReadOnlySpanPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrReadOnlySpanClassUnion([null, SingletonInst1, SingletonInst2, SingletonInst3]
                                                             , isSimple, isValue, stringRevealer);
@@ -267,8 +259,7 @@ public class PreFieldStringBuilderListStructUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = null;
 
-    public PreFieldStringBuilderListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrListStructUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderListStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrListStructUnion([NewStringBuilder(1), NewStringBuilder(2), NewStringBuilder(3), null]
                                                      , isSimple, isValue, stringRevealer);
@@ -297,8 +288,7 @@ public class StringBuilderListPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = SingletonInst2;
 
-    public StringBuilderListPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrArrayStructUnion>? nodeRevealer = null)
+    public StringBuilderListPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrListStructUnion([SingletonInst1, null, SingletonInst2, SingletonInst3]
                                                      , isSimple, isValue, stringRevealer);
@@ -328,8 +318,7 @@ public class PreFieldStringBuilderListClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = SingletonInst2;
 
-    public PreFieldStringBuilderListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrListClassUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderListClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrListClassUnion([NewStringBuilder(1), NewStringBuilder(2), null, NewStringBuilder(3)]
                                                     , isSimple, isValue, stringRevealer);
@@ -358,8 +347,7 @@ public class StringBuilderListPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = null;
 
-    public StringBuilderListPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrListClassUnion>? nodeRevealer = null)
+    public StringBuilderListPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrListClassUnion([null, SingletonInst1, SingletonInst2, SingletonInst3]
                                                     , isSimple, isValue, stringRevealer);
@@ -389,8 +377,7 @@ public class PreFieldStringBuilderEnumerableStructUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = null;
 
-    public PreFieldStringBuilderEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrEnumerableStructUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderEnumerableStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrEnumerableStructUnion([NewStringBuilder(1), null, NewStringBuilder(2), NewStringBuilder(3)]
                                                            , isSimple, isValue, stringRevealer);
@@ -411,7 +398,7 @@ public class PreFieldStringBuilderEnumerableStructUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<IEnumerable<StringBuilderOrEnumerableStructUnion>, StringBuilderOrEnumerableStructUnion>(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -420,8 +407,7 @@ public class StringBuilderEnumerablePostFieldStructUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = SingletonInst2;
 
-    public StringBuilderEnumerablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrArrayStructUnion>? nodeRevealer = null)
+    public StringBuilderEnumerablePostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrEnumerableStructUnion([SingletonInst1, SingletonInst2, null, SingletonInst3]
                                                            , isSimple, isValue, stringRevealer);
@@ -441,7 +427,7 @@ public class StringBuilderEnumerablePostFieldStructUnionRevisit : IStringBearer
     {
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<StringBuilderOrEnumerableStructUnion>, StringBuilderOrEnumerableStructUnion>(nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -451,8 +437,7 @@ public class PreFieldStringBuilderEnumerableClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = SingletonInst2;
 
-    public PreFieldStringBuilderEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrEnumerableClassUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderEnumerableClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrEnumerableClassUnion([null, NewStringBuilder(1), NewStringBuilder(2), NewStringBuilder(3)]
                                                           , isSimple, isValue, stringRevealer);
@@ -473,8 +458,7 @@ public class PreFieldStringBuilderEnumerableClassUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<StringBuilderOrEnumerableClassUnion>, StringBuilderOrEnumerableClassUnion>
-               (nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Complete();
     }
 }
@@ -483,8 +467,7 @@ public class StringBuilderEnumerablePostFieldClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = null;
 
-    public StringBuilderEnumerablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrEnumerableClassUnion>? nodeRevealer = null)
+    public StringBuilderEnumerablePostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrEnumerableClassUnion([SingletonInst1, null, SingletonInst2, SingletonInst3]
                                                           , isSimple, isValue, stringRevealer);
@@ -505,20 +488,17 @@ public class StringBuilderEnumerablePostFieldClassUnionRevisit : IStringBearer
     {
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllEnumerate<List<StringBuilderOrEnumerableClassUnion>, StringBuilderOrEnumerableClassUnion>
-               (nameof(firstEnumerable), firstEnumerable)
+           .AlwaysRevealAllEnumerate(nameof(firstEnumerable), firstEnumerable)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
 }
 
-
 public class PreFieldStringBuilderEnumeratorStructUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = null;
 
-    public PreFieldStringBuilderEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrEnumeratorStructUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderEnumeratorStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrEnumeratorStructUnion([NewStringBuilder(1), NewStringBuilder(2), null, NewStringBuilder(3)]
                                                            , isSimple, isValue, stringRevealer);
@@ -540,8 +520,7 @@ public class PreFieldStringBuilderEnumeratorStructUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllIterate<List<StringBuilderOrEnumeratorStructUnion>.Enumerator, StringBuilderOrEnumeratorStructUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -550,8 +529,7 @@ public class StringBuilderEnumeratorPostFieldStructUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = SingletonInst2;
 
-    public StringBuilderEnumeratorPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrArrayStructUnion>? nodeRevealer = null)
+    public StringBuilderEnumeratorPostFieldStructUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrEnumeratorStructUnion([null, SingletonInst1, SingletonInst2, SingletonInst3]
                                                            , isSimple, isValue, stringRevealer);
@@ -572,8 +550,7 @@ public class StringBuilderEnumeratorPostFieldStructUnionRevisit : IStringBearer
         ((IEnumerator<StringBuilderOrEnumeratorStructUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllIterate<List<StringBuilderOrEnumeratorStructUnion>.Enumerator, StringBuilderOrEnumeratorStructUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }
@@ -583,8 +560,7 @@ public class PreFieldStringBuilderEnumeratorClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPreField = SingletonInst2;
 
-    public PreFieldStringBuilderEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrEnumeratorClassUnion>? nodeRevealer = null)
+    public PreFieldStringBuilderEnumeratorClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrEnumeratorClassUnion([NewStringBuilder(1), null, NewStringBuilder(2), NewStringBuilder(3)]
                                                           , isSimple, isValue, stringRevealer);
@@ -606,8 +582,7 @@ public class PreFieldStringBuilderEnumeratorClassUnionRevisit : IStringBearer
         return tos.StartComplexType(this)
            .Field.AlwaysAdd(nameof(firstPreField), firstPreField)
            .CollectionField
-           .AlwaysRevealAllIterate<List<StringBuilderOrEnumeratorClassUnion>.Enumerator, StringBuilderOrEnumeratorClassUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Complete();
     }
 }
@@ -616,8 +591,7 @@ public class StringBuilderEnumeratorPostFieldClassUnionRevisit : IStringBearer
 {
     private readonly StringBuilder? firstPostField = null;
 
-    public StringBuilderEnumeratorPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null
-      , PalantírReveal<StringBuilderOrEnumeratorClassUnion>? nodeRevealer = null)
+    public StringBuilderEnumeratorPostFieldClassUnionRevisit(bool isSimple = true, bool isValue = true, PalantírReveal<StringBuilder>? stringRevealer = null)
     {
         var repeatedItem = new StringBuilderOrEnumeratorClassUnion([SingletonInst1, SingletonInst2, null, SingletonInst3]
                                                           , isSimple, isValue, stringRevealer);
@@ -638,8 +612,7 @@ public class StringBuilderEnumeratorPostFieldClassUnionRevisit : IStringBearer
         ((IEnumerator<StringBuilderOrEnumeratorClassUnion>)firstEnumerator).Reset();
         return tos.StartComplexType(this)
            .CollectionField
-           .AlwaysRevealAllIterate<List<StringBuilderOrEnumeratorClassUnion>.Enumerator, StringBuilderOrEnumeratorClassUnion>
-               (nameof(firstEnumerator), firstEnumerator)
+           .AlwaysRevealAllIterate(nameof(firstEnumerator), firstEnumerator)
            .Field.AlwaysAdd(nameof(firstPostField), firstPostField)
            .Complete();
     }

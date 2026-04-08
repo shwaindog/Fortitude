@@ -17,8 +17,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 public static class AddSelectKeysIterateExtensions
 {
     private static MethodInfo[]? myMethodInfosCached;
-    
-    private static readonly ConcurrentDictionary<(Type, Type, Type), MethodInfo>       NoRevealersNoNullableStructMethodInfoCache = new();
+
+    private static readonly ConcurrentDictionary<(Type, Type, Type), MethodInfo>     NoRevealersNoNullableStructMethodInfoCache = new();
     private static readonly ConcurrentDictionary<(Type, Type, Type, Type), Delegate> NoRevealersNoNullableStructInvokerCache    = new();
 
     private static readonly ConcurrentDictionary<(Type, Type, Type, Type), MethodInfo>     ValueRevealerNoNullableStructMethodInfoCache = new();
@@ -123,7 +123,8 @@ public static class AddSelectKeysIterateExtensions
         where TKRevealBase : notnull
         where TVRevealBase : notnull;
 
-    internal delegate KeyedCollectionMold BothRevealersNoNullableStructInvoker<TKey, TValue, in TKSelectEnumtr, in TKSelectDerived, out TKRevealBase, out TVRevealBase>(
+    internal delegate KeyedCollectionMold BothRevealersNoNullableStructInvoker<TKey, TValue, in TKSelectEnumtr, in TKSelectDerived, out TKRevealBase
+                                                                             , out TVRevealBase>(
         KeyedCollectionMold callOn
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectEnumtr? selectKeys
@@ -169,37 +170,38 @@ public static class AddSelectKeysIterateExtensions
 
     internal static MethodInfo GetAddWithSelectKeysNoRevealersInvokerMethodInfo<TKey, TValue>(this Type enumtrType)
     {
-        var keyType = typeof(TKey);
+        var keyType   = typeof(TKey);
         var valueType = typeof(TValue);
         var methInf =
             NoRevealersNoNullableStructMethodInfoCache.GetOrAdd
                 ((keyType, valueType, enumtrType)
                , static ((Type keyType, Type valueType, Type enumeratorType) key) =>
-                {
-                    var selectKeyDerivedType = key.enumeratorType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                    if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
-                    
-                    using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(4);
-                    genericParamTypes[0] = key.keyType;
-                    genericParamTypes[1] = key.valueType;
-                    genericParamTypes[2] = key.enumeratorType;
-                    genericParamTypes[3] = selectKeyDerivedType;
+                 {
+                     var selectKeyDerivedType = key.enumeratorType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
 
-                    using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(6);
-                    methodParamTypes[0] = typeof(KeyedCollectionMold);
-                    methodParamTypes[1] = typeof(IReadOnlyDictionary<TKey, TValue>);
-                    methodParamTypes[2] = key.enumeratorType;
-                    methodParamTypes[3] = typeof(string);
-                    methodParamTypes[4] = typeof(string);
-                    methodParamTypes[5] = typeof(FormatFlags);
+                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                         throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
 
-                    return GetStaticMethodInfo(nameof(AddWithSelectKeysIterate), genericParamTypes.AsArray, methodParamTypes.AsArray);
-                });
+                     using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(4);
+                     genericParamTypes[0] = key.keyType;
+                     genericParamTypes[1] = key.valueType;
+                     genericParamTypes[2] = key.enumeratorType;
+                     genericParamTypes[3] = selectKeyDerivedType;
+
+                     using var methodParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(6);
+                     methodParamTypes[0] = typeof(KeyedCollectionMold);
+                     methodParamTypes[1] = typeof(IReadOnlyDictionary<TKey, TValue>);
+                     methodParamTypes[2] = key.enumeratorType;
+                     methodParamTypes[3] = typeof(string);
+                     methodParamTypes[4] = typeof(string);
+                     methodParamTypes[5] = typeof(FormatFlags);
+
+                     return GetStaticMethodInfo(nameof(AddWithSelectKeysIterate), genericParamTypes.AsArray, methodParamTypes.AsArray);
+                 });
         return methInf;
     }
 
-    internal static NoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr> 
+    internal static NoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr>
         GetAddWithSelectKeysNoRevealersInvoker<TKey, TValue, TKSelectTEnumtr>(Type enumtrType)
         where TKey : notnull
         where TKSelectTEnumtr : IEnumerator?
@@ -215,11 +217,11 @@ public static class AddSelectKeysIterateExtensions
                     ((keyType, valueType, enumtrParamType, enumtrType)
                    , static ((Type keyType, Type valueType, Type enumtrParamType, Type enumtrType) key, bool _) =>
                      {
-                    
                          var selectKeyDerivedType = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                         if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
-                    
+
+                         if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                             throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
+
                          using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(4);
                          genericParamTypes[0] = key.keyType;
                          genericParamTypes[1] = key.valueType;
@@ -233,43 +235,31 @@ public static class AddSelectKeysIterateExtensions
                          methodParamTypes[3] = typeof(string);
                          methodParamTypes[4] = typeof(string);
                          methodParamTypes[5] = typeof(FormatFlags);
-                         
-                         var toInvokeOn = 
+
+                         var toInvokeOn =
                              GetStaticMethodInfo(nameof(AddWithSelectKeysIterate), genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-                         var genGenMethod
-                             = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddWithSelectKeysNoRevealersNoNullableStructInvoker)));
-                         
-                         genericParamTypes[2] = key.enumtrParamType;
-                         var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
-                         
                          methodParamTypes[2] = key.enumtrParamType;
-                    
-                         using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-                         invokeReflectedArgs[0] = toInvokeOn;
-                         invokeReflectedArgs[1] = key.enumtrParamType;
-                         invokeReflectedArgs[2] = key.enumtrType;
-                         invokeReflectedArgs[3] = methodParamTypes.AsArray;
-                         
-                         return (NoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr>
-                                 )concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+                         var fullGenericInvoke =
+                             BuildAddWithSelectKeysNoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr>
+                                 (toInvokeOn, key.enumtrParamType, key.enumtrType, methodParamTypes.AsArray);
+                         return fullGenericInvoke;
                      }, callAsFactory);
         return invoker;
     }
 
-    internal static NoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr> 
-        BuildAddWithSelectKeysNoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>
+    internal static NoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr>
+        BuildAddWithSelectKeysNoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr>
         (MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] methodParamTypes)
-        where TKSelectTEnumtr : IEnumerator<TKSelectDerived>
+        where TKSelectTEnumtr : IEnumerator?
         where TKey : notnull
-        where TKSelectDerived : TKey
     {
         var shouldUnbox = !enumtrParamType.IsValueType && enumtrType.IsValueType;
-        
+
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicNoRevealersNoNullableStructInvoke_{enumtrType.Name}", typeof(KeyedCollectionMold),
-                 methodParamTypes , typeof(AddSelectKeysIterateExtensions).Module, false);
+                 methodParamTypes, typeof(AddSelectKeysIterateExtensions).Module, false);
         var ilGenerator = helperMethod.GetILGenerator();
         if (shouldUnbox)
         {
@@ -291,14 +281,10 @@ public static class AddSelectKeysIterateExtensions
         ilGenerator.Emit(OpCodes.Ldarg_S, 5);
         ilGenerator.Emit(OpCodes.Call, methodInfo);
         ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker = helperMethod.CreateDelegate(typeof(NoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>));
-        var createInvoker = (NoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>)methodInvoker;
+        var methodInvoker = helperMethod.CreateDelegate(typeof(NoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr>));
+        var createInvoker = (NoRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr>)methodInvoker;
 
-        KeyedCollectionMold Wrapped(KeyedCollectionMold kcm, IReadOnlyDictionary<TKey, TValue>? value, TKSelectTEnumtr? selectKeysEnumtr
-          , string? valueFmtStr, string? keyFmtString, FormatFlags flags) =>
-            createInvoker(kcm, value, selectKeysEnumtr, valueFmtStr, keyFmtString, flags);
-
-        return Wrapped;
+        return createInvoker;
     }
 
     internal static MethodInfo GetAddWithSelectKeysValueRevealerNoNullableStructIInvokerMethodInfo<TKey, TValue, TVRevealerBase>(this Type enumtrType)
@@ -315,8 +301,9 @@ public static class AddSelectKeysIterateExtensions
                , static ((Type keyType, Type valueType, Type enumtrType, Type tvRevealerType) key, bool _) =>
                  {
                      var selectKeyDerivedType = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
+
+                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                         throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
 
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
                      genericParamTypes[0] = key.keyType;
@@ -339,29 +326,31 @@ public static class AddSelectKeysIterateExtensions
         return methInf;
     }
 
-    internal static ValueRevealerNoNullableStructInvoker<TKey, TValue, TEnumtr, TVRevealerBase> GetAddWithSelectKeysValueRevealerNoNullableStructInvoker
-        <TKey, TValue, TEnumtr, TVRevealerBase>
+    internal static ValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TVRevealerBase>
+        GetAddWithSelectKeysValueRevealerNoNullableStructInvoker
+        <TKey, TValue, TKSelectEnumtr, TVRevealerBase>
         (Type enumtrType)
         where TKey : notnull
         where TValue : TVRevealerBase?
-        where TEnumtr : IEnumerator?
+        where TKSelectEnumtr : IEnumerator?
         where TVRevealerBase : notnull
     {
         var keyType         = typeof(TKey);
         var valueType       = typeof(TValue);
-        var enumtrParamType = typeof(TEnumtr);
+        var enumtrParamType = typeof(TKSelectEnumtr);
         var tvRevealBase    = typeof(TVRevealerBase);
         var callAsFactory   = true;
         var invoker =
-            (ValueRevealerNoNullableStructInvoker<TKey, TValue, TEnumtr, TVRevealerBase>)
+            (ValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TVRevealerBase>)
             ValueRevealerNoNullableStructInvokerCache
                 .GetOrAdd
                     ((keyType, valueType, enumtrParamType, enumtrType, tvRevealBase),
                      static ((Type keyType, Type valueType, Type enumtrParamType, Type enumtrType, Type tvRevealType) key, bool _) =>
                      {
                          var selectKeyDerivedType = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                         if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
+
+                         if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                             throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
 
                          using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
                          genericParamTypes[0] = key.keyType;
@@ -378,41 +367,31 @@ public static class AddSelectKeysIterateExtensions
                          methodParamTypes[4] = typeof(string);
                          methodParamTypes[5] = typeof(string);
                          methodParamTypes[6] = typeof(FormatFlags);
-                         
+
                          var toInvokeOn =
                              GetStaticMethodInfo(nameof(AddWithSelectKeysIterateValueRevealer), genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-                         var genGenMethod
-                             = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddWithSelectKeysValueRevealerNoNullableStructInvoker)));
-                         
-                         genericParamTypes[2] = key.enumtrParamType;
-                         var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
-                         
                          methodParamTypes[2] = key.enumtrParamType;
-                         
-                         using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-                         invokeReflectedArgs[0] = toInvokeOn;
-                         invokeReflectedArgs[1] = key.enumtrParamType;
-                         invokeReflectedArgs[2] = key.enumtrType;
-                         invokeReflectedArgs[3] = methodParamTypes.AsArray;
-                         
-                         return (ValueRevealerNoNullableStructInvoker<TKey, TValue, TEnumtr, TVRevealerBase>)
-                             concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+                         var fullGenericInvoke =
+                             BuildAddWithSelectKeysValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TVRevealerBase>
+                                 (toInvokeOn, key.enumtrParamType, key.enumtrType, methodParamTypes.AsArray);
+
+                         return fullGenericInvoke;
                      }, callAsFactory);
         return invoker;
     }
 
-    internal static ValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TVRevealerBase> BuildAddWithSelectKeysValueRevealerNoNullableStructInvoker
-        <TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealerBase>(
+    internal static ValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TVRevealerBase>
+        BuildAddWithSelectKeysValueRevealerNoNullableStructInvoker
+        <TKey, TValue, TKSelectEnumtr, TVRevealerBase>(
             MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] methodParamTypes)
         where TKey : notnull
         where TValue : TVRevealerBase?
-        where TKSelectDerived : TKey
-        where TKSelectEnumtr : IEnumerator<TKSelectDerived>?
+        where TKSelectEnumtr : IEnumerator?
         where TVRevealerBase : notnull
     {
         var shouldUnbox = !enumtrParamType.IsValueType && enumtrType.IsValueType;
-        
+
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicAddWithSelectKeysIterateValueRevealerInvoke_{enumtrType.Name}", typeof(KeyedCollectionMold),
@@ -439,14 +418,10 @@ public static class AddSelectKeysIterateExtensions
         ilGenerator.Emit(OpCodes.Ldarg_S, 6);
         ilGenerator.Emit(OpCodes.Call, methodInfo);
         ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker = helperMethod.CreateDelegate(typeof(ValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealerBase>));
-        var createInvoker = (ValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TVRevealerBase>)methodInvoker;
+        var methodInvoker = helperMethod.CreateDelegate(typeof(ValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TVRevealerBase>));
+        var createInvoker = (ValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TVRevealerBase>)methodInvoker;
 
-        KeyedCollectionMold Wrapped(KeyedCollectionMold kcm, IReadOnlyDictionary<TKey, TValue>? value, TKSelectEnumtr? selectKeysEnumtr
-          , PalantírReveal<TVRevealerBase> valueRevealer, string? keyFmtStr, string? valueFmtStr, FormatFlags flags) =>
-            createInvoker(kcm, value, selectKeysEnumtr, valueRevealer, keyFmtStr, valueFmtStr, flags);
-
-        return Wrapped;
+        return createInvoker;
     }
 
     internal static MethodInfo GetAddWithSelectKeysValueRevealerNullableValueStructMethodInfo<TKey, TValue>(this Type enumtrType)
@@ -460,9 +435,10 @@ public static class AddSelectKeysIterateExtensions
                  static ((Type keyType, Type valueType, Type enumtrType) key) =>
                  {
                      var selectKeyDerivedType = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
-                         
+
+                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                         throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
+
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(4);
                      genericParamTypes[0] = key.keyType;
                      genericParamTypes[1] = key.valueType;
@@ -478,32 +454,35 @@ public static class AddSelectKeysIterateExtensions
                      methodParamTypes[5] = typeof(string);
                      methodParamTypes[6] = typeof(FormatFlags);
 
-                     return GetStaticMethodInfo(nameof(AddWithSelectKeysIterateNullValueRevealer), genericParamTypes.AsArray, methodParamTypes.AsArray);
+                     return GetStaticMethodInfo(nameof(AddWithSelectKeysIterateNullValueRevealer), genericParamTypes.AsArray
+                                              , methodParamTypes.AsArray);
                  });
         return methInf;
     }
 
-    internal static ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectTEnumtr> GetAddWithSelectKeysValueRevealerNullableValueStructInvoker
-        <TKey, TValue, TKSelectTEnumtr>( Type enumtrType)
-        where TKSelectTEnumtr : IEnumerator?
+    internal static ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr> GetAddWithSelectKeysValueRevealerNullableValueStructInvoker
+        <TKey, TValue, TKSelectEnumtr>(Type enumtrType)
+        where TKSelectEnumtr : IEnumerator?
         where TKey : notnull
         where TValue : struct
     {
         var keyType         = typeof(TKey);
         var valueType       = typeof(TValue);
-        var enumtrParamType = typeof(TKSelectTEnumtr);
+        var enumtrParamType = typeof(TKSelectEnumtr);
         var callAsFactory   = true;
         var invoker =
-            (ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectTEnumtr>)
+            (ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr>)
             ValueRevealerNullableValueStructInvokerCache
                 .GetOrAdd((keyType, valueType, enumtrParamType, enumtrType)
                          ,
                           static ((Type keyType, Type valueType, Type enumtrParamType, Type enumtrType) key, bool _) =>
                           {
-                              var selectKeyDerivedType = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                              if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
-                         
+                              var selectKeyDerivedType
+                                  = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
+
+                              if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                                  throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
+
                               using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(4);
                               genericParamTypes[0] = key.keyType;
                               genericParamTypes[1] = key.valueType;
@@ -518,39 +497,30 @@ public static class AddSelectKeysIterateExtensions
                               methodParamTypes[4] = typeof(string);
                               methodParamTypes[5] = typeof(string);
                               methodParamTypes[6] = typeof(FormatFlags);
-                              
-                              var toInvokeOn =
-                                  GetStaticMethodInfo(nameof(AddWithSelectKeysIterateNullValueRevealer), genericParamTypes.AsArray, methodParamTypes.AsArray);
 
-                              var genGenMethod
-                                  = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddWithSelectKeysValueRevealerNullableValueStructInvoker)));
-                              
-                              genericParamTypes[2] = key.enumtrParamType;
-                              var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
-                              
+                              var toInvokeOn =
+                                  GetStaticMethodInfo(nameof(AddWithSelectKeysIterateNullValueRevealer), genericParamTypes.AsArray
+                                                    , methodParamTypes.AsArray);
+
                               methodParamTypes[2] = key.enumtrParamType;
-                         
-                              using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-                              invokeReflectedArgs[0] = toInvokeOn;
-                              invokeReflectedArgs[1] = key.enumtrParamType;
-                              invokeReflectedArgs[2] = key.enumtrType;
-                              invokeReflectedArgs[3] = methodParamTypes.AsArray;
-                              
-                              return (ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectTEnumtr>)
-                                  concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+                              var fullGenericInvoke =
+                                  BuildAddWithSelectKeysValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr>
+                                      (toInvokeOn, key.enumtrParamType, key.enumtrType, methodParamTypes.AsArray);
+
+                              return fullGenericInvoke;
                           }, callAsFactory);
         return invoker;
     }
 
-    internal static ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr> BuildAddWithSelectKeysValueRevealerNullableValueStructInvoker
-        <TKey, TValue, TKSelectEnumtr, TKSelectDerived>(MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] methodParamTypes)
-        where TKSelectEnumtr : IEnumerator<TKSelectDerived>?
+    internal static ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr>
+        BuildAddWithSelectKeysValueRevealerNullableValueStructInvoker
+        <TKey, TValue, TKSelectEnumtr>(MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] methodParamTypes)
+        where TKSelectEnumtr : IEnumerator?
         where TKey : notnull
         where TValue : struct
-        where TKSelectDerived : TKey
     {
         var shouldUnbox = !enumtrParamType.IsValueType && enumtrType.IsValueType;
-        
+
         var helperMethod =
             new DynamicMethod
                 ($"{methodInfo.Name}_DynamicAddWithSelectKeysIterateNullValueRevealerInvoke_{enumtrType.Name}", typeof(KeyedCollectionMold),
@@ -577,17 +547,14 @@ public static class AddSelectKeysIterateExtensions
         ilGenerator.Emit(OpCodes.Ldarg_S, 6);
         ilGenerator.Emit(OpCodes.Call, methodInfo);
         ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker = helperMethod.CreateDelegate(typeof(ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived>));
-        var createInvoker   = (ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived>)methodInvoker;
+        var methodInvoker = helperMethod.CreateDelegate(typeof(ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr>));
+        var createInvoker = (ValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr>)methodInvoker;
 
-        KeyedCollectionMold Wrapped(KeyedCollectionMold kcm, IReadOnlyDictionary<TKey, TValue?>? value, TKSelectEnumtr? selectKeysEnumtr
-          , PalantírReveal<TValue> valueRevealer, string? keyFmtStr, string? valueFmtStr, FormatFlags flags) =>
-            createInvoker(kcm, value, selectKeysEnumtr, valueRevealer, keyFmtStr, valueFmtStr, flags);
-
-        return Wrapped;
+        return createInvoker;
     }
-    
-    internal static MethodInfo GetAddWithSelectKeysBothRevealersNoNullableStructMethodInfo<TKey, TValue, TKRevealerBase, TVRevealerBase>(this Type enumtrType)
+
+    internal static MethodInfo GetAddWithSelectKeysBothRevealersNoNullableStructMethodInfo<TKey, TValue, TKRevealerBase, TVRevealerBase>(
+        this Type enumtrType)
         where TKRevealerBase : notnull
         where TVRevealerBase : notnull
     {
@@ -601,9 +568,10 @@ public static class AddSelectKeysIterateExtensions
                  static ((Type keyType, Type valueType, Type enumtrType, Type tkRevealType, Type tvRevealType) key) =>
                  {
                      var selectKeyDerivedType = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
-                         
+
+                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                         throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
+
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(6);
                      genericParamTypes[0] = key.keyType;
                      genericParamTypes[1] = key.valueType;
@@ -626,7 +594,8 @@ public static class AddSelectKeysIterateExtensions
         return methInf;
     }
 
-    internal static BothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase> GetAddWithSelectKeysBothRevealersNoNullableStructInvoker
+    internal static BothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>
+        GetAddWithSelectKeysBothRevealersNoNullableStructInvoker
         <TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>(Type enumtrType)
         where TKSelectEnumtr : IEnumerator?
         where TKey : TKRevealBase
@@ -647,9 +616,10 @@ public static class AddSelectKeysIterateExtensions
                  static ((Type keyType, Type valueType, Type enumtrParamType, Type enumtrType, Type tkRevealType, Type tvRevealType) key, bool _) =>
                  {
                      var selectKeyDerivedType = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
-                         
+
+                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                         throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
+
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(6);
                      genericParamTypes[0] = key.keyType;
                      genericParamTypes[1] = key.valueType;
@@ -666,38 +636,27 @@ public static class AddSelectKeysIterateExtensions
                      methodParamTypes[4] = typeof(PalantírReveal<TKRevealBase>);
                      methodParamTypes[5] = typeof(string);
                      methodParamTypes[6] = typeof(FormatFlags);
-                     
+
                      var toInvokeOn =
                          GetStaticMethodInfo(nameof(AddWithSelectKeysIterateBothRevealers), genericParamTypes.AsArray, methodParamTypes.AsArray);
-                     
-                     var genGenMethod
-                         = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddWithSelectKeysBothRevealersNoNullableStructInvoker)));
-                     
-                     genericParamTypes[2] = key.enumtrParamType;
-                     var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
 
                      methodParamTypes[2] = key.enumtrParamType;
-                         
-                     using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-                     invokeReflectedArgs[0] = toInvokeOn;
-                     invokeReflectedArgs[1] = key.enumtrParamType;
-                     invokeReflectedArgs[2] = key.enumtrType;
-                     invokeReflectedArgs[3] = methodParamTypes.AsArray;
-                     
-                     return (BothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>)
-                         concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+                     var fullGenericInvoke =
+                         BuildAddWithSelectKeysBothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>
+                             (toInvokeOn, key.enumtrParamType, key.enumtrType, methodParamTypes.AsArray);
+
+                     return fullGenericInvoke;
                  }, callAsFactory);
         return invoker;
     }
 
 
     internal static BothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>
-        BuildAddWithSelectKeysBothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>
+        BuildAddWithSelectKeysBothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>
         (MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] parameterArgTypes)
-        where TKSelectEnumtr : IEnumerator<TKSelectDerived>?
+        where TKSelectEnumtr : IEnumerator?
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
-        where TKSelectDerived : TKey
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
@@ -731,16 +690,12 @@ public static class AddSelectKeysIterateExtensions
         ilGenerator.Emit(OpCodes.Call, methodInfo);
         ilGenerator.Emit(OpCodes.Ret);
         var methodInvoker =
-            helperMethod.CreateDelegate(typeof(BothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>));
-        var createInvoker = (BothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>)methodInvoker;
+            helperMethod.CreateDelegate(typeof(BothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>));
+        var createInvoker = (BothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase, TVRevealBase>)methodInvoker;
 
-        KeyedCollectionMold Wrapped(KeyedCollectionMold kcm, IReadOnlyDictionary<TKey, TValue>? value, TKSelectEnumtr? selectKeysEnumtr
-          , PalantírReveal<TVRevealBase> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer, string? valueFmtStr, FormatFlags flags) =>
-            createInvoker(kcm, value, selectKeysEnumtr, valueRevealer, keyRevealer, valueFmtStr, flags);
-
-        return Wrapped;
+        return createInvoker;
     }
-    
+
     internal static MethodInfo GetAddWithSelectKeysBothRevealersNullableValueStructMethodInfo<TKey, TValue, TKRevealerBase>(this Type enumtrType)
         where TValue : struct
         where TKRevealerBase : notnull
@@ -751,12 +706,13 @@ public static class AddSelectKeysIterateExtensions
         var methInf =
             BothRevealersNullableValueStructMethodInfoCache.GetOrAdd
                 ((keyType, valueType, enumtrType, tkRevealBase),
-                 static (( Type keyType,  Type valueType,  Type enumtrType, Type tkRevealBase) key) =>
+                 static (( Type keyType, Type valueType, Type enumtrType, Type tkRevealBase) key) =>
                  {
                      var selectKeyDerivedType = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
-                         
+
+                     if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                         throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
+
                      using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
                      genericParamTypes[0] = key.keyType;
                      genericParamTypes[1] = key.valueType;
@@ -774,34 +730,37 @@ public static class AddSelectKeysIterateExtensions
                      methodParamTypes[6] = typeof(FormatFlags);
 
                      return
-                         GetStaticMethodInfo (nameof(AddWithSelectKeysIterateBothWithNullValueRevealers), genericParamTypes.AsArray, methodParamTypes.AsArray);
+                         GetStaticMethodInfo(nameof(AddWithSelectKeysIterateBothWithNullValueRevealers), genericParamTypes.AsArray
+                                           , methodParamTypes.AsArray);
                  });
         return methInf;
     }
 
-    internal static BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectTEnumtr, TKRevealBase> GetAddWithSelectKeysBothRevealersNullableValueStructInvoker
-        <TKey, TValue, TKSelectTEnumtr, TKRevealBase>(Type enumtrType)
-        where TKSelectTEnumtr : IEnumerator?
+    internal static BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase>
+        GetAddWithSelectKeysBothRevealersNullableValueStructInvoker
+        <TKey, TValue, TKSelectEnumtr, TKRevealBase>(Type enumtrType)
+        where TKSelectEnumtr : IEnumerator?
         where TKey : TKRevealBase
         where TValue : struct
         where TKRevealBase : notnull
     {
         var keyType         = typeof(TKey);
         var valueType       = typeof(TValue);
-        var enumtrParamType = typeof(TKSelectTEnumtr);
+        var enumtrParamType = typeof(TKSelectEnumtr);
         var tkRevealBase    = typeof(TKRevealBase);
         var callAsFactory   = true;
         var invoker =
-            (BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectTEnumtr, TKRevealBase>)
+            (BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase>)
             BothRevealersNullableValueStructInvokerCache
                 .GetOrAdd
                     ((keyType, valueType, enumtrParamType, enumtrType, tkRevealBase),
                      static ((Type keyType, Type valueType, Type enumtrParamType, Type enumtrType, Type tkRevealBase) key, bool _) =>
                      {
                          var selectKeyDerivedType = key.enumtrType.GetIterableElementType()?.IfNullableGetUnderlyingTypeOrThis() ?? typeof(object);
-                    
-                         if (!selectKeyDerivedType.IsAssignableTo(key.keyType)) throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
-                         
+
+                         if (!selectKeyDerivedType.IsAssignableTo(key.keyType))
+                             throw new ArgumentException("Expected to selectKeys element to be equatable to Key");
+
                          using var genericParamTypes = RecyclingArrays.GetReusableArrayOf<Type>(5);
                          genericParamTypes[0] = key.keyType;
                          genericParamTypes[1] = key.valueType;
@@ -819,35 +778,25 @@ public static class AddSelectKeysIterateExtensions
                          methodParamTypes[6] = typeof(FormatFlags);
 
                          var toInvokeOn =
-                             GetStaticMethodInfo(nameof(AddWithSelectKeysIterateBothWithNullValueRevealers), genericParamTypes.AsArray, methodParamTypes.AsArray);
+                             GetStaticMethodInfo(nameof(AddWithSelectKeysIterateBothWithNullValueRevealers), genericParamTypes.AsArray
+                                               , methodParamTypes.AsArray);
 
-                         var genGenMethod
-                             = myMethodInfosCached!.First(mi => mi.Name.Contains(nameof(BuildAddWithSelectKeysBothRevealersNullableValueStructInvoker)));
-                         
-                         genericParamTypes[2] = key.enumtrParamType;
-                         var concreteGenMethod = genGenMethod.MakeGenericMethod(genericParamTypes.AsArray);
-                         
                          methodParamTypes[2] = key.enumtrParamType;
-                         
-                         using var invokeReflectedArgs = RecyclingArrays.GetReusableArrayOf<object>(4);
-                         invokeReflectedArgs[0] = toInvokeOn;
-                         invokeReflectedArgs[1] = key.enumtrParamType;
-                         invokeReflectedArgs[2] = key.enumtrType;
-                         invokeReflectedArgs[3] = methodParamTypes.AsArray;
-                         
-                         return (BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectTEnumtr, TKRevealBase>)
-                             concreteGenMethod.Invoke(null, invokeReflectedArgs.AsArray)!;
+                         var fullGenericInvoke =
+                             BuildAddWithSelectKeysBothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase>
+                                 (toInvokeOn, key.enumtrParamType, key.enumtrType, methodParamTypes.AsArray);
+
+                         return fullGenericInvoke;
                      }, callAsFactory);
         return invoker;
     }
 
-    internal static BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase> 
-        BuildAddWithSelectKeysBothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>(
+    internal static BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase>
+        BuildAddWithSelectKeysBothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase>(
             MethodInfo methodInfo, Type enumtrParamType, Type enumtrType, Type[] methodParamTypes)
-        where TKSelectEnumtr : IEnumerator<TKSelectDerived>?
+        where TKSelectEnumtr : IEnumerator?
         where TKey : TKRevealBase
         where TValue : struct
-        where TKSelectDerived : TKey
         where TKRevealBase : notnull
     {
         var shouldUnbox = !enumtrParamType.IsValueType && enumtrType.IsValueType;
@@ -878,19 +827,15 @@ public static class AddSelectKeysIterateExtensions
         ilGenerator.Emit(OpCodes.Ldarg_S, 6);
         ilGenerator.Emit(OpCodes.Call, methodInfo);
         ilGenerator.Emit(OpCodes.Ret);
-        var methodInvoker  = helperMethod.CreateDelegate(typeof(BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>));
-        var createInvoker = (BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKSelectDerived, TKRevealBase>)methodInvoker;
+        var methodInvoker = helperMethod.CreateDelegate(typeof(BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase>));
+        var createInvoker = (BothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectEnumtr, TKRevealBase>)methodInvoker;
 
-        KeyedCollectionMold Wrapped(KeyedCollectionMold kcm, IReadOnlyDictionary<TKey, TValue?>? value, TKSelectEnumtr? selectKeysEnumtr
-          , PalantírReveal<TValue> valueRevealer, PalantírReveal<TKRevealBase> keyRevealer, string? valueFmtStr, FormatFlags flags) =>
-            createInvoker(kcm, value, selectKeysEnumtr, valueRevealer, keyRevealer, valueFmtStr, flags);
-
-        return Wrapped;
+        return createInvoker;
     }
-    
+
     internal static MethodInfo GetStaticMethodInfo(string findMethodName, Type[] findGenericParams, params Type[] findParamTypes)
     {
-        myMethodInfosCached ??= typeof(AddSelectKeysIterateExtensions).GetMethods( NonPublic | Public | Static);
+        myMethodInfosCached ??= typeof(AddSelectKeysIterateExtensions).GetMethods(NonPublic | Public | Static);
 
         MethodInfo? genTypeDefMeth = null;
         var         findEnumtrType = findParamTypes[2];
@@ -945,7 +890,7 @@ public static class AddSelectKeysIterateExtensions
 
         return generified;
     }
-    
+
     public static KeyedCollectionMold AddWithSelectKeysIterate<TKey, TValue, TKSelectTEnumtr>(
         this KeyedCollectionMold callOn
       , IReadOnlyDictionary<TKey, TValue>? value
@@ -954,12 +899,11 @@ public static class AddSelectKeysIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : struct, IEnumerator
-        where TKey: notnull
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterate(value, selectKeys.Value, valueFormatString, keyFormatString, formatFlags);
-    }
-    
+        where TKey : notnull =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterate(value, selectKeys.Value, valueFormatString, keyFormatString, formatFlags);
+
     public static KeyedCollectionMold AddWithSelectKeysIterate<TKey, TValue, TKSelectTEnumtr>(
         this KeyedCollectionMold callOn
       , IReadOnlyDictionary<TKey, TValue>? value
@@ -968,17 +912,18 @@ public static class AddSelectKeysIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : IEnumerator?
-        where TKey: notnull
+        where TKey : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        if (value == null) return callOn;
-        var selectKeysActualType = selectKeys?.GetType() ?? typeof(TKSelectTEnumtr);
+        var selectKeysActualType = selectKeys.GetType();
         var invoker              = GetAddWithSelectKeysNoRevealersInvoker<TKey, TValue, TKSelectTEnumtr>(selectKeysActualType);
         return invoker(callOn, value, selectKeys, valueFormatString, keyFormatString, formatFlags);
     }
-    
+
     public static KeyedCollectionMold AddWithSelectKeysIterate<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>(
         this KeyedCollectionMold callOn
       , IReadOnlyDictionary<TKey, TValue>? value
@@ -987,14 +932,13 @@ public static class AddSelectKeysIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : struct, IEnumerator<TKSelectDerived>
-        where TKey: notnull
-        where TKSelectDerived: TKey
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterate<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>
-            (value, selectKeys.Value, valueFormatString, keyFormatString, formatFlags);
-    }
-    
+        where TKey : notnull
+        where TKSelectDerived : TKey =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterate<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>
+                (value, selectKeys.Value, valueFormatString, keyFormatString, formatFlags);
+
     public static KeyedCollectionMold AddWithSelectKeysIterate<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>(
         this KeyedCollectionMold callOn
       , IReadOnlyDictionary<TKey, TValue>? value
@@ -1003,36 +947,34 @@ public static class AddSelectKeysIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? keyFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : IEnumerator<TKSelectDerived>?
-        where TKey: notnull
-        where TKSelectDerived: TKey
+        where TKey : notnull
+        where TKSelectDerived : TKey
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys?.MoveNext() ?? false;
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
+        var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
-        while (hasValue && value != null)
+        while (hasValue)
         {
             valueFormatString ??= "";
             keyFormatString   ??= "";
-            var key = selectKeys!.Current;
+            var key = selectKeys.Current;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            if (callOn.ItemCount == 0)
-            {
-                callOn.BeforeFirstElement(mws);
-            }
+            if (callOn.ItemCount == 0) { callOn.BeforeFirstElement(mws); }
             mws.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
             mws.FieldEnd();
             mws.AppendMatchFormattedOrNull(keyValue, valueFormatString, formatFlags);
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
-        selectKeys?.Dispose();
+        selectKeys.Dispose();
         return mws.Mold;
     }
 
@@ -1045,13 +987,12 @@ public static class AddSelectKeysIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : struct, IEnumerator
-        where TKey: notnull
+        where TKey : notnull
         where TValue : TVRevealBase?
-        where TVRevealBase : notnull
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterateValueRevealer(value, selectKeys.Value, valueStyler, keyFormatString, valueFormatString, formatFlags);
-    }
+        where TVRevealBase : notnull =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterateValueRevealer(value, selectKeys.Value, valueStyler, keyFormatString, valueFormatString, formatFlags);
 
     public static KeyedCollectionMold AddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectTEnumtr, TVRevealBase>(
         this KeyedCollectionMold callOn
@@ -1062,16 +1003,18 @@ public static class AddSelectKeysIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : IEnumerator?
-        where TKey: notnull
+        where TKey : notnull
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        if (value == null) return callOn;
-        var selectKeysActualType = selectKeys?.GetType() ?? typeof(TKSelectTEnumtr);
-        var invoker              = 
+        var selectKeysActualType = selectKeys.GetType();
+
+        var invoker =
             GetAddWithSelectKeysValueRevealerNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr, TVRevealBase>(selectKeysActualType);
         return invoker(callOn, value, selectKeys, valueStyler, keyFormatString, valueFormatString, formatFlags);
     }
@@ -1085,15 +1028,14 @@ public static class AddSelectKeysIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : struct, IEnumerator<TKSelectDerived>
-        where TKey: notnull
+        where TKey : notnull
         where TKSelectDerived : TKey
         where TValue : TVRevealBase?
-        where TVRevealBase : notnull
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TVRevealBase>
-            (value, selectKeys.Value, valueStyler, keyFormatString, valueFormatString, formatFlags);
-    }
+        where TVRevealBase : notnull =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TVRevealBase>
+                (value, selectKeys.Value, valueStyler, keyFormatString, valueFormatString, formatFlags);
 
     public static KeyedCollectionMold AddWithSelectKeysIterateValueRevealer<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TVRevealBase>(
         this KeyedCollectionMold callOn
@@ -1104,37 +1046,35 @@ public static class AddSelectKeysIterateExtensions
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : IEnumerator<TKSelectDerived>?
-        where TKey: notnull
+        where TKey : notnull
         where TKSelectDerived : TKey
         where TValue : TVRevealBase?
         where TVRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys?.MoveNext() ?? false;
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
+        var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
-        while (hasValue && value != null)
+        while (hasValue)
         {
             keyFormatString ??= "";
-            var key = selectKeys!.Current;
+            var key = selectKeys.Current;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            if (callOn.ItemCount == 0)
-            {
-                callOn.BeforeFirstElement(mws);
-            }
+            if (callOn.ItemCount == 0) { callOn.BeforeFirstElement(mws); }
             mws.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
             mws.FieldEnd();
             mws.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
-        selectKeys?.Dispose();
+        selectKeys.Dispose();
         return mws.Mold;
     }
 
@@ -1148,11 +1088,10 @@ public static class AddSelectKeysIterateExtensions
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : struct, IEnumerator
         where TKey : notnull
-        where TValue : struct
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterateNullValueRevealer(value, selectKeys.Value, valueStyler, keyFormatString, valueFormatString, formatFlags);
-    }
+        where TValue : struct =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterateNullValueRevealer(value, selectKeys.Value, valueStyler, keyFormatString, valueFormatString, formatFlags);
 
     public static KeyedCollectionMold AddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectTEnumtr>(
         this KeyedCollectionMold callOn
@@ -1166,11 +1105,12 @@ public static class AddSelectKeysIterateExtensions
         where TKey : notnull
         where TValue : struct
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        if (value == null) return callOn;
-        var selectKeysActualType = selectKeys?.GetType() ?? typeof(TKSelectTEnumtr);
+        var selectKeysActualType = selectKeys.GetType();
         var invoker              = GetAddWithSelectKeysValueRevealerNullableValueStructInvoker<TKey, TValue, TKSelectTEnumtr>(selectKeysActualType);
         return invoker(callOn, value, selectKeys, valueStyler, keyFormatString, valueFormatString, formatFlags);
     }
@@ -1185,12 +1125,11 @@ public static class AddSelectKeysIterateExtensions
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : struct, IEnumerator<TKSelectDerived>
         where TValue : struct
-        where TKSelectDerived : TKey
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>
-            (value, selectKeys.Value, valueStyler, keyFormatString, valueFormatString, formatFlags);
-    }
+        where TKSelectDerived : TKey =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>
+                (value, selectKeys.Value, valueStyler, keyFormatString, valueFormatString, formatFlags);
 
     public static KeyedCollectionMold AddWithSelectKeysIterateNullValueRevealer<TKey, TValue, TKSelectTEnumtr, TKSelectDerived>(
         this KeyedCollectionMold callOn
@@ -1204,32 +1143,30 @@ public static class AddSelectKeysIterateExtensions
         where TValue : struct
         where TKSelectDerived : TKey
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys?.MoveNext() ?? false;
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
+        var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
-        while (hasValue && value != null)
+        while (hasValue)
         {
             keyFormatString ??= "";
-            var key = selectKeys!.Current;
+            var key = selectKeys.Current;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            if (callOn.ItemCount == 0)
-            {
-                callOn.BeforeFirstElement(mws);
-            }
+            if (callOn.ItemCount == 0) { callOn.BeforeFirstElement(mws); }
             mws.AppendMatchFormattedOrNull(key, keyFormatString, formatFlags | IsFieldName);
             mws.FieldEnd();
             mws.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
-        selectKeys?.Dispose();
+        selectKeys.Dispose();
         return mws.Mold;
     }
 
@@ -1245,11 +1182,10 @@ public static class AddSelectKeysIterateExtensions
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
         where TKRevealBase : notnull
-        where TVRevealBase : notnull
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterateBothRevealers(value, selectKeys.Value, valueStyler, keyStyler, valueFormatString, formatFlags);
-    }
+        where TVRevealBase : notnull =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterateBothRevealers(value, selectKeys.Value, valueStyler, keyStyler, valueFormatString, formatFlags);
 
     public static KeyedCollectionMold AddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectTEnumtr, TKRevealBase, TVRevealBase>(
         this KeyedCollectionMold callOn
@@ -1265,17 +1201,19 @@ public static class AddSelectKeysIterateExtensions
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        if (value == null) return callOn;
-        var selectKeysActualType = selectKeys?.GetType() ?? typeof(TKSelectTEnumtr);
-        var invoker = 
+        var selectKeysActualType = selectKeys.GetType();
+        var invoker =
             GetAddWithSelectKeysBothRevealersNoNullableStructInvoker<TKey, TValue, TKSelectTEnumtr, TKRevealBase, TVRevealBase>(selectKeysActualType);
         return invoker(callOn, value, selectKeys, valueStyler, keyStyler, valueFormatString, formatFlags);
     }
 
-    public static KeyedCollectionMold AddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>(
+    public static KeyedCollectionMold AddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase
+                                                                          , TVRevealBase>(
         this KeyedCollectionMold callOn
       , IReadOnlyDictionary<TKey, TValue>? value
       , TKSelectTEnumtr? selectKeys
@@ -1288,21 +1226,22 @@ public static class AddSelectKeysIterateExtensions
         where TValue : TVRevealBase?
         where TKSelectDerived : TKey
         where TKRevealBase : notnull
-        where TVRevealBase : notnull
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>
-            (value, selectKeys.Value, valueStyler, keyStyler, valueFormatString, formatFlags);
-    }
+        where TVRevealBase : notnull =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterateBothRevealers
+                <TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>
+                (value, selectKeys.Value, valueStyler, keyStyler, valueFormatString, formatFlags);
 
-    public static KeyedCollectionMold AddWithSelectKeysIterateBothRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>(
-        this KeyedCollectionMold callOn
-      , IReadOnlyDictionary<TKey, TValue>? value
-      , TKSelectTEnumtr? selectKeys
-      , PalantírReveal<TVRevealBase> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public static KeyedCollectionMold AddWithSelectKeysIterateBothRevealers
+        <TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase, TVRevealBase>(
+            this KeyedCollectionMold callOn
+          , IReadOnlyDictionary<TKey, TValue>? value
+          , TKSelectTEnumtr? selectKeys
+          , PalantírReveal<TVRevealBase> valueStyler
+          , PalantírReveal<TKRevealBase> keyStyler
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+          , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : IEnumerator<TKSelectDerived>?
         where TKey : TKRevealBase
         where TValue : TVRevealBase?
@@ -1310,31 +1249,29 @@ public static class AddSelectKeysIterateExtensions
         where TKRevealBase : notnull
         where TVRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys?.MoveNext() ?? false;
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
+        var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
-        while (hasValue && value != null)
+        while (hasValue)
         {
-            var key = selectKeys!.Current;
+            var key = selectKeys.Current;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            if (callOn.ItemCount == 0)
-            {
-                callOn.BeforeFirstElement(mws);
-            }
+            if (callOn.ItemCount == 0) { callOn.BeforeFirstElement(mws); }
             mws.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
             mws.FieldEnd();
             mws.RevealCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
-        selectKeys?.Dispose();
+        selectKeys.Dispose();
         return mws.Mold;
     }
 
@@ -1349,11 +1286,11 @@ public static class AddSelectKeysIterateExtensions
         where TKSelectTEnumtr : struct, IEnumerator
         where TKey : TKRevealBase
         where TValue : struct
-        where TKRevealBase : notnull
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterateBothWithNullValueRevealers(value, selectKeys.Value, valueStyler, keyStyler, valueFormatString, formatFlags);
-    }
+        where TKRevealBase : notnull =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterateBothWithNullValueRevealers
+                (value, selectKeys.Value, valueStyler, keyStyler, valueFormatString, formatFlags);
 
     public static KeyedCollectionMold AddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectTEnumtr, TKRevealBase>(
         this KeyedCollectionMold callOn
@@ -1368,73 +1305,73 @@ public static class AddSelectKeysIterateExtensions
         where TValue : struct
         where TKRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
         if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
-        if (value == null) return callOn;
-        var selectKeysActualType = selectKeys?.GetType() ?? typeof(TKSelectTEnumtr);
+        var selectKeysActualType = selectKeys.GetType();
         var invoker = GetAddWithSelectKeysBothRevealersNullableValueStructInvoker<TKey, TValue, TKSelectTEnumtr, TKRevealBase>(selectKeysActualType);
         return invoker(callOn, value, selectKeys, valueStyler, keyStyler, valueFormatString, formatFlags);
     }
 
-    public static KeyedCollectionMold AddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase>(
-        this KeyedCollectionMold callOn
-      , IReadOnlyDictionary<TKey, TValue?>? value
-      , TKSelectTEnumtr? selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public static KeyedCollectionMold
+        AddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase>(
+            this KeyedCollectionMold callOn
+          , IReadOnlyDictionary<TKey, TValue?>? value
+          , TKSelectTEnumtr? selectKeys
+          , PalantírReveal<TValue> valueStyler
+          , PalantírReveal<TKRevealBase> keyStyler
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+          , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : struct, IEnumerator<TKSelectDerived>
         where TKey : TKRevealBase
         where TValue : struct
         where TKSelectDerived : TKey
-        where TKRevealBase : notnull
-    {
-        if (selectKeys == null) return callOn;
-        return callOn.AddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase>
-            (value, selectKeys.Value, valueStyler, keyStyler, valueFormatString, formatFlags);
-    }
+        where TKRevealBase : notnull =>
+        selectKeys == null || value == null
+            ? callOn
+            : callOn.AddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase>
+                (value, selectKeys.Value, valueStyler, keyStyler, valueFormatString, formatFlags);
 
-    public static KeyedCollectionMold AddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase>(
-        this KeyedCollectionMold callOn
-      , IReadOnlyDictionary<TKey, TValue?>? value
-      , TKSelectTEnumtr? selectKeys
-      , PalantírReveal<TValue> valueStyler
-      , PalantírReveal<TKRevealBase> keyStyler
-      , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public static KeyedCollectionMold
+        AddWithSelectKeysIterateBothWithNullValueRevealers<TKey, TValue, TKSelectTEnumtr, TKSelectDerived, TKRevealBase>(
+            this KeyedCollectionMold callOn
+          , IReadOnlyDictionary<TKey, TValue?>? value
+          , TKSelectTEnumtr? selectKeys
+          , PalantírReveal<TValue> valueStyler
+          , PalantírReveal<TKRevealBase> keyStyler
+          , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string? valueFormatString = null
+          , FormatFlags formatFlags = DefaultCallerTypeFlags)
         where TKSelectTEnumtr : IEnumerator<TKSelectDerived>?
         where TKey : TKRevealBase
         where TValue : struct
         where TKSelectDerived : TKey
         where TKRevealBase : notnull
     {
-        var actualType = value?.GetType() ?? typeof(IReadOnlyDictionary<TKey, TValue>);
+        if (value == null || selectKeys == null) return callOn;
+
+        var actualType = value.GetType();
         var mws        = ((ITypeBuilderComponentSource<KeyedCollectionMold>)callOn).KnownTypeMoldState;
-        if (mws.HasSkipBody(actualType, "", formatFlags))
-            return mws.WasSkipped(actualType, "", formatFlags);
-        var hasValue = selectKeys?.MoveNext() ?? false;
+        if (mws.HasSkipBody(actualType, "", formatFlags)) return mws.WasSkipped(actualType, "", formatFlags);
+        var hasValue = selectKeys.MoveNext();
         var kvpType  = typeof(KeyValuePair<TKey, TValue>);
-        while (hasValue && value != null)
+        while (hasValue)
         {
-            var key = selectKeys!.Current;
+            var key = selectKeys.Current;
             if (!value.TryGetValue(key, out var keyValue))
             {
                 hasValue = selectKeys.MoveNext();
                 continue;
             }
-            if (callOn.ItemCount == 0)
-            {
-                callOn.BeforeFirstElement(mws);
-            }
+            if (callOn.ItemCount == 0) { callOn.BeforeFirstElement(mws); }
             mws.RevealCloakedBearerOrNull(key, keyStyler, null, formatFlags | IsFieldName);
             mws.FieldEnd();
             mws.RevealNullableCloakedBearerOrNull(keyValue, valueStyler, valueFormatString, formatFlags);
             mws.GoToNextCollectionItemStart(kvpType, callOn.ItemCount++);
             hasValue = selectKeys.MoveNext();
         }
-        selectKeys?.Dispose();
+        selectKeys.Dispose();
         return mws.Mold;
     }
 }
