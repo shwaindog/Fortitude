@@ -1,5 +1,5 @@
 ﻿// Licensed under the MIT license.
-// Copyright Alexis Sawenko 2025 all rights reserved
+// Copyright Alexis Sawenko 2026 all rights reserved
 
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
@@ -8,7 +8,29 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeTests.FortitudeCommon.Types.StringsOfPower.DieCasting.TestScenarios.CircularRefRevisits.FixtureScaffolding.MapCollections;
 
-public class MapDictBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
+public class MapDictValueRevealerStringsUnion<TKey, TValue> : 
+    MapDictValueRevealerStringsUnion<MapDictNoRevealersStringsUnion<TKey, TValue>, TKey, TValue, TValue>
+    where TValue : notnull
+{
+    public MapDictValueRevealerStringsUnion(IReadOnlyDictionary<TKey, TValue>? value, PalantírReveal<TValue> valueRevealer, string? valueFmtString = null
+      , string? keyFmtString = null) : base(value, valueRevealer, keyFmtString, valueFmtString) { }
+
+    public MapDictValueRevealerStringsUnion(MapDictNoRevealersStringsUnion<TKey, TValue> otherTyped, string? valueFmtString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherTyped, valueFmtString, formatFlags) { }
+
+    public MapDictValueRevealerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherUntyped, valueFmtString, formatFlags) { }
+
+    public MapDictValueRevealerStringsUnion(
+        IReadOnlyDictionary<TKey, MapDictNoRevealersStringsUnion<TKey, TValue>>? nodeColl
+      , string? valueFmtString = null
+      , string? keyFmtString = null) : base(nodeColl, valueFmtString, keyFmtString) { }
+}
+
+public class MapDictValueRevealerStringsUnion<TOther, TKey, TValue, TVRevealBase> : IStringBearer
+    where TValue : TVRevealBase?
+    where TVRevealBase :  notnull
     where TOther : IStringBearer?
 {
     private readonly bool isNode;
@@ -22,15 +44,20 @@ public class MapDictBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
     private readonly FormatFlags otherFormatFlags;
     private readonly string?     keyFormatString;
 
-    public MapDictBothFormatStringsUnion(IReadOnlyDictionary<TKey, TValue>? value, string? valueFmtString = null
-      , string? keyFmtString = null)
+    private PalantírReveal<TVRevealBase>? valueRevealer; 
+
+    public MapDictValueRevealerStringsUnion(IReadOnlyDictionary<TKey, TValue>? value, PalantírReveal<TVRevealBase> valueRevealer
+      , string? keyFmtString = null, string? valueFmtString = null)
     {
-        mapCollection     = value;
-        valueFormatString = valueFmtString;
-        keyFormatString   = keyFmtString;
+        this.valueRevealer = valueRevealer; 
+        
+        mapCollection      = value;
+        valueFormatString  = valueFmtString;
+        keyFormatString    = keyFmtString;
     }
 
-    public MapDictBothFormatStringsUnion(TOther otherTyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapDictValueRevealerStringsUnion(TOther otherTyped, string? valueFmtString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherTypedItem  = true;
         otherTypedItem    = otherTyped;
@@ -40,7 +67,7 @@ public class MapDictBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
         keyFormatString   = null;
     }
 
-    public MapDictBothFormatStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapDictValueRevealerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherUntypedItem = true;
         otherUntypedItem   = otherUntyped;
@@ -50,7 +77,7 @@ public class MapDictBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
         keyFormatString    = null;
     }
 
-    public MapDictBothFormatStringsUnion(IReadOnlyDictionary<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>? nodeColl
+    public MapDictValueRevealerStringsUnion(IReadOnlyDictionary<TKey, TOther>? nodeColl
       , string? valueFmtString = null
       , string? keyFmtString = null)
     {
@@ -64,7 +91,7 @@ public class MapDictBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
 
     private readonly IReadOnlyDictionary<TKey, TValue>? mapCollection;
 
-    private readonly IReadOnlyDictionary<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>? nodeMap;
+    private readonly IReadOnlyDictionary<TKey, TOther>? nodeMap;
 
     public IStringBearer? LogPreField { get; set; }
     public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
@@ -79,18 +106,40 @@ public class MapDictBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
         if (isOtherTypedItem)
             return otherTypedItem!.RevealState(tos.WithNextCallValueFormatString(valueFormatString).WithNextCallFormatFlags(otherFormatFlags));
         if (isNode) return tos.StartKeyedCollectionType(this).AddAll(nodeMap, valueFormatString, keyFormatString).Complete();
+        if (valueRevealer == null) throw new ArgumentException("Must have a value revealer");
         return tos
                .StartKeyedCollectionType(this)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
-               .AddAll(mapCollection, valueFormatString, keyFormatString)
+               .AddAll(mapCollection, valueRevealer, keyFormatString, valueFormatString)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();
     }
 }
 
-public class MapArrayBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
+public class MapArrayValueRevealerStringsUnion<TKey, TValue> : 
+    MapArrayValueRevealerStringsUnion<MapArrayValueRevealerStringsUnion<TKey, TValue>, TKey, TValue, TValue>
+    where TValue : notnull
+{
+    public MapArrayValueRevealerStringsUnion(KeyValuePair<TKey, TValue>[]? value, PalantírReveal<TValue> valueRevealer, string? valueFmtString = null
+      , string? keyFmtString = null) : base(value, valueRevealer, keyFmtString, valueFmtString) { }
+
+    public MapArrayValueRevealerStringsUnion(MapArrayValueRevealerStringsUnion<TKey, TValue> otherTyped, string? valueFmtString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherTyped, valueFmtString, formatFlags) { }
+
+    public MapArrayValueRevealerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherUntyped, valueFmtString, formatFlags) { }
+
+    public MapArrayValueRevealerStringsUnion(
+        KeyValuePair<TKey, MapArrayValueRevealerStringsUnion<TKey, TValue>>[]? nodeColl
+      , string? valueFmtString = null, string? keyFmtString = null) : base(nodeColl, valueFmtString, keyFmtString) { }
+}
+
+public class MapArrayValueRevealerStringsUnion<TOther, TKey, TValue, TVRevealBase> : IStringBearer 
+    where TValue : TVRevealBase?
+    where TVRevealBase :  notnull
     where TOther : IStringBearer?
 {
     private readonly bool isNode;
@@ -104,15 +153,19 @@ public class MapArrayBothFormatStringsUnion<TOther, TKey, TValue> : IStringBeare
     private readonly FormatFlags otherFormatFlags;
     private readonly string?     keyFormatString;
 
-    public MapArrayBothFormatStringsUnion(KeyValuePair<TKey, TValue>[]? value, string? valueFmtString = null
-      , string? keyFmtString = null)
+    private PalantírReveal<TVRevealBase>? valueRevealer; 
+
+    public MapArrayValueRevealerStringsUnion(KeyValuePair<TKey, TValue>[]? value, PalantírReveal<TVRevealBase> valueRevealer
+      , string? keyFmtString = null, string? valueFmtString = null)
     {
-        mapCollection     = value;
-        valueFormatString = valueFmtString;
-        keyFormatString   = keyFmtString;
+        this.valueRevealer = valueRevealer; 
+        
+        mapCollection      = value;
+        valueFormatString  = valueFmtString;
+        keyFormatString    = keyFmtString;
     }
 
-    public MapArrayBothFormatStringsUnion(TOther otherTyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapArrayValueRevealerStringsUnion(TOther otherTyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherTypedItem  = true;
         otherTypedItem    = otherTyped;
@@ -122,7 +175,7 @@ public class MapArrayBothFormatStringsUnion<TOther, TKey, TValue> : IStringBeare
         keyFormatString   = null;
     }
 
-    public MapArrayBothFormatStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapArrayValueRevealerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherUntypedItem = true;
         otherUntypedItem   = otherUntyped;
@@ -132,7 +185,7 @@ public class MapArrayBothFormatStringsUnion<TOther, TKey, TValue> : IStringBeare
         keyFormatString    = null;
     }
 
-    public MapArrayBothFormatStringsUnion(KeyValuePair<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>[]? nodeColl
+    public MapArrayValueRevealerStringsUnion(KeyValuePair<TKey, TOther>[]? nodeColl
       , string? valueFmtString = null
       , string? keyFmtString = null)
     {
@@ -146,7 +199,7 @@ public class MapArrayBothFormatStringsUnion<TOther, TKey, TValue> : IStringBeare
 
     private readonly KeyValuePair<TKey, TValue>[]? mapCollection;
 
-    private readonly KeyValuePair<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>[]? nodeMap;
+    private readonly KeyValuePair<TKey, TOther>[]? nodeMap;
 
     public IStringBearer? LogPreField { get; set; }
     public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
@@ -161,18 +214,40 @@ public class MapArrayBothFormatStringsUnion<TOther, TKey, TValue> : IStringBeare
         if (isOtherTypedItem)
             return otherTypedItem!.RevealState(tos.WithNextCallValueFormatString(valueFormatString).WithNextCallFormatFlags(otherFormatFlags));
         if (isNode) return tos.StartKeyedCollectionType(this).AddAll(nodeMap, valueFormatString, keyFormatString).Complete();
+        if (valueRevealer == null) throw new ArgumentException("Must have a value revealer");
         return tos
                .StartKeyedCollectionType(this)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
-               .AddAll(mapCollection, valueFormatString, keyFormatString)
+               .AddAll(mapCollection, valueRevealer, keyFormatString, valueFormatString)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();
     }
 }
 
-public class MapListBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
+public class MapListValueRevealerStringsUnion<TKey, TValue> : 
+    MapListValueRevealerStringsUnion<MapListValueRevealerStringsUnion<TKey, TValue>, TKey, TValue, TValue>
+    where TValue : notnull
+{
+    public MapListValueRevealerStringsUnion(List<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TValue> valueRevealer, string? valueFmtString = null
+      , string? keyFmtString = null) : base(value, valueRevealer, keyFmtString, valueFmtString) { }
+
+    public MapListValueRevealerStringsUnion(MapListValueRevealerStringsUnion<TKey, TValue> otherTyped, string? valueFmtString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherTyped, valueFmtString, formatFlags) { }
+
+    public MapListValueRevealerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherUntyped, valueFmtString, formatFlags) { }
+
+    public MapListValueRevealerStringsUnion(
+        List<KeyValuePair<TKey, MapListValueRevealerStringsUnion<TKey, TValue>>>? nodeColl
+      , string? valueFmtString = null, string? keyFmtString = null) : base(nodeColl, valueFmtString, keyFmtString) { }
+}
+
+public class MapListValueRevealerStringsUnion<TOther, TKey, TValue, TVRevealBase> : IStringBearer
+    where TValue : TVRevealBase?
+    where TVRevealBase :  notnull
     where TOther : IStringBearer?
 {
     private readonly bool isNode;
@@ -186,15 +261,19 @@ public class MapListBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
     private readonly FormatFlags otherFormatFlags;
     private readonly string?     keyFormatString;
 
-    public MapListBothFormatStringsUnion(List<KeyValuePair<TKey, TValue>>? value, string? valueFmtString = null
-      , string? keyFmtString = null)
+    private PalantírReveal<TVRevealBase>? valueRevealer; 
+
+    public MapListValueRevealerStringsUnion(List<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TVRevealBase> valueRevealer
+      , string? keyFmtString = null, string? valueFmtString = null)
     {
+        this.valueRevealer = valueRevealer; 
+        
         mapCollection     = value;
         valueFormatString = valueFmtString;
         keyFormatString   = keyFmtString;
     }
 
-    public MapListBothFormatStringsUnion(TOther otherTyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapListValueRevealerStringsUnion(TOther otherTyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherTypedItem  = true;
         otherTypedItem    = otherTyped;
@@ -204,7 +283,7 @@ public class MapListBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
         keyFormatString   = null;
     }
 
-    public MapListBothFormatStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapListValueRevealerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherUntypedItem = true;
         otherUntypedItem   = otherUntyped;
@@ -214,7 +293,7 @@ public class MapListBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
         keyFormatString    = null;
     }
 
-    public MapListBothFormatStringsUnion(KeyValuePair<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>[]? nodeColl
+    public MapListValueRevealerStringsUnion(List<KeyValuePair<TKey, TOther>>? nodeColl
       , string? valueFmtString = null
       , string? keyFmtString = null)
     {
@@ -228,7 +307,7 @@ public class MapListBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
 
     private readonly List<KeyValuePair<TKey, TValue>>? mapCollection;
 
-    private readonly KeyValuePair<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>[]? nodeMap;
+    private readonly List<KeyValuePair<TKey, TOther>>? nodeMap;
 
     public IStringBearer? LogPreField { get; set; }
     public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
@@ -243,19 +322,40 @@ public class MapListBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
         if (isOtherTypedItem)
             return otherTypedItem!.RevealState(tos.WithNextCallValueFormatString(valueFormatString).WithNextCallFormatFlags(otherFormatFlags));
         if (isNode) return tos.StartKeyedCollectionType(this).AddAll(nodeMap, valueFormatString, keyFormatString).Complete();
+        if (valueRevealer == null) throw new ArgumentException("Must have a value revealer");
         return tos
                .StartKeyedCollectionType(this)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
-               .AddAll(mapCollection, valueFormatString, keyFormatString)
+               .AddAll(mapCollection, valueRevealer, keyFormatString, valueFormatString)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();
     }
 }
 
+public class MapEnumerateValueRevealerStringsUnion<TKey, TValue> : 
+    MapEnumerateValueRevealerStringsUnion<MapEnumerateValueRevealerStringsUnion<TKey, TValue>, TKey, TValue, TValue>
+    where TValue : notnull
+{
+    public MapEnumerateValueRevealerStringsUnion(List<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TValue> valueRevealer
+      , string? keyFmtString = null, string? valueFmtString = null) : base(value, valueRevealer, keyFmtString, valueFmtString) { }
 
-public class MapEnumeratorBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
+    public MapEnumerateValueRevealerStringsUnion(MapEnumerateValueRevealerStringsUnion<TKey, TValue> otherTyped, string? valueFmtString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherTyped, valueFmtString, formatFlags) { }
+
+    public MapEnumerateValueRevealerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherUntyped, valueFmtString, formatFlags) { }
+
+    public MapEnumerateValueRevealerStringsUnion(
+        List<KeyValuePair<TKey, MapEnumerateValueRevealerStringsUnion<TKey, TValue>>>? nodeColl
+      , string? valueFmtString = null, string? keyFmtString = null) : base(nodeColl, valueFmtString, keyFmtString) { }
+}
+
+public class MapEnumerateValueRevealerStringsUnion<TOther, TKey, TValue, TVRevealBase> : IStringBearer
+    where TValue : TVRevealBase?
+    where TVRevealBase :  notnull
     where TOther : IStringBearer?
 {
     private readonly bool isNode;
@@ -269,15 +369,19 @@ public class MapEnumeratorBothFormatStringsUnion<TOther, TKey, TValue> : IString
     private readonly FormatFlags otherFormatFlags;
     private readonly string?     keyFormatString;
 
-    public MapEnumeratorBothFormatStringsUnion(List<KeyValuePair<TKey, TValue>>? value, string? valueFmtString = null
-      , string? keyFmtString = null)
+    private PalantírReveal<TVRevealBase>? valueRevealer; 
+
+    public MapEnumerateValueRevealerStringsUnion(List<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TVRevealBase> valueRevealer
+      , string? valueFmtString = null, string? keyFmtString = null)
     {
+        this.valueRevealer = valueRevealer; 
+        
         mapCollection     = value;
         valueFormatString = valueFmtString;
         keyFormatString   = keyFmtString;
     }
 
-    public MapEnumeratorBothFormatStringsUnion(TOther otherTyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapEnumerateValueRevealerStringsUnion(TOther otherTyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherTypedItem  = true;
         otherTypedItem    = otherTyped;
@@ -287,7 +391,7 @@ public class MapEnumeratorBothFormatStringsUnion<TOther, TKey, TValue> : IString
         keyFormatString   = null;
     }
 
-    public MapEnumeratorBothFormatStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapEnumerateValueRevealerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherUntypedItem = true;
         otherUntypedItem   = otherUntyped;
@@ -297,7 +401,7 @@ public class MapEnumeratorBothFormatStringsUnion<TOther, TKey, TValue> : IString
         keyFormatString    = null;
     }
 
-    public MapEnumeratorBothFormatStringsUnion(KeyValuePair<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>[]? nodeColl
+    public MapEnumerateValueRevealerStringsUnion(List<KeyValuePair<TKey, TOther>>? nodeColl
       , string? valueFmtString = null
       , string? keyFmtString = null)
     {
@@ -311,7 +415,7 @@ public class MapEnumeratorBothFormatStringsUnion<TOther, TKey, TValue> : IString
 
     private readonly List<KeyValuePair<TKey, TValue>>? mapCollection;
 
-    private readonly KeyValuePair<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>[]? nodeMap;
+    private readonly List<KeyValuePair<TKey, TOther>>? nodeMap;
 
     public IStringBearer? LogPreField { get; set; }
     public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
@@ -326,19 +430,39 @@ public class MapEnumeratorBothFormatStringsUnion<TOther, TKey, TValue> : IString
         if (isOtherTypedItem)
             return otherTypedItem!.RevealState(tos.WithNextCallValueFormatString(valueFormatString).WithNextCallFormatFlags(otherFormatFlags));
         if (isNode) return tos.StartKeyedCollectionType(this).AddAll(nodeMap, valueFormatString, keyFormatString).Complete();
+        if (valueRevealer == null) throw new ArgumentException("Must have a value revealer");
         return tos
                .StartKeyedCollectionType(this)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
-               .AddAllEnumerate(mapCollection, valueFormatString, keyFormatString)
+               .AddAllEnumerateValueRevealer(mapCollection, valueRevealer, keyFormatString, valueFormatString)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();
     }
 }
 
+public class MapIterateValueRevelerStringsUnion<TKey, TValue> : 
+    MapIterateValueRevelerStringsUnion<MapIterateValueRevelerStringsUnion<TKey, TValue>, TKey, TValue, TValue>
+    where TValue : notnull
+{
+    public MapIterateValueRevelerStringsUnion(List<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TValue> valueRevealer, string? valueFmtString = null
+      , string? keyFmtString = null) : base(value, valueRevealer, keyFmtString, valueFmtString) { }
 
-public class MapEnumerableBothFormatStringsUnion<TOther, TKey, TValue> : IStringBearer
+    public MapIterateValueRevelerStringsUnion(MapIterateValueRevelerStringsUnion<TKey, TValue> otherTyped, string? valueFmtString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherTyped, valueFmtString, formatFlags) { }
+
+    public MapIterateValueRevelerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+        : base(otherUntyped, valueFmtString, formatFlags) { }
+
+    public MapIterateValueRevelerStringsUnion(
+        List<KeyValuePair<TKey, MapIterateValueRevelerStringsUnion<TKey, TValue>>>? nodeColl
+      , string? valueFmtString = null, string? keyFmtString = null) : base(nodeColl, valueFmtString, keyFmtString) { }
+}
+public class MapIterateValueRevelerStringsUnion<TOther, TKey, TValue, TVRevealBase> : IStringBearer
+    where TValue : TVRevealBase?
+    where TVRevealBase :  notnull
     where TOther : IStringBearer?
 {
     private readonly bool isNode;
@@ -352,15 +476,19 @@ public class MapEnumerableBothFormatStringsUnion<TOther, TKey, TValue> : IString
     private readonly FormatFlags otherFormatFlags;
     private readonly string?     keyFormatString;
 
-    public MapEnumerableBothFormatStringsUnion(List<KeyValuePair<TKey, TValue>>? value, string? valueFmtString = null
-      , string? keyFmtString = null)
+    private PalantírReveal<TVRevealBase>? valueRevealer; 
+
+    public MapIterateValueRevelerStringsUnion(List<KeyValuePair<TKey, TValue>>? value, PalantírReveal<TVRevealBase> valueRevealer
+       , string? keyFmtString = null, string? valueFmtString = null)
     {
+        this.valueRevealer = valueRevealer; 
+
         mapCollection     = value?.GetEnumerator();
         valueFormatString = valueFmtString;
         keyFormatString   = keyFmtString;
     }
 
-    public MapEnumerableBothFormatStringsUnion(TOther otherTyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapIterateValueRevelerStringsUnion(TOther otherTyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherTypedItem  = true;
         otherTypedItem    = otherTyped;
@@ -370,7 +498,7 @@ public class MapEnumerableBothFormatStringsUnion<TOther, TKey, TValue> : IString
         keyFormatString   = null;
     }
 
-    public MapEnumerableBothFormatStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+    public MapIterateValueRevelerStringsUnion(IStringBearer otherUntyped, string? valueFmtString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         isOtherUntypedItem = true;
         otherUntypedItem   = otherUntyped;
@@ -380,7 +508,7 @@ public class MapEnumerableBothFormatStringsUnion<TOther, TKey, TValue> : IString
         keyFormatString    = null;
     }
 
-    public MapEnumerableBothFormatStringsUnion(KeyValuePair<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>[]? nodeColl
+    public MapIterateValueRevelerStringsUnion(List<KeyValuePair<TKey, TOther>>? nodeColl
       , string? valueFmtString = null
       , string? keyFmtString = null)
     {
@@ -394,7 +522,7 @@ public class MapEnumerableBothFormatStringsUnion<TOther, TKey, TValue> : IString
 
     private readonly List<KeyValuePair<TKey, TValue>>.Enumerator? mapCollection;
 
-    private readonly KeyValuePair<TKey, MapDictBothFormatStringsUnion<TOther, TKey, TValue>>[]? nodeMap;
+    private readonly List<KeyValuePair<TKey, TOther>>? nodeMap;
 
     public IStringBearer? LogPreField { get; set; }
     public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
