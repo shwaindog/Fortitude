@@ -84,10 +84,10 @@ public class MapDictNoRevealersStringsUnion<TOther, TKey, TValue> : IStringBeare
     private readonly IReadOnlyDictionary<TKey, TOther>? nodeMap;
 
     public IStringBearer? LogPreField { get; set; }
-    public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
+    public KeyValuePair<TKey, TValue>[]? LogPreCollectionField { get; set; }
 
     public IStringBearer? LogPostField { get; set; }
-    public IReadOnlyDictionary<TKey, TValue>? LogPostCollectionField { get; set; }
+    public List<KeyValuePair<TKey, TValue>>? LogPostCollectionField { get; set; }
 
     public AppendSummary RevealState(ITheOneString tos)
     {
@@ -181,7 +181,7 @@ public class MapArrayNoRevealersStringsUnion<TOther, TKey, TValue> : IStringBear
     private readonly KeyValuePair<TKey, TOther>[]? nodeMap;
 
     public IStringBearer? LogPreField { get; set; }
-    public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
+    public List<KeyValuePair<TKey, TValue>>? LogPreCollectionField { get; set; }
 
     public IStringBearer? LogPostField { get; set; }
     public IReadOnlyDictionary<TKey, TValue>? LogPostCollectionField { get; set; }
@@ -281,7 +281,7 @@ public class MapListNoRevealersStringsUnion<TOther, TKey, TValue> : IStringBeare
     public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
 
     public IStringBearer? LogPostField { get; set; }
-    public IReadOnlyDictionary<TKey, TValue>? LogPostCollectionField { get; set; }
+    public KeyValuePair<TKey, TValue>[]? LogPostCollectionField { get; set; }
 
     public AppendSummary RevealState(ITheOneString tos)
     {
@@ -295,7 +295,7 @@ public class MapListNoRevealersStringsUnion<TOther, TKey, TValue> : IStringBeare
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
                .AddAll(mapCollection, valueFormatString, keyFormatString)
-               .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
+               .LogOnlyKeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(LogPostCollectionField), LogPostCollectionField)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();
     }
@@ -376,10 +376,10 @@ public class MapEnumerateNoRevealersStringsUnion<TOther, TKey, TValue> : IString
     private readonly List<KeyValuePair<TKey, TOther>>? nodeMap;
 
     public IStringBearer? LogPreField { get; set; }
-    public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
+    public List<KeyValuePair<TKey, TValue>>? LogPreCollectionField { get; set; }
 
     public IStringBearer? LogPostField { get; set; }
-    public IReadOnlyDictionary<TKey, TValue>? LogPostCollectionField { get; set; }
+    public KeyValuePair<TKey, TValue>[]? LogPostCollectionField { get; set; }
 
     public AppendSummary RevealState(ITheOneString tos)
     {
@@ -391,9 +391,9 @@ public class MapEnumerateNoRevealersStringsUnion<TOther, TKey, TValue> : IString
         return tos
                .StartKeyedCollectionType(this)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
-               .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
+               .LogOnlyKeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(LogPreCollectionField), LogPreCollectionField)
                .AddAllEnumerate(mapCollection, valueFormatString, keyFormatString)
-               .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
+               .LogOnlyKeyedCollectionField.WhenNonNullAddAllIterate(nameof(LogPostCollectionField), LogPostCollectionField?.GetEnumerator())
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();
     }
@@ -489,9 +489,9 @@ public class MapIterateNoRevelersStringsUnion<TOther, TKey, TValue> : IStringBea
         return tos
                .StartKeyedCollectionType(this)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
-               .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
+               .LogOnlyKeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(LogPreCollectionField), LogPreCollectionField)
                .AddAllIterate(mapCollection, valueFormatString, keyFormatString)
-               .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
+               .LogOnlyKeyedCollectionField.WhenNonNullAddAllIterate(nameof(LogPostCollectionField), LogPostCollectionField?.GetEnumerator())
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();
     }

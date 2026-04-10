@@ -12,6 +12,8 @@ public class SimpleContentJoinMold : ContentJoinTypeMold<SimpleContentTypeMold, 
 
 public class SimpleContentTypeMold : ContentTypeMold<SimpleContentTypeMold, SimpleContentJoinMold>
 {
+    public override MoldType MoldType => MoldType.SimpleContentMold;
+  
     public SimpleContentTypeMold InitializeSimpleValueTypeBuilder
         (
             object instanceOrContainer

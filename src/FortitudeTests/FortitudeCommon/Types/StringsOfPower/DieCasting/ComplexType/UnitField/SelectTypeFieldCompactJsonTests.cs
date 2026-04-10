@@ -85,11 +85,11 @@ public class SelectTypeFieldCompactJsonTests : SelectTypeFieldTests
     public void CompactJsonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CharSequenceTestData.AllCharSequenceExpectations[25], ScaffoldingRegistry.AllScaffoldingTypes[843]
+        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[8], ScaffoldingRegistry.AllScaffoldingTypes[1183]
                                            , StringBuilderType.CharArrayStringBuilder);
     }
 

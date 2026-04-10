@@ -191,17 +191,17 @@ public class TwoStringBearersFirstAsSimpleCloakedStringContent<TBearer> : IStrin
 
     public Delegate CreateRevealerDelegate => CreateRevealer;
 
-    public AppendSummary RevealState(ITheOneString tos) =>
-        tos.StartComplexType(this)
-           .Field.AlwaysReveal
-               (nameof(FirstStringBearerField)
-              , FirstStringBearerField, CreateRevealer
-              , ValueFormatString, FormattingFlags)
-           .Field.AlwaysReveal
-               (nameof(SecondStringBearerField)
-              , SecondStringBearerField
-              , ValueFormatString, FormattingFlags)
-           .Complete();
+    public AppendSummary RevealState(ITheOneString tos)
+    {
+        var ctm = tos.StartComplexType(this);
+        ctm.Field.AlwaysReveal(nameof(FirstStringBearerField)
+                     , FirstStringBearerField, CreateRevealer
+                     , ValueFormatString, FormattingFlags);
+        ctm.Field.AlwaysReveal (nameof(SecondStringBearerField)
+                     , SecondStringBearerField
+                     , ValueFormatString, FormattingFlags);
+        return ctm.Complete();
+    }
 
     public string? ValueFormatString { get; set; }
     public FormatFlags FormattingFlags { get; set; }

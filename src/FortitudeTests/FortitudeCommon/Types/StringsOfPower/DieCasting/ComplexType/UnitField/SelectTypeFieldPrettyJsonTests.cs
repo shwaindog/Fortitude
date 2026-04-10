@@ -85,11 +85,11 @@ public class SelectTypeFieldPrettyJsonTests : SelectTypeFieldTests
     public void PrettyJsonNullStringBearer(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) => 
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
     
-    // [TestMethod] 
+    [TestMethod] 
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CharArrayTestData.AllCharArrayExpectations[22], ScaffoldingRegistry.AllScaffoldingTypes[831]
+        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[57], ScaffoldingRegistry.AllScaffoldingTypes[1172]
                                            , StringBuilderType.CharArrayStringBuilder);
     }
 

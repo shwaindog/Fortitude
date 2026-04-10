@@ -46,6 +46,8 @@ public readonly record struct ContentSeparatorRanges
 
     public bool HasNonZeroLengthContent => (ContentRange?.Length() ?? 0) > 0;
 
+    public bool HasNonZeroLengthSeparatorAndPadding => (SeparatorPaddingRange?.Length ?? 0) > 0;
+
     public int Length => ContentRange?.Length() ?? 0 + SeparatorPaddingRange?.Length ?? 0;
 
     public override string ToString() =>

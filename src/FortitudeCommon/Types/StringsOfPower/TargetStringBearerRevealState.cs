@@ -17,7 +17,7 @@ public static class TargetStringBearerRevealState
 
     private static MethodInfo? noOpGenericMethodInfo;
 
-    public static void CallBaseStyledToString<T, TRevealBase>(T baseHasStyledToString, ITheOneString stsa)
+    public static void CallBaseStyledToString<T, TRevealBase>(T baseHasStyledToString, ITheOneString tos)
         where T : TRevealBase 
         where TRevealBase : class, IStringBearer
     {
@@ -27,17 +27,17 @@ public static class TargetStringBearerRevealState
             (PalantírReveal<TRevealBase>)
             nonVirtualToString.GetOrAdd(typeof(TRevealBase), _ => CreateInvokeMethod<TRevealBase>());
 
-        callBaseToString(asBase, stsa);
+        callBaseToString(asBase, tos);
     }
 
-    public static void CallBaseStyledToStringIfSupported<T>(T baseHasStyledToString, ITheOneString stsa)
+    public static void CallBaseStyledToStringIfSupported<T>(T baseHasStyledToString, ITheOneString tos)
         where T : IStringBearer
     {
         Type baseType = typeof(T).BaseType!;
 
         var callBaseToString = (PalantírReveal<T>)nonVirtualToString.GetOrAdd(baseType, bType => CreateInvokeMethod(bType));
         
-        callBaseToString(baseHasStyledToString, stsa);
+        callBaseToString(baseHasStyledToString, tos);
     }
 
     private record TypeCallCount(Type _)
@@ -75,10 +75,10 @@ public static class TargetStringBearerRevealState
         {
             methodToCall = NoOpGenericMethodInfo;
             var genericMethod        = methodToCall!.MakeGenericMethod(baseType);
-            return GetNonVirtualDispatchStyledToString(baseType, genericMethod, baseTypeCustomStyler);
+            return GetNonVirtualDispatchRevealState(baseType, genericMethod, baseTypeCustomStyler);
         }
 
-        var methodInvoker = GetNonVirtualDispatchStyledToString(baseType, methodToCall, baseTypeCustomStyler);
+        var methodInvoker = GetNonVirtualDispatchRevealState(baseType, methodToCall, baseTypeCustomStyler);
         return methodInvoker;
     }
 
@@ -106,7 +106,7 @@ public static class TargetStringBearerRevealState
     // Full credit and thanks for posting 
 
 
-    public static Delegate GetNonVirtualDispatchStyledToString(Type styledToStringType, MethodInfo methodToCall, Type customStyleType)
+    public static Delegate GetNonVirtualDispatchRevealState(Type styledToStringType, MethodInfo methodToCall, Type customStyleType)
     {
         var helperMethod =
             new DynamicMethod($"{styledToStringType.Name}_Styled_ToString", typeof(AppendSummary),
@@ -123,7 +123,7 @@ public static class TargetStringBearerRevealState
     public static PalantírReveal<T> GetNonVirtualDispatchStyledToString<T>(MethodInfo methodToCall)
     where T : notnull
     {
-        var methodInvoker = (PalantírReveal<T>)GetNonVirtualDispatchStyledToString(typeof(T), methodToCall, typeof(PalantírReveal<T>));
+        var methodInvoker = (PalantírReveal<T>)GetNonVirtualDispatchRevealState(typeof(T), methodToCall, typeof(PalantírReveal<T>));
         return methodInvoker;
     }
 }

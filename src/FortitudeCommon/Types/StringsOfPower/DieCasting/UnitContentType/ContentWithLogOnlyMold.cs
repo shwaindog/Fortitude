@@ -15,6 +15,8 @@ public class ContentWithLogOnlyMold : ContentJoinTypeMold<ComplexContentTypeMold
 
     private SelectTypeField<ContentWithLogOnlyMold>? logOnlyInternalField;
 
+    public override MoldType MoldType => MoldType.ComplexContentMold;
+    
     public SelectTypeField<ContentWithLogOnlyMold> LogOnlyField
     {
         get

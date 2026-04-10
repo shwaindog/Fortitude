@@ -175,7 +175,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
     {
         var currentAppenderIndex = State.Master.WriteBuffer.Length;
         var typeWriteRange       = new Range(Index.FromStart(StartIndex), Index.FromStart(currentAppenderIndex));
-        var result               = BuildMoldStringRange(typeWriteRange);
+        var result               = BuildMoldAppendSummary(typeWriteRange);
         PortableState.CompleteResult = result;
         var tos           = State.Master;
         tos.TypeComplete(State); // calls DecrementRef count
@@ -190,7 +190,7 @@ public abstract class KnownTypeMolder<TMold> : TypeMolder, ITypeBuilderComponent
         {
             var gb            = State.Sf.Gb;
             var hasUncommited = gb.CurrentSectionRanges.HasContent;
-            if (!hasUncommited && !gb.LastContentSeparatorPaddingRanges.HasNonZeroLengthContent) { gb.RemoveLastSeparatorAndPadding(); }
+            if (!hasUncommited && gb.LastContentSeparatorPaddingRanges.HasNonZeroLengthSeparatorAndPadding) { gb.RemoveLastSeparatorAndPadding(); }
             else if (hasUncommited) { gb.Complete(State.CreateMoldFormatFlags); }
         }
         return RunShutdown();

@@ -41,22 +41,23 @@ public enum WrittenAsFlags : uint
 public static class WrittenAsFlagsExtensions
 {
     public const  WrittenAsFlags ProposedMaskSelectionMask = (WrittenAsFlags)0x0_7F;
-    public static bool           IsEmpty(this WrittenAsFlags flags)                   => flags == Empty;
-    public static bool           HasAsNullFLag(this WrittenAsFlags flags)             => (flags & AsNull) > 0;
-    public static bool           HasAsRawFlag(this WrittenAsFlags flags)              => (flags & AsRaw) > 0;
-    public static bool           HasAsStringFlag(this WrittenAsFlags flags)           => (flags & AsString) > 0;
-    public static bool           HasAsValueFlag(this WrittenAsFlags flags)            => (flags & AsValue) > 0;
-    public static bool           HasAsContentFlag(this WrittenAsFlags flags)          => (flags & AsContent) > 0;
-    public static bool           HasAsObjectFlag(this WrittenAsFlags flags)           => (flags & AsObject) > 0;
-    public static bool           HasAsCollectionFlag(this WrittenAsFlags flags)       => (flags & AsCollection) > 0;
-    public static bool           HasAsMapCollectionFlag(this WrittenAsFlags flags)    => (flags & AsMapCollection) > 0;
-    public static bool           HasAsCollectionItemFlag(this WrittenAsFlags flags)   => (flags & AsCollectionItem) > 0;
-    public static bool           HasAsSimpleFlag(this WrittenAsFlags flags)           => (flags & AsSimple) > 0;
-    public static bool           HasAsComplexFlag(this WrittenAsFlags flags)          => (flags & AsComplex) > 0;
-    public static bool           HasAsOuterTypeFlag(this WrittenAsFlags flags)        => (flags & AsOuterType) > 0;
-    public static bool           HasAsInnerTypeFlag(this WrittenAsFlags flags)        => (flags & AsInnerType) > 0;
-    public static bool           HasUpgradedToComplexFlag(this WrittenAsFlags flags)  => (flags & UpgradedToComplex) > 0;
-    public static bool           HasShowSuppressedContents(this WrittenAsFlags flags) => (flags & ShowSuppressedContents) > 0;
+    public static bool           IsEmpty(this WrittenAsFlags flags)                      => flags == Empty;
+    public static bool           HasAsNullFLag(this WrittenAsFlags flags)                => (flags & AsNull) > 0;
+    public static bool           HasAsRawFlag(this WrittenAsFlags flags)                 => (flags & AsRaw) > 0;
+    public static bool           HasAsStringFlag(this WrittenAsFlags flags)              => (flags & AsString) > 0;
+    public static bool           HasAsValueFlag(this WrittenAsFlags flags)               => (flags & AsValue) > 0;
+    public static bool           HasAsContentFlag(this WrittenAsFlags flags)             => (flags & AsContent) > 0;
+    public static bool           HasAsObjectFlag(this WrittenAsFlags flags)              => (flags & AsObject) > 0;
+    public static bool           HasAsCollectionFlag(this WrittenAsFlags flags)          => (flags & AsCollection) > 0;
+    public static bool           HasAsMapCollectionFlag(this WrittenAsFlags flags)       => (flags & AsMapCollection) > 0;
+    public static bool           HasAsCollectionItemFlag(this WrittenAsFlags flags)      => (flags & AsCollectionItem) > 0;
+    public static bool           HasAsSimpleFlag(this WrittenAsFlags flags)              => (flags & AsSimple) > 0;
+    public static bool           HasAsComplexFlag(this WrittenAsFlags flags)             => (flags & AsComplex) > 0;
+    public static bool           HasAsOuterTypeFlag(this WrittenAsFlags flags)           => (flags & AsOuterType) > 0;
+    public static bool           HasAsInnerTypeFlag(this WrittenAsFlags flags)           => (flags & AsInnerType) > 0;
+    public static bool           HasUpgradedToComplexFlag(this WrittenAsFlags flags)     => (flags & UpgradedToComplex) > 0;
+    public static bool           HasShowSuppressedContents(this WrittenAsFlags flags)    => (flags & ShowSuppressedContents) > 0;
+    public static bool           HasWithReferenceToInstanceId(this WrittenAsFlags flags) => (flags & WithReferenceToInstanceId) > 0;
 
     public static bool HasAllOf(this WrittenAsFlags flags, WrittenAsFlags checkAllFound)    => (flags & checkAllFound) == checkAllFound;
     public static bool HasNoneOf(this WrittenAsFlags flags, WrittenAsFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;

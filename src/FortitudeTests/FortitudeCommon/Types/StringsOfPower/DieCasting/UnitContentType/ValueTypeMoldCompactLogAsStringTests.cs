@@ -94,12 +94,12 @@ public class ContentTypeMoldCompactLogAsStringTests : ContentTypeMoldAsStringTes
     public void CompactLogNullStringBearerAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[26], ScaffoldingRegistry.AllScaffoldingTypes[1200],
-                                             StringBuilderType.MutableString);
+        ExecuteIndividualScaffoldExpectation(CharArrayTestData.AllCharArrayExpectations[4], ScaffoldingRegistry.AllScaffoldingTypes[1707]
+                                           , StringBuilderType.CharArrayStringBuilder);
     }
 
     protected override IStringBuilder BuildExpectedRootOutput(IRecycler sbFactory, ITheOneString tos, Type? className, string propertyName
