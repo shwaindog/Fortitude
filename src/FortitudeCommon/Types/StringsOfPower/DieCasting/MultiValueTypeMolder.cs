@@ -9,8 +9,9 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 
 public abstract class MultiValueTypeMolder<TMold> : KnownTypeMolder<TMold> where TMold : TypeMolder
 {
-    private ComplexType.CollectionField.SelectTypeCollectionField<TMold>? logOnlyInternalCollectionField;
-    private ComplexType.UnitField.SelectTypeField<TMold>?                 logOnlyInternalField;
+    private ComplexType.UnitField.SelectTypeField<TMold>?                         logOnlyInternalField;
+    private ComplexType.CollectionField.SelectTypeCollectionField<TMold>?         logOnlyInternalCollectionField;
+    private ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<TMold>? logOnlyInternalMapCollectionField;
     
     protected void InitializeMultiValueTypeBuilder
     (
@@ -28,16 +29,21 @@ public abstract class MultiValueTypeMolder<TMold> : KnownTypeMolder<TMold> where
         Initialize(instanceOrContainer, typeBeingBuilt, vesselOfStringOfPower, typeVisitedAs, typeName
                                        , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createContext);
     }
-
-
-    public ComplexType.UnitField.SelectTypeField<TMold>? LogOnlyInternalField =>
+    
+    public ComplexType.UnitField.SelectTypeField<TMold>? LogOnlyField =>
         logOnlyInternalField ??= Settings.Style.AllowsUnstructured()
             ? PortableState.Master.Recycler.Borrow<ComplexType.UnitField.SelectTypeField<TMold>>().Initialize(MoldStateField)
             : null;
 
-    public ComplexType.CollectionField.SelectTypeCollectionField<TMold>? LogOnlyInternalCollectionField =>
+    public ComplexType.CollectionField.SelectTypeCollectionField<TMold>? LogOnlyCollectionField =>
         logOnlyInternalCollectionField ??= Settings.Style.AllowsUnstructured()
             ? PortableState.Master.Recycler.Borrow<ComplexType.CollectionField.SelectTypeCollectionField<TMold>>().Initialize(MoldStateField)
+            : null;
+    
+    
+    public ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<TMold>? LogOnlyKeyedCollectionField =>
+        logOnlyInternalMapCollectionField ??= Settings.Style.AllowsUnstructured()
+            ? PortableState.Master.Recycler.Borrow<ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<TMold>>().Initialize(MoldStateField)
             : null;
 
     protected override void InheritedStateReset()
@@ -50,7 +56,7 @@ public abstract class MultiValueTypeMolder<TMold> : KnownTypeMolder<TMold> where
         base.InheritedStateReset();
     }
 
-    public TMold AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
+    public virtual TMold AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
         var msf                = MoldStateField;
         var visitResult        = msf.MoldGraphVisit;

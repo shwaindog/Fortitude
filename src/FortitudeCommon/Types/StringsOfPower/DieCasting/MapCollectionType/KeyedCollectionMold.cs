@@ -20,11 +20,10 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
     private ComplexType.UnitField.SelectTypeField<KeyedCollectionMold>?                         logOnlyInternalField;
     private ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<KeyedCollectionMold>? logOnlyInternalMapCollectionField;
 
-    protected IMoldWriteState<KeyedCollectionMold> Mws = null!;
-
-    public int ItemCount = 0;
-
+    protected KeyedCollectionWriteState Mws = null!;
+    
     private string? beforeFirstItemFieldName;
+    public override MoldType MoldType => MoldType.KeyedCollectionMold;
 
     public KeyedCollectionMold InitializeKeyValueCollectionBuilder
     (object instanceOrContainer
@@ -42,12 +41,18 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
                                       , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext, createContext);
         WrittenAs = WrittenAsFlags.AsMapCollection;
 
-        Mws = MoldStateField;
+        Mws = WriteStateAsKeyedCollectionWriteState;
 
         return this;
     }
 
     public override bool IsComplexType => true;
+
+    public int ItemCount 
+    { 
+        get => Mws.ItemCount;
+        set => Mws.ItemCount = value; 
+    }
 
     public ComplexType.UnitField.SelectTypeField<KeyedCollectionMold> LogOnlyField =>
         logOnlyInternalField ??=
@@ -102,8 +107,9 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
     public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
-        var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes()!;
-        usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Value.Key, keyValueTypes.Value.Value, formatFlags);
+        var keyValueTypes = MoldStateField.TypeBeingBuilt.GetKeyedCollectionTypes() 
+                         ?? new KeyValuePair<Type, Type>(typeof(object), typeof(object));
+        usingFormatter.StartKeyedCollectionOpen(MoldStateField, keyValueTypes.Key, keyValueTypes.Value, formatFlags);
     }
 
     public override void FinishTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
@@ -121,6 +127,35 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
         }
     }
 
+    public override KeyedCollectionMold AddBaseRevealStateFields<T>(T thisType)
+    {
+        var mold = base.AddBaseRevealStateFields(thisType);
+
+        var mws = WriteStateAsKeyedCollectionWriteState;
+
+        var maybePreviousCompleted = MoldStateField.Master.PreviousCompleted; 
+        if (maybePreviousCompleted != null)
+        {
+            var prevCompleted = maybePreviousCompleted.Value;
+            if (prevCompleted.ItemCount > 0 
+             && (prevCompleted.MoldType == typeof(KeyedCollectionMold)
+              || prevCompleted.MoldType.ExtendsGenericBaseType(typeof(ExplicitKeyedCollectionMold<,>))))
+            {
+                mws.ItemCount += prevCompleted.ItemCount ?? 0;   
+            }
+        }
+        return mold;
+    }
+    
+    protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
+    {
+        var recycler = MeRecyclable.Recycler ?? PortableState.Master.Recycler;
+        MoldStateField = 
+            recycler
+                .Borrow<KeyedCollectionWriteState>()
+                .InitializeKeyedCollectionComponentAccess(this, PortableState, writeMethod);
+    }
+
     protected override void InheritedStateReset()
     {
         Mws = null!;
@@ -129,4 +164,6 @@ public partial class KeyedCollectionMold : MultiValueTypeMolder<KeyedCollectionM
 
         base.InheritedStateReset();
     }
+    
+    protected virtual KeyedCollectionWriteState WriteStateAsKeyedCollectionWriteState => (KeyedCollectionWriteState)MoldStateField;
 }

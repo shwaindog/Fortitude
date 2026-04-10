@@ -7,6 +7,8 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
 public class SimpleOrderedCollectionMold : OrderedCollectionMold<SimpleOrderedCollectionMold>
 {
+    public override MoldType MoldType => MoldType.SimpleOrderedCollectionMold;
+    
     public SimpleOrderedCollectionMold InitializeSimpleOrderedCollectionBuilder(object instanceOrContainer
       , Type typeBeingBuilt
       , ISecretStringOfPower master

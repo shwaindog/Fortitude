@@ -1,8 +1,11 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
+using FortitudeCommon.Extensions;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
+using static FortitudeCommon.Types.StringsOfPower.DieCasting.FormatFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
@@ -12,6 +15,8 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
     private ComplexType.UnitField.SelectTypeField<ComplexOrderedCollectionMold>?                         logOnlyInternalField;
     private ComplexType.MapCollectionField.SelectTypeKeyedCollectionField<ComplexOrderedCollectionMold>? logOnlyInternalMapCollectionField;
 
+    public override MoldType MoldType => MoldType.ComplexOrderedCollectionMold;
+    
     public ComplexOrderedCollectionMold InitializeComplexOrderedCollectionBuilder
     (object instanceOrContainer
       , Type typeBeingBuilt
@@ -27,7 +32,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         InitializeOrderedCollectionBuilder
             (instanceOrContainer, typeBeingBuilt, master, typeVisitedAs, typeName
            , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext
-           , createContext with{ FormatFlags = createContext.FormatFlags | FormatFlags.AsCollection });
+           , createContext with{ FormatFlags = createContext.FormatFlags | AsCollection });
 
         return this;
     }
@@ -80,7 +85,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
 
     public ComplexOrderedCollectionMold AddBaseRevealStateFields<T>(T thisType) where T : IStringBearer
     {
-        var msf         = MoldStateField;
+        var msf         = WriteStateAsCollectionMoldWriteState;
         
         var visitResult      = msf.MoldGraphVisit;
         var visitIndex       = visitResult.VisitId.VisitIndex;
@@ -91,6 +96,19 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
 
         MoldStateField.Master.AddBaseFieldsStart(msf);
         TargetStringBearerRevealState.CallBaseStyledToStringIfSupported(thisType, msf.Master);
+
+        var maybePreviousCompleted = MoldStateField.Master.PreviousCompleted; 
+        if (maybePreviousCompleted != null)
+        {
+            var prevCompleted = maybePreviousCompleted.Value;
+            if (prevCompleted.ItemCount > 0 
+             && (prevCompleted.MoldType == typeof(SimpleOrderedCollectionMold)
+             || prevCompleted.MoldType == typeof(ComplexOrderedCollectionMold)
+             || prevCompleted.MoldType.ExtendsGenericBaseType(typeof(ExplicitOrderedCollectionMold<>))))
+            {
+                msf.ItemCount += prevCompleted.ItemCount ?? 0;   
+            }
+        }
         
         // to avoid cicular references reusing this visit
         msf.MoldGraphVisit     = msf.MoldGraphVisit.IncrementUsedCount();
@@ -102,7 +120,7 @@ public class ComplexOrderedCollectionMold : OrderedCollectionMold<ComplexOrdered
         
         if (msf.Sb.Length > markPreBodyStart && msf.Sf.Gb.LastContentSeparatorPaddingRanges.SeparatorPaddingRange == null)
         {
-            msf.Sf.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, FormatFlags.DefaultCallerTypeFlags);
+            msf.Sf.Gb.StartNextContentSeparatorPaddingSequence(msf.Sb, DefaultCallerTypeFlags);
             msf.Sf.AddToNextFieldSeparatorAndPadding();
         }
 

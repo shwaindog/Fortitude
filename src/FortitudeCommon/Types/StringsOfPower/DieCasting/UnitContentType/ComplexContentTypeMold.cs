@@ -33,6 +33,8 @@ public class ComplexContentTypeMold : ContentTypeMold<ComplexContentTypeMold, Co
     
     public override bool IsComplexType => Mws.IsLog || Mws.MoldGraphVisit.IsARevisit;
     public override bool IsSimpleMold => false;
+    
+    public override MoldType MoldType => MoldType.ComplexContentMold;
 
     protected override void SourceBuilderComponentAccess(WrittenAsFlags writeMethod)
     {

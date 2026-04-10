@@ -36,10 +36,14 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
     {
         if(mws.WroteTypeOpen) return ContentSeparatorRanges.None;
         var sb = mws.Sb;
-        if (formatFlags.DoesNotHaveAsEmbeddedContentFlags())
+        if (formatFlags.DoesNotHaveSuppressOpening())
         {
             Gb.IndentLevel++;
             Gb.StartAppendContent(BrcOpn, sb, this, formatFlags.RemoveContentTreatmentFlags());
+        }
+        else
+        {
+            return Gb.Complete(formatFlags);
         }
         if (formatFlags.CanAddNewLine())
         {
@@ -56,8 +60,12 @@ public class PrettyJsonTypeFormatting : CompactJsonTypeFormatting
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
     {
         if (formatFlags.HasSuppressClosing() || mws.WroteTypeClose) { return Gb.LastContentSeparatorPaddingRanges; }
-        if (formatFlags.DoesNotHaveAsEmbeddedContentFlags()) Gb.IndentLevel -= mws.CloseDepthDecrementBy;
-        return base.AppendComplexTypeClosing(mws.InstanceOrType, mws, mws.CurrentWriteMethod, formatFlags);
+        if (formatFlags.DoesNotHaveSuppressClosing())
+        {
+            Gb.IndentLevel -= mws.CloseDepthDecrementBy;
+            return base.AppendComplexTypeClosing(mws.InstanceOrType, mws, mws.CurrentWriteMethod, formatFlags);
+        }
+        return Gb.LastContentSeparatorPaddingRanges;
     }
 
     public override int SizeFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags) =>

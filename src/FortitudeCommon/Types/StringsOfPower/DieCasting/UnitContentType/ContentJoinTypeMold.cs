@@ -20,6 +20,7 @@ public class ContentJoinTypeMold<TFromMold, TToMold> : KnownTypeMolder<TToMold>,
     private FormatFlags valueAddedFormatFlags;
 
     public override bool IsComplexType => initialWasComplex || wasUpgradedToComplexType;
+    public override MoldType MoldType => MoldType.SimpleContentMold;
 
     public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {

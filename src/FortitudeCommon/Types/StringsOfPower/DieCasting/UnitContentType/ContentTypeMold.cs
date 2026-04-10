@@ -41,6 +41,7 @@ public class ContentTypeMold<TContentMold, TToContentMold> : TransitioningTypeMo
     }
 
     public override bool IsComplexType => Mws.SupportsMultipleFields;
+    public override MoldType MoldType => MoldType.SimpleContentMold;
 
     public virtual bool IsSimpleMold => true;
 

@@ -63,8 +63,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
 
     SeparatorPaddingRanges AppendFieldValueSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
 
-    (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags<T>(ITheOneString tos, T forValue, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
-    (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags(ITheOneString tos, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags);
+    (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags<T>(ITheOneString tos, T forValue, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags, MoldType moldType);
+    (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags(ITheOneString tos, Type actualType, WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags, MoldType moldType);
     int                    SizeToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     Range?                 AddToNextFieldSeparator(FormatFlags formatFlags = DefaultCallerTypeFlags);
     int                    SizeNextFieldPadding(FormatFlags formatFlags = DefaultCallerTypeFlags);
@@ -321,6 +321,8 @@ public interface IStyledTypeFormatting : ICustomStringFormatter
     AppendSummary FormatBearerFieldContents<TBearer>(IMoldWriteState mws, TBearer styledObj, string? callerFormatString = null
       , FormatFlags callerFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = Empty)
         where TBearer : IStringBearer?;
+
+    AppendSummary WrapAppend(IMoldWriteState mws, AppendSummary lastAppend, FormatFlags formatFlags, WrittenAsFlags wrapAs);
 
     new IStyledTypeFormatting Clone();
 }

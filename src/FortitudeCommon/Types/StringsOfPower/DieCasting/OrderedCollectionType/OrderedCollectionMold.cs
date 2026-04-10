@@ -12,6 +12,7 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>, 
     where TOCMold : TypeMolder
 {
     private CollectionMoldWriteState<TOCMold> mws = null!;
+    public override MoldType MoldType => MoldType.SimpleOrderedCollectionMold;
 
     public OrderedCollectionMold<TOCMold> InitializeOrderedCollectionBuilder(
         object instanceOrContainer
@@ -29,18 +30,14 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>, 
                  , remainingGraphDepth, moldGraphVisit, writeMethodType, callerContext
                  , createContext with{ FormatFlags = createContext.FormatFlags | FormatFlags.AsCollection });
 
-        mws = CompAsOrderedCollectionMold;
+        mws = WriteStateAsCollectionMoldWriteState;
 
         return this;
     }
 
-
-    public override bool IsComplexType => CompAsOrderedCollectionMold.SupportsMultipleFields;
-
+    public override bool IsComplexType => WriteStateAsCollectionMoldWriteState.SupportsMultipleFields;
     public int ResultCount { get; set; }
-
     public int ItemCount => mws.ItemCount;
-
     public int TotalCount { get; set; }
 
     
@@ -48,12 +45,12 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>, 
     {
         if (mws.BeforeFirstItemFieldName == null)
         {
-            if (CompAsOrderedCollectionMold.CreateMoldFormatFlags.HasSuppressClosing())
+            if (WriteStateAsCollectionMoldWriteState.CreateMoldFormatFlags.HasSuppressClosing())
             {
                 State.Sf.Gb.RemoveLastSeparatorAndPadding();
                 return;
             }
-            if (CompAsOrderedCollectionMold.CurrentWriteMethod.SupportsMultipleFields())
+            if (WriteStateAsCollectionMoldWriteState.CurrentWriteMethod.SupportsMultipleFields())
             {
                 State.StyleFormatter.AppendComplexTypeClosing(State.InstanceOrType, State, State.CurrentWriteMethod, formatFlags);
             }
@@ -66,5 +63,5 @@ public partial class OrderedCollectionMold<TOCMold> : KnownTypeMolder<TOCMold>, 
         mws.BeforeFirstItemFieldName = fieldName;
     }
 
-    protected virtual CollectionMoldWriteState<TOCMold> CompAsOrderedCollectionMold => (CollectionMoldWriteState<TOCMold>)MoldStateField;
+    protected virtual CollectionMoldWriteState<TOCMold> WriteStateAsCollectionMoldWriteState => (CollectionMoldWriteState<TOCMold>)MoldStateField;
 }

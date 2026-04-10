@@ -1,6 +1,7 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2026 all rights reserved
 
+using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.StringsOfPower;
 using FortitudeCommon.Types.StringsOfPower.DieCasting;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
@@ -94,10 +95,10 @@ public class MapDictValueRevealerStringsUnion<TOther, TKey, TValue, TVRevealBase
     private readonly IReadOnlyDictionary<TKey, TOther>? nodeMap;
 
     public IStringBearer? LogPreField { get; set; }
-    public IReadOnlyDictionary<TKey, TValue>? LogPreCollectionField { get; set; }
+    public  List<KeyValuePair<TKey, TValue>>? LogPreCollectionField { get; set; }
 
     public IStringBearer? LogPostField { get; set; }
-    public IReadOnlyDictionary<TKey, TValue>? LogPostCollectionField { get; set; }
+    public KeyValuePair<TKey, TValue>[]? LogPostCollectionField { get; set; }
 
     public AppendSummary RevealState(ITheOneString tos)
     {
@@ -110,9 +111,9 @@ public class MapDictValueRevealerStringsUnion<TOther, TKey, TValue, TVRevealBase
         return tos
                .StartKeyedCollectionType(this)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
-               .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
+               .LogOnlyKeyedCollectionField.WhenNonNullAddAllEnumerate(nameof(LogPreCollectionField), LogPreCollectionField)
                .AddAll(mapCollection, valueRevealer, keyFormatString, valueFormatString)
-               .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
+               .LogOnlyKeyedCollectionField.WhenNonNullAddAllIterate(nameof(LogPostCollectionField), LogPostCollectionField?.GetStructEnumerator())
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();
     }
@@ -537,11 +538,12 @@ public class MapIterateValueRevelerStringsUnion<TOther, TKey, TValue, TVRevealBa
         if (isOtherTypedItem)
             return otherTypedItem!.RevealState(tos.WithNextCallValueFormatString(valueFormatString).WithNextCallFormatFlags(otherFormatFlags));
         if (isNode) return tos.StartKeyedCollectionType(this).AddAll(nodeMap, valueFormatString, keyFormatString).Complete();
+        if (valueRevealer == null) throw new ArgumentException("Must have a value revealer");
         return tos
                .StartKeyedCollectionType(this)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPreField), LogPreField)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPreCollectionField), LogPreCollectionField)
-               .AddAllIterate(mapCollection, valueFormatString, keyFormatString)
+               .AddAllIterateValueRevealer(mapCollection, valueRevealer, valueFormatString, keyFormatString)
                .LogOnlyKeyedCollectionField.WhenNonNullAddAll(nameof(LogPostCollectionField), LogPostCollectionField)
                .LogOnlyField.WhenNonNullReveal(nameof(LogPostField), LogPostField)
                .Complete();

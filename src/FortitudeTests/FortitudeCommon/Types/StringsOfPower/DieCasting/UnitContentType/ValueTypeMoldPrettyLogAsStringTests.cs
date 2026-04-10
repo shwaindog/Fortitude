@@ -94,11 +94,11 @@ public class ContentTypeMoldPrettyLogAsStringTests : ContentTypeMoldAsStringTest
     public void PrettyLogNullStringBearerAsString(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(EnumTestData.EnumExpectations[33], ScaffoldingRegistry.AllScaffoldingTypes[1310]
+        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[0], ScaffoldingRegistry.AllScaffoldingTypes[1717]
                                            , StringBuilderType.CharArrayStringBuilder);
     }
 

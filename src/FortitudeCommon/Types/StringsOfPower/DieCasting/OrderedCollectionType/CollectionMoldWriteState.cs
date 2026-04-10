@@ -8,7 +8,7 @@ using static FortitudeCommon.Types.StringsOfPower.DieCasting.WrittenAsFlags;
 
 namespace FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 
-public interface ICollectionMoldWriteState : IMoldWriteState
+public interface ICollectionMoldWriteState : IMoldWriteState, IHasCollectionItems
 {
     bool IsSimple { get; }
 
@@ -19,7 +19,7 @@ public interface ICollectionMoldWriteState : IMoldWriteState
     
     Type? DisplayAsType { get; set; }
     
-    int ItemCount { get; set; }
+    new int ItemCount { get; set; }
     
     public bool BeforeFirstElement(Type elementType);
 }

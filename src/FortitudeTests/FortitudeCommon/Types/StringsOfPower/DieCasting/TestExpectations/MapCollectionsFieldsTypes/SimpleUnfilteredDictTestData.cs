@@ -733,17 +733,17 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         ComplexStructContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexStructContentAsValue: 3.142 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         "ComplexStructContentAsValueSpanFormattable<decimal> { SpanFormattableComplexStructContentAsValue: 3.142 }":
+                         FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ },
-                         ComplexStructContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexStructContentAsValue: 2.718 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         "ComplexStructContentAsValueSpanFormattable<decimal> { SpanFormattableComplexStructContentAsValue: 2.718 }":
+                         FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ },
-                         ComplexStructContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexStructContentAsValue: 31.416 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         "ComplexStructContentAsValueSpanFormattable<decimal> { SpanFormattableComplexStructContentAsValue: 31.416 }":
+                         FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ },
-                         ComplexStructContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexStructContentAsValue: 27.183 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         "ComplexStructContentAsValueSpanFormattable<decimal> { SpanFormattableComplexStructContentAsValue: 27.183 }":
+                         FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://fourth-value.com/ } 
                         }
                         """.RemoveLineEndings()
@@ -765,24 +765,24 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          ComplexStructContentAsValueSpanFormattable<decimal> {
+                          "ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 3.142
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/
                           },
-                          ComplexStructContentAsValueSpanFormattable<decimal> {
+                          "ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 2.718
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/
                           },
-                          ComplexStructContentAsValueSpanFormattable<decimal> {
+                          "ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 31.416
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/
                           },
-                          ComplexStructContentAsValueSpanFormattable<decimal> {
+                          "ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 27.183
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://fourth-value.com/
                           }
                         }
@@ -819,14 +819,14 @@ public partial class SimpleDictTestData
                         {
                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ },
-                         ComplexStructContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexStructContentAsValue: 2.718 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         "ComplexStructContentAsValueSpanFormattable<decimal> { SpanFormattableComplexStructContentAsValue: 2.718 }":
+                         FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ },
-                         ComplexStructContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexStructContentAsValue: 31.416 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         "ComplexStructContentAsValueSpanFormattable<decimal> { SpanFormattableComplexStructContentAsValue: 31.416 }":
+                         FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ },
-                         ComplexStructContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexStructContentAsValue: 27.183 }:                           null,
+                         "ComplexStructContentAsValueSpanFormattable<decimal> { SpanFormattableComplexStructContentAsValue: 27.183 }":
+                                                   null,
                          null:                           null 
                         }
                         """.RemoveLineEndings()
@@ -852,19 +852,19 @@ public partial class SimpleDictTestData
                           null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/
                           },
-                          ComplexStructContentAsValueSpanFormattable<decimal> {
+                          "ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 2.718
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/
                           },
-                          ComplexStructContentAsValueSpanFormattable<decimal> {
+                          "ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 31.416
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/
                           },
-                          ComplexStructContentAsValueSpanFormattable<decimal> {
+                          "ComplexStructContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexStructContentAsValue: 27.183
-                          }:                           null,
+                          }":                           null,
                           null:                           null
                         }
                         """.Dos2Unix()
@@ -896,17 +896,17 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, CompactLog)
                       , """
                         {
-                         ComplexContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexContentAsValue: 3.142 }: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                         "ComplexContentAsValueSpanFormattable<decimal> { SpanFormattableComplexContentAsValue: 3.142 }":
+                         FieldSpanFormattableAlwaysAddStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattable: http://first-value.com/ },
-                         ComplexContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexContentAsValue: 2.718 }: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                         "ComplexContentAsValueSpanFormattable<decimal> { SpanFormattableComplexContentAsValue: 2.718 }":
+                         FieldSpanFormattableAlwaysAddStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattable: http://second-value.com/ },
-                         ComplexContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexContentAsValue: 31.416 }: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                         "ComplexContentAsValueSpanFormattable<decimal> { SpanFormattableComplexContentAsValue: 31.416 }":
+                         FieldSpanFormattableAlwaysAddStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattable: http://third-value.com/ },
-                         ComplexContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexContentAsValue: 27.183 }: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                         "ComplexContentAsValueSpanFormattable<decimal> { SpanFormattableComplexContentAsValue: 27.183 }":
+                         FieldSpanFormattableAlwaysAddStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattable: http://fourth-value.com/ } 
                         }
                         """.RemoveLineEndings()
@@ -928,24 +928,24 @@ public partial class SimpleDictTestData
                         new EK(AcceptsTypeAllButNullableStruct | CallsAsSpan | CallsAsReadOnlySpan | AllOutputConditionsMask, PrettyLog)
                       , """
                         {
-                          ComplexContentAsValueSpanFormattable<decimal> {
+                          "ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 3.142
-                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattable: http://first-value.com/
                           },
-                          ComplexContentAsValueSpanFormattable<decimal> {
+                          "ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 2.718
-                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattable: http://second-value.com/
                           },
-                          ComplexContentAsValueSpanFormattable<decimal> {
+                          "ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 31.416
-                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattable: http://third-value.com/
                           },
-                          ComplexContentAsValueSpanFormattable<decimal> {
+                          "ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 27.183
-                          }: FieldSpanFormattableAlwaysAddStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattable: http://fourth-value.com/
                           }
                         }
@@ -981,14 +981,14 @@ public partial class SimpleDictTestData
                         {
                          null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/ },
-                         ComplexContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexContentAsValue: 2.718 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         "ComplexContentAsValueSpanFormattable<decimal> { SpanFormattableComplexContentAsValue: 2.718 }":
+                         FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/ },
-                         ComplexContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexContentAsValue: 31.416 }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                         "ComplexContentAsValueSpanFormattable<decimal> { SpanFormattableComplexContentAsValue: 31.416 }":
+                         FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                          ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/ },
-                         ComplexContentAsValueSpanFormattable<decimal> {
-                         SpanFormattableComplexContentAsValue: 27.183 }:                           null,
+                         "ComplexContentAsValueSpanFormattable<decimal> { SpanFormattableComplexContentAsValue: 27.183 }":
+                                                   null,
                          null:                           null 
                         }
                         """.RemoveLineEndings()
@@ -1014,19 +1014,19 @@ public partial class SimpleDictTestData
                           null: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://first-value.com/
                           },
-                          ComplexContentAsValueSpanFormattable<decimal> {
+                          "ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 2.718
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://second-value.com/
                           },
-                          ComplexContentAsValueSpanFormattable<decimal> {
+                          "ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 31.416
-                          }: FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
+                          }": FieldSpanFormattableAlwaysAddStructStringBearer<Uri> {
                             ComplexTypeFieldAlwaysAddSpanFormattableFromStruct: http://third-value.com/
                           },
-                          ComplexContentAsValueSpanFormattable<decimal> {
+                          "ComplexContentAsValueSpanFormattable<decimal> {
                             SpanFormattableComplexContentAsValue: 27.183
-                          }:                           null,
+                          }":                           null,
                           null:                           null
                         }
                         """.Dos2Unix()

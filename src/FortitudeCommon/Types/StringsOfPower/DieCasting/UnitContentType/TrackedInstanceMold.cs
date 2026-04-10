@@ -16,6 +16,8 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
 
     private FormatFlags innerContentFormatFLags;
 
+    public override MoldType MoldType => MoldType.TrackedInstanceMold;
+
     public TrackedInstanceMold InitializeRawContentTypeBuilder
     (
         object instanceOrContainer
@@ -54,15 +56,33 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
         StartTypeOpening(trackedInstanceFormatter, formatFlags);
     }
 
+    public bool SuppressClose
+    {
+        get => Mws.CurrentFormatFlags.DoesNotHaveSuppressClosing();
+        set
+        {
+            if (value)
+            {
+                Mws.CurrentFormatFlags |= SuppressClosing;
+            }
+            else
+            {
+                Mws.CurrentFormatFlags &= SuppressClosing;
+            }
+        }
+    }
+
     public override void StartTypeOpening(IStyledTypeFormatting usingFormatter, FormatFlags formatFlags)
     {
         var mergedCreateAndInner = formatFlags | innerContentFormatFLags;
         
+        if (formatFlags.HasSuppressOpening()) return;
         base.StartTypeOpening(usingFormatter, mergedCreateAndInner);
     }
 
     public override void FinishTypeOpening(FormatFlags formatFlags)
     {
+        if (formatFlags.HasSuppressOpening()) return;
         trackedInstanceFormatter ??=
             (CreateFormatFlags.HasAsStringContentFlag()
           && (Mws.CurrentWriteMethod.HasAllOf(AsComplex | AsContent)
@@ -120,11 +140,19 @@ public class TrackedInstanceMold : KnownTypeMolder<TrackedInstanceMold>
         if (Mws.MoldGraphVisit.IsARevisit)
         {
             if (Mws.Style.IsLog()) { trackedInstanceFormatter?.AppendSimpleTypeClosing(Mws.InstanceOrType, Mws, Mws.CreateWriteMethod, innerFormatFlags); }
-            else { trackedInstanceFormatter?.AppendComplexTypeClosing(Mws.InstanceOrType, Mws, Mws.CreateWriteMethod, innerFormatFlags); }
+            else if(Mws.CurrentFormatFlags.DoesNotHaveSuppressClosing()) 
+            { trackedInstanceFormatter?.AppendComplexTypeClosing(Mws.InstanceOrType, Mws, Mws.CreateWriteMethod, innerFormatFlags); }
         }
-        else if (Mws.Style.IsLog())
-        {
-            if (Mws.WroteTypeOpen) { trackedInstanceFormatter?.AppendSimpleTypeClosing(Mws.InstanceOrType, Mws, Mws.CreateWriteMethod, innerFormatFlags); }
+        else if (Mws is { WroteTypeOpen: true, WroteTypeClose: false })
+        { 
+            if (formatFlags.DoesNotHaveSuppressClosing())
+            {
+                trackedInstanceFormatter?.AppendComplexTypeClosing(Mws.InstanceOrType, Mws, Mws.CreateWriteMethod, innerFormatFlags);
+            }
+            else
+            {
+                Console.Out.WriteLine("Blah");
+            }
         }
 
         trackedInstanceFormatter?.Gb.MarkContentEnd();

@@ -23,6 +23,8 @@ public class ExplicitKeyedCollectionMold<TKey, TValue> : KeyedCollectionMold
                                           , moldGraphVisit, writeMethodType, callerContext, createContext);
         return this;
     }
+    
+    public override MoldType MoldType => MoldType.KeyedCollectionMold;
 
     public override bool IsComplexType => true;
 

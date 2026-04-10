@@ -11,6 +11,7 @@ using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
+using FortitudeCommon.Types.StringsOfPower.DieCasting.UnitContentType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
 using FortitudeCommon.Types.StringsOfPower.Options;
@@ -85,7 +86,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
       , string? typeName
       , int remainingGraphDepth
       , VisitResult visitResult
-      , CallerContext callerContext  
+      , CallerContext callerContext
       , CreateContext createContext)
     {
         PortableState.InstanceOrContainer = instanceOrContainer;
@@ -101,6 +102,8 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
         OriginalStartIndex = master.WriteBuffer.Length;
     }
+    
+    public abstract MoldType MoldType { get; }
 
     protected MoldPortableState PortableState { get; set; } = new();
 
@@ -139,9 +142,9 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
 
     public virtual bool ShouldSuppressBody =>
         RevisitedInstanceId > 0 || PortableState.RemainingGraphDepth <= 0;
-    
+
     public virtual bool ShouldShowSuppressedBody => WrittenAs.HasShowSuppressedContents();
-    
+
     public virtual bool ShouldShowBody => !ShouldSuppressBody || ShouldShowSuppressedBody;
 
     public abstract bool IsComplexType { get; }
@@ -177,7 +180,7 @@ public abstract class TypeMolder : ExplicitRecyclableObject, IDisposable
         MeRecyclable.StateReset();
     }
 
-    protected virtual AppendSummary BuildMoldStringRange(Range typeWriteRange, Type? contentType = null) =>
+    protected virtual AppendSummary BuildMoldAppendSummary(Range typeWriteRange, Type? contentType = null) =>
         new AppendSummary(TypeBeingBuilt, PortableState.Master, typeWriteRange, PortableState.WrittenAsFlags
                         , PortableState.MoldGraphVisit.VisitId, contentType);
 
@@ -358,7 +361,7 @@ public static class TypeMolderExtensions
     (this IMoldWriteState mdc, ReadOnlySpan<char> fieldName, TFmt? value
       , [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-         where TFmt : ISpanFormattable?
+        where TFmt : ISpanFormattable?
     {
         var actualType = value?.GetType() ?? typeof(TFmt);
         if (!mdc.Master.ContinueGivenFormattingFlags(formatFlags) || mdc.HasSkipField(actualType, fieldName, formatFlags))
@@ -375,7 +378,7 @@ public static class TypeMolderExtensions
     public static AppendSummary AppendFormattedOrNull<TFmt>
     (this IMoldWriteState mdc, TFmt? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
       , FormatFlags formatFlags = DefaultCallerTypeFlags)
-         where TFmt : ISpanFormattable?
+        where TFmt : ISpanFormattable?
     {
         formatFlags = mdc.StyleFormatter.ResolveContentFormatFlags(mdc.Sb, value, formatFlags, formatString);
 
@@ -426,7 +429,7 @@ public static class TypeMolderExtensions
             var writtenAs = mdc.AppendFormattedNoReferenceTracking(value, formatString, formatFlags);
             return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
         }
-        
+
         var preAppendLength = mdc.Sb.Length;
         var registeredForRevisit =
             mdc.Master.GetTrackedInstanceMold(value, formatFlags, AsRaw | AsContent, mdc.CreateMoldFormatFlags);
@@ -507,7 +510,8 @@ public static class TypeMolderExtensions
 
     public static AppendSummary RevealCloakedBearerField<TCloaked, TCloakedBase>(this IMoldWriteState mdc
       , ReadOnlySpan<char> fieldName, TCloaked value, PalantírReveal<TCloakedBase> cloakedRevealer, string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags
+      , WrittenAsFlags writeAs = AsComplex | AsContent)
         where TCloaked : TCloakedBase?
         where TCloakedBase : notnull
     {
@@ -519,13 +523,13 @@ public static class TypeMolderExtensions
         mdc.FieldNameJoin(fieldName);
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
 
-        if (!callContext.HasFormatChange) return mdc.RevealCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags);
-        using (callContext) { return mdc.RevealCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags); }
+        if (!callContext.HasFormatChange) return mdc.RevealCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags, writeAs);
+        using (callContext) { return mdc.RevealCloakedBearerOrNull(value, cloakedRevealer, formatString, formatFlags, writeAs); }
     }
 
     public static AppendSummary RevealCloakedBearerOrNull<TCloaked, TRevealBase>(this IMoldWriteState mdc
       , TCloaked? value, PalantírReveal<TRevealBase> styler, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags
-      , WrittenAsFlags writeAs = AsRaw)
+      , WrittenAsFlags writeAs = AsComplex | AsContent)
         where TCloaked : TRevealBase?
         where TRevealBase : notnull
     {
@@ -561,7 +565,7 @@ public static class TypeMolderExtensions
 
     public static AppendSummary RevealNullableCloakedBearerOrNull<TCloakedStruct>(this IMoldWriteState mdc
       , TCloakedStruct? value, PalantírReveal<TCloakedStruct> styler, string? formatString = null
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsComplex | AsContent)
         where TCloakedStruct : struct
     {
         var sb           = mdc.Sb;
@@ -572,8 +576,11 @@ public static class TypeMolderExtensions
             return new AppendSummary(typeof(TCloakedStruct), mdc.Master, new Range(contentStart, sb.Length), writtenAsFlags
                                    , mdc.MoldGraphVisit.VisitId);
         }
-        if (formatFlags.HasIsFieldNameFlag()) return mdc.StyleFormatter.FormatFieldName(mdc, value.Value, styler, formatString, formatFlags, writeAs);
-        return mdc.StyleFormatter.FormatFieldContents(mdc, value.Value, styler, formatString, formatFlags, writeAs);
+        if (formatFlags.HasIsFieldNameFlag()) 
+            return mdc.StyleFormatter.FormatFieldName(mdc, value.Value, styler, formatString
+                                                    , formatFlags.RemoveEmbeddedContentFlags(), writeAs & ~AsRaw);
+        return mdc.StyleFormatter.FormatFieldContents(mdc, value.Value, styler, formatString
+                                                    , formatFlags.RemoveEmbeddedContentFlags(), writeAs & ~AsRaw);
     }
 
     public static AppendSummary RevealStringBearerField<TBearer>(this IMoldWriteState mdc, ReadOnlySpan<char> fieldName
@@ -586,14 +593,27 @@ public static class TypeMolderExtensions
             return mdc.Master.EmptyAppendAt(mdc.TypeBeingBuilt, mdc.Sb.Length, actualType);
         }
         mdc.FieldNameJoin(fieldName);
-        var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
+        var isRevisit = false;
+        if (!actualType.IsValueType)
+        {
+            var visitCheck =  mdc.Master.SourceGraphVisitRefIdUpdateGraph(value, actualType, typeof(TrackedInstanceMold), formatFlags);
+            isRevisit = visitCheck.IsARevisit;
+        }
+        var writeAs   = AsRaw | AsComplex;
+        if (formatFlags.HasAsStringContentFlag())
+        {
+            writeAs |= AsString;
+        }
+        var callContext = isRevisit 
+            ? new CallContextDisposable()
+            : mdc.Master.ResolveContextForCallerFlags(formatFlags);
 
-        if (!callContext.HasFormatChange) return mdc.RevealStringBearerOrNull(value, formatString, formatFlags);
-        using (callContext) { return mdc.RevealStringBearerOrNull(value, formatString, formatFlags); }
+        if (!callContext.HasFormatChange) return mdc.RevealStringBearerOrNull(value, formatString, formatFlags, writeAs);
+        using (callContext) { return mdc.RevealStringBearerOrNull(value, formatString, formatFlags, writeAs); }
     }
 
     public static AppendSummary RevealStringBearerOrNull<TBearer>(this IMoldWriteState mdc
-      , TBearer? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
+      , TBearer? value, string formatString = "", FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw | AsComplex)
         where TBearer : IStringBearer?
     {
         var sb           = mdc.Sb;
@@ -607,57 +627,73 @@ public static class TypeMolderExtensions
         {
             return mdc.AppendFormattedStringBearerWithRefenceTracking(value, formatString, formatFlags, writeAs);
         }
-        return mdc.AppendFormattedStringBearerNoReferenceTracking(value, formatString, formatFlags, writeAs);
+        return mdc.AppendFormattedStringBearerNoReferenceTracking(value, formatString, formatFlags.RemoveEmbeddedContentFlags(), writeAs & ~AsRaw);
     }
 
     private static AppendSummary AppendFormattedStringBearerWithRefenceTracking<TBearer>
     (this IMoldWriteState mdc, TBearer? value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw | AsComplex)
         where TBearer : IStringBearer?
     {
-        var actualType = value?.GetType() ?? typeof(TBearer);
-        if (formatFlags.HasNoRevisitCheck()
-         || value == null
-         || actualType.IsValueType)
-            return mdc.AppendFormattedStringBearerNoReferenceTracking(value, formatString, formatFlags, writeAs);
+        var actualType       = value?.GetType() ?? typeof(TBearer);
+        var innerFormatFlags = formatFlags;
         
+        if (formatFlags.HasNoRevisitCheck()
+             || value == null
+             || actualType.IsValueType)
+            return mdc.AppendFormattedStringBearerNoReferenceTracking
+                (value, formatString, formatFlags.RemoveEmbeddedContentFlags() , writeAs & ~AsRaw);
+
         var sb      = mdc.Sb;
         var startAt = sb.Length;
         var sf      = mdc.StyleFormatter;
         var registeredForRevisit =
-            mdc.Master.GetTrackedInstanceMold(value, formatFlags, writeAs, mdc.CreateMoldFormatFlags.MoldMultiGenerationInheritFlags());
-        var append = mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writeAs, actualType);
-        if (registeredForRevisit.ShouldShowBody)
+            mdc.Master.GetTrackedInstanceMold
+                (value, formatFlags, writeAs
+               , mdc.CreateMoldFormatFlags.MoldMultiGenerationInheritFlags());
+        var innerAppend = mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, Empty, actualType);
+        if (registeredForRevisit.ShouldShowBody || writeAs.HasShowSuppressedContents())
         {
-            if (!formatFlags.HasIsFieldNameFlag())
+            if (registeredForRevisit.CreateFormatFlags.HasSuppressOpening())
             {
-                if (registeredForRevisit.ShouldSuppressBody)
-                {
-                    sf.AppendInstanceValuesFieldName(actualType, mdc.CurrentWriteMethod, formatFlags);
-                }
+                innerFormatFlags = formatFlags.RemoveInstanceTrackingFlags();
             }
-            append = sf.FormatBearerFieldContents(mdc, value, formatString, formatFlags.RemoveInstanceTrackingFlags(), writeAs);
+            else
+            {
+                innerFormatFlags |= AsEmbeddedContent;
+            }
+            innerAppend = AppendFormattedStringBearerNoReferenceTracking(mdc, value, formatString, innerFormatFlags, writeAs & ~AsRaw);
         }
         var graphBuilder = mdc.Sf.Gb;
         graphBuilder.Complete(formatFlags);
-        registeredForRevisit.Complete(formatFlags);
-        if (sb.Length > startAt) graphBuilder.AddHighWaterMark();
-        return append.SetStringRange(startAt, sb.Length);
+        var outerAppend = registeredForRevisit.Complete(registeredForRevisit.CreateFormatFlags);
+        if ( !innerAppend.WrittenAs.HasAsStringFlag() &&
+            formatFlags.HasAsStringContentFlag() 
+            && mdc.CreateMoldFormatFlags.DoesNotHaveAsStringContentFlag()
+            && !formatFlags.HasDisableAutoDelimiting()
+            && !sb.WrittenAsFromFirstCharacters(innerAppend.StartAt, sf.Gb).HasAsStringFlag())
+        {
+            outerAppend = sf.WrapAppend(mdc, outerAppend, formatFlags, AsString);
+        }
+
+        if (sb.Length > startAt) mdc.Sf.Gb.AddHighWaterMark();
+        return outerAppend.SetStringRange(startAt, sb.Length);
     }
 
     private static AppendSummary AppendFormattedStringBearerNoReferenceTracking<TBearer>
     (this IMoldWriteState mdc, TBearer value, [StringSyntax(StringSyntaxAttribute.CompositeFormat)] string formatString
-      , FormatFlags noAsStringFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
+      , FormatFlags noAsStringFormatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsComplex)
         where TBearer : IStringBearer?
     {
-        var append = noAsStringFormatFlags.HasIsFieldNameFlag() 
-            ? mdc.StyleFormatter.FormatBearerFieldName(mdc, value, formatString, noAsStringFormatFlags, writeAs | AsString) 
+        var append = noAsStringFormatFlags.HasIsFieldNameFlag()
+            ? mdc.StyleFormatter.FormatBearerFieldName(mdc, value, formatString, noAsStringFormatFlags, writeAs | AsString)
             : mdc.StyleFormatter.FormatBearerFieldContents(mdc, value, formatString, noAsStringFormatFlags, writeAs);
         return append;
     }
 
     public static AppendSummary RevealNullableStringBearerField<TBearerStruct>(this IMoldWriteState mdc
-      , ReadOnlySpan<char> fieldName, TBearerStruct? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags)
+      , ReadOnlySpan<char> fieldName, TBearerStruct? value, string? formatString = null
+      , FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsComplex)
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(TBearerStruct?);
@@ -668,12 +704,12 @@ public static class TypeMolderExtensions
         mdc.FieldNameJoin(fieldName);
         var callContext = mdc.Master.ResolveContextForCallerFlags(formatFlags);
 
-        if (!callContext.HasFormatChange) return mdc.RevealNullableStringBearerOrNull(value, formatString, formatFlags);
-        using (callContext) { return mdc.RevealNullableStringBearerOrNull(value, formatString, formatFlags); }
+        if (!callContext.HasFormatChange) return mdc.RevealNullableStringBearerOrNull(value, formatString, formatFlags, writeAs);
+        using (callContext) { return mdc.RevealNullableStringBearerOrNull(value, formatString, formatFlags, writeAs); }
     }
 
     public static AppendSummary RevealNullableStringBearerOrNull<TBearerStruct>(this IMoldWriteState mdc
-      , TBearerStruct? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsRaw)
+      , TBearerStruct? value, string? formatString = null, FormatFlags formatFlags = DefaultCallerTypeFlags, WrittenAsFlags writeAs = AsComplex)
         where TBearerStruct : struct, IStringBearer
     {
         var actualType = value?.GetType() ?? typeof(TBearerStruct?);
@@ -686,9 +722,10 @@ public static class TypeMolderExtensions
             return new AppendSummary(typeof(TBearerStruct), mdc.Master, new Range(contentStart, sb.Length), writtenAsFlags, mdc.MoldGraphVisit.VisitId
                                    , actualType);
         }
-        if (formatFlags.HasIsFieldNameFlag()) return mdc.StyleFormatter.FormatBearerFieldName(mdc, value.Value, formatString, formatFlags, writeAs | AsString);
+        if (formatFlags.HasIsFieldNameFlag())
+            return mdc.StyleFormatter.FormatBearerFieldName(mdc, value.Value, formatString, formatFlags.RemoveEmbeddedContentFlags(), writeAs | AsString);
 
-        return mdc.StyleFormatter.FormatBearerFieldContents(mdc, value.Value, formatString, formatFlags, writeAs);
+        return mdc.StyleFormatter.FormatBearerFieldContents(mdc, value.Value, formatString, formatFlags.RemoveEmbeddedContentFlags(), writeAs);
     }
 
     public static WrittenAsFlags AppendReadOnlySpanField
@@ -785,7 +822,7 @@ public static class TypeMolderExtensions
             var writtenAs = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags);
             return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
         }
-        
+
         var preAppendLength      = mdc.Sb.Length;
         var registeredForRevisit = mdc.Master.GetTrackedInstanceMold(value, formatFlags, AsRaw | AsContent, mdc.CreateMoldFormatFlags);
         var writtenAsTracking    = Empty;
@@ -798,7 +835,8 @@ public static class TypeMolderExtensions
                     mdc.StyleFormatter.AppendInstanceValuesFieldName(actualType, mdc.CurrentWriteMethod, formatFlags);
                 }
             }
-            writtenAsTracking = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags.RemoveInstanceTrackingFlags());
+            writtenAsTracking
+                = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags.RemoveInstanceTrackingFlags());
         }
         var graphBuilder = mdc.Sf.Gb;
         graphBuilder.Complete(formatFlags);
@@ -871,11 +909,11 @@ public static class TypeMolderExtensions
             var writtenAs = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags);
             return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
         }
-        
-        var preAppendLength      = mdc.Sb.Length;
-        var registeredForRevisit = 
+
+        var preAppendLength = mdc.Sb.Length;
+        var registeredForRevisit =
             mdc.Master.GetTrackedInstanceMold(value, formatFlags, AsRaw | AsContent, mdc.CreateMoldFormatFlags);
-        var writtenAsTracking    = Empty;
+        var writtenAsTracking = Empty;
         if (registeredForRevisit.ShouldShowBody || mdc.Settings.InstanceMarkingIncludeCharArrayContents)
         {
             if (!formatFlags.HasIsFieldNameFlag())
@@ -890,7 +928,8 @@ public static class TypeMolderExtensions
                     sf.AppendInstanceValuesFieldName(actualType, mdc.CurrentWriteMethod, formatFlags);
                 }
             }
-            writtenAsTracking = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags.RemoveInstanceTrackingFlags());
+            writtenAsTracking
+                = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags.RemoveInstanceTrackingFlags());
         }
         var graphBuilder = mdc.Sf.Gb;
         graphBuilder.Complete(formatFlags);
@@ -970,7 +1009,7 @@ public static class TypeMolderExtensions
             var writtenAs = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags);
             return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
         }
-        
+
         var preAppendLength      = mdc.Sb.Length;
         var registeredForRevisit = mdc.Master.GetTrackedInstanceMold(value, formatFlags, AsRaw | AsContent, mdc.CreateMoldFormatFlags);
         var writtenAsTracking    = Empty;
@@ -983,7 +1022,8 @@ public static class TypeMolderExtensions
                     mdc.StyleFormatter.AppendInstanceValuesFieldName(actualType, mdc.CurrentWriteMethod, formatFlags);
                 }
             }
-            writtenAsTracking = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags.RemoveInstanceTrackingFlags());
+            writtenAsTracking
+                = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags.RemoveInstanceTrackingFlags());
         }
         var graphBuilder = mdc.Sf.Gb;
         graphBuilder.Complete(formatFlags);
@@ -1057,7 +1097,7 @@ public static class TypeMolderExtensions
             var writtenAs = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags);
             return mdc.Master.UnregisteredAppend(mdc.TypeBeingBuilt, startAt, sb.Length, writtenAs, actualType);
         }
-        
+
         var preAppendLength      = mdc.Sb.Length;
         var registeredForRevisit = mdc.Master.GetTrackedInstanceMold(value, formatFlags, AsRaw | AsContent, mdc.CreateMoldFormatFlags);
         var writtenAsTracking    = Empty;
@@ -1070,7 +1110,8 @@ public static class TypeMolderExtensions
                     mdc.StyleFormatter.AppendInstanceValuesFieldName(actualType, mdc.CurrentWriteMethod, formatFlags);
                 }
             }
-            writtenAsTracking = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags.RemoveInstanceTrackingFlags());
+            writtenAsTracking
+                = mdc.AppendFormattedNoReferenceTracking(value, formatString, fromIndex, length, formatFlags.RemoveInstanceTrackingFlags());
         }
         var graphBuilder = mdc.Sf.Gb;
         graphBuilder.Complete(formatFlags);
@@ -1309,8 +1350,8 @@ public static class TypeMolderExtensions
 
                 formatFlags |= LogSuppressTypeNames | NoRevisitCheck;
             }
-            var shouldPrintTypeName   = mdc.Settings.ShouldDisplayCollectionTypeName(collectionType);
-            if(shouldPrintTypeName)
+            var shouldPrintTypeName = mdc.Settings.ShouldDisplayCollectionTypeName(collectionType);
+            if (shouldPrintTypeName)
             {
                 var previousWroteTypeOpen = mdc.WroteTypeOpen;
                 var previousWroteTypeName = mdc.WroteTypeName;
@@ -1418,7 +1459,8 @@ public static class TypeMolderExtensions
                     return mdc.AppendFormattedCollectionItemOrNull(valueCharSequence, retrieveCount, formatString, formatFlags);
                 case StringBuilder valueSb: return mdc.AppendFormattedCollectionItemOrNull(valueSb, retrieveCount, formatString, formatFlags);
 
-                case IStringBearer styledToStringObj: return mdc.RevealStringBearerOrNull(styledToStringObj, formatString, formatFlags, AsCollectionItem);
+                case IStringBearer styledToStringObj:
+                    return mdc.RevealStringBearerOrNull(styledToStringObj, formatString, formatFlags, AsCollectionItem);
                 case IEnumerator:
                 case IEnumerable:
                     var type = typeof(TValue);
@@ -1444,8 +1486,8 @@ public static class TypeMolderExtensions
                         if (!formatFlags.HasNoRevisitCheck()
                          && !typeof(TValue).IsValueType)
                         {
-                            var preAppendLength      = mdc.Sb.Length;
-                            var registeredForRevisit = 
+                            var preAppendLength = mdc.Sb.Length;
+                            var registeredForRevisit =
                                 mdc.Master.GetTrackedInstanceMold(value, formatFlags, AsRaw | AsObject | AsCollectionItem, mdc.CreateMoldFormatFlags);
                             if (registeredForRevisit.ShouldShowBody)
                             {
@@ -1455,7 +1497,7 @@ public static class TypeMolderExtensions
                             }
                             var gb = mdc.Sf.Gb;
                             gb.Complete(formatFlags);
-                            var stateExtractResult = registeredForRevisit.Complete();
+                            var stateExtractResult = registeredForRevisit.Complete(registeredForRevisit.CreateFormatFlags);
                             gb.StartNextContentSeparatorPaddingSequence(mdc.Sb, formatFlags, true);
                             gb.MarkContentStart(preAppendLength);
                             gb.MarkContentEnd(mdc.Sb.Length);
@@ -1485,10 +1527,6 @@ public static class TypeMolderExtensions
     {
         var preAppendLen = mdc.Sb.Length;
         var sf           = mdc.StyleFormatter;
-        // if (sf.AddedContextOnThisCall)
-        // {
-        //     sf = sf.PreviousContextOrThis;
-        // }
         sf.AppendFieldName(mdc, fieldName);
         sf.AppendFieldValueSeparator();
         mdc.IsEmpty = false;
@@ -1500,10 +1538,6 @@ public static class TypeMolderExtensions
     {
         var preAppendLen = mdc.Sb.Length;
         var sf           = mdc.StyleFormatter;
-        // if (sf.AddedContextOnThisCall)
-        // {
-        //     sf = sf.PreviousContextOrThis;
-        // }
         sf.AppendFieldName(mdc, fieldName);
         sf.AppendFieldValueSeparator();
         mdc.IsEmpty = false;
@@ -1589,7 +1623,7 @@ public static class TypeMolderExtensions
             mdc.StyleFormatter.CollectionNextItemFormat(mdc, value, retrieveCount, formatString, formatFlags.RemoveInstanceTrackingFlags());
         }
         var graphBuilder = mdc.Sf.Gb;
-        graphBuilder.Complete(formatFlags);
+        graphBuilder.Complete(registeredForRevisit.CreateFormatFlags);
         var stateExtractResult = registeredForRevisit.Complete();
         graphBuilder.StartNextContentSeparatorPaddingSequence(mdc.Sb, formatFlags, true);
         graphBuilder.MarkContentStart(preAppendLength);
@@ -1620,7 +1654,7 @@ public static class TypeMolderExtensions
             mdc.StyleFormatter.CollectionNextItemFormat(mdc, value, retrieveCount, formatString, formatFlags.RemoveInstanceTrackingFlags());
         }
         var graphBuilder = mdc.Sf.Gb;
-        graphBuilder.Complete(formatFlags);
+        graphBuilder.Complete(registeredForRevisit.CreateFormatFlags);
         var stateExtractResult = registeredForRevisit.Complete();
         graphBuilder.StartNextContentSeparatorPaddingSequence(mdc.Sb, formatFlags, true);
         graphBuilder.MarkContentStart(preAppendLength);
@@ -1651,7 +1685,7 @@ public static class TypeMolderExtensions
             mdc.StyleFormatter.CollectionNextItemFormat(mdc, value, retrieveCount, formatString, formatFlags.RemoveInstanceTrackingFlags());
         }
         var graphBuilder = mdc.Sf.Gb;
-        graphBuilder.Complete(formatFlags);
+        graphBuilder.Complete(registeredForRevisit.CreateFormatFlags);
         var stateExtractResult = registeredForRevisit.Complete();
         graphBuilder.StartNextContentSeparatorPaddingSequence(mdc.Sb, formatFlags, true);
         graphBuilder.MarkContentStart(preAppendLength);
@@ -1683,7 +1717,7 @@ public static class TypeMolderExtensions
             mdc.StyleFormatter.CollectionNextCharSeqFormat(mdc, value, retrieveCount, formatString, formatFlags.RemoveInstanceTrackingFlags());
         }
         var graphBuilder = mdc.Sf.Gb;
-        graphBuilder.Complete(formatFlags);
+        graphBuilder.Complete(registeredForRevisit.CreateFormatFlags);
         var stateExtractResult = registeredForRevisit.Complete();
         graphBuilder.StartNextContentSeparatorPaddingSequence(mdc.Sb, formatFlags, true);
         graphBuilder.MarkContentStart(preAppendLength);
@@ -1714,7 +1748,7 @@ public static class TypeMolderExtensions
             mdc.StyleFormatter.CollectionNextItemFormat(mdc, value, retrieveCount, formatString, formatFlags.RemoveInstanceTrackingFlags());
         }
         var graphBuilder = mdc.Sf.Gb;
-        graphBuilder.Complete(formatFlags);
+        graphBuilder.Complete(registeredForRevisit.CreateFormatFlags);
         var stateExtractResult = registeredForRevisit.Complete();
         graphBuilder.StartNextContentSeparatorPaddingSequence(mdc.Sb, formatFlags, true);
         graphBuilder.MarkContentStart(preAppendLength);
@@ -1788,12 +1822,12 @@ public static class TypeMolderExtensions
         var methodInvoker = helperMethod.CreateDelegate(typeof(SpanFmtStructCollectionElementHandler<TFmt>));
         return (SpanFmtStructCollectionElementHandler<TFmt>)methodInvoker;
     }
-    
-    
+
+
     public static bool ShouldDisplayTypeName(this StyleOptions styleOptions, Type checkTypeForDisplayName)
     {
         checkTypeForDisplayName = checkTypeForDisplayName.IfRecyclableContainerGetType();
-        var checkTypeFullName     = checkTypeForDisplayName.FullName ?? "";
+        var checkTypeFullName = checkTypeForDisplayName.FullName ?? "";
         var shouldDisplayTypeName =
             !styleOptions
              .LogSuppressDisplayTypeNames

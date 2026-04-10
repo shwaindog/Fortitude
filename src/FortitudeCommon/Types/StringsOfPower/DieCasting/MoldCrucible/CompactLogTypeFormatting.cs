@@ -7,7 +7,6 @@ using FortitudeCommon.DataStructures.MemoryPools;
 using FortitudeCommon.Extensions;
 using FortitudeCommon.Types.Mutable;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MapCollectionType;
-using FortitudeCommon.Types.StringsOfPower.DieCasting.OrderedCollectionType;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible;
 using FortitudeCommon.Types.StringsOfPower.InstanceTracking;
@@ -173,10 +172,9 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags<T>(ITheOneString tos, T forValue, Type actualType
-      , WrittenAsFlags proposedWriteType
-      , VisitResult visitResult, FormatFlags formatFlags)
+      , WrittenAsFlags proposedWriteType, VisitResult visitResult, FormatFlags formatFlags, MoldType moldType)
     {
-        var (resolvedWrittenAs, resolvedFlags) = ResolveMoldWriteAsFormatFlags(tos, actualType, proposedWriteType, visitResult, formatFlags);
+        var (resolvedWrittenAs, resolvedFlags) = ResolveMoldWriteAsFormatFlags(tos, actualType, proposedWriteType, visitResult, formatFlags, moldType);
         switch (proposedWriteType)
         {
             case AsComplex:
@@ -192,7 +190,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
     }
 
     public virtual (WrittenAsFlags, FormatFlags) ResolveMoldWriteAsFormatFlags(ITheOneString tos, Type actualType, WrittenAsFlags proposedWriteType
-      , VisitResult visitResult, FormatFlags formatFlags)
+      , VisitResult visitResult, FormatFlags formatFlags, MoldType moldType)
     {
         actualType = actualType.IfRecyclableContainerGetType();
         
@@ -210,12 +208,12 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
 
         switch (proposedWriteType & WrittenAsFlagsExtensions.ProposedMaskSelectionMask)
         {
-            case AsObject | AsRaw:
             case AsRaw:
             case AsCollectionItem:
             case AsCollectionItem | WrittenAsFlags.AsCollection | AsSimple:
             case AsCollectionItem | WrittenAsFlags.AsCollection | AsComplex:
             case AsCollectionItem | WrittenAsFlags.AsCollection | AsRaw:
+            case AsCollectionItem | AsRaw:    
             case WrittenAsFlags.AsCollection | AsRaw:
             case WrittenAsFlags.AsCollection | AsSimple:
             case WrittenAsFlags.AsCollection | AsComplex:
@@ -265,36 +263,40 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                      && (proposedWriteType.HasAllOf(AsComplex | AsContent | AsOuterType))
                      || (proposedWriteType.HasAllOf(AsComplex | AsCollectionItem)))
                     {
-                        resolvedFlags     |= ContentAllowComplexType;
-                        resolvedWrittenAs &= ~(AsContent);
-                        resolvedWrittenAs |= AsComplex | AsObject;
-                        break;
-                    }
-                    if (visitResult is { ReusedCount: <= 0 } 
-                     && !actualType.IsValueType
-                     && (proposedWriteType.HasAllOf(AsSimple | AsContent | AsOuterType)
-                      || (proposedWriteType.HasAllOf(AsComplex | AsCollectionItem))))
-                    {
-                        resolvedFlags     |= SuppressOpening | SuppressClosing;
-                        resolvedWrittenAs &= ~(AsComplex);
-                        resolvedWrittenAs |= AsContent | AsSimple;
-                        resolvedWrittenAs |= visitResult.IsARevisit ? Empty : ShowSuppressedContents;
+                        resolvedFlags     |= shouldShowTypeNameDecision;
+                        if(moldType is not MoldType.ComplexObjectMold and not MoldType.ComplexContentMold)
+                        {
+                            resolvedFlags     |= SuppressOpening | SuppressClosing;
+                            resolvedWrittenAs &= ~(AsComplex | AsOuterType);
+                            resolvedWrittenAs |= AsContent | AsSimple;
+                        }
+                        else
+                        {
+                            resolvedFlags     &= ~(SuppressClosing | SuppressOpening);
+                            resolvedFlags     |= ContentAllowComplexType;
+                            resolvedWrittenAs &= ~(AsContent | AsSimple | AsOuterType);
+                            resolvedWrittenAs |= AsComplex;
+                        }
                         break;
                     }
                     if (visitResult is { ReusedCount: <= 0 } 
                      && proposedWriteType.HasAllOf(AsContent | AsInnerType))
                     {
-                        if (!actualType.IsValueType && !isPalantirRevealer)
+                        resolvedFlags     |= shouldShowTypeNameDecision;
+                        if (!visitResult.IsARevisit && proposedWriteType.HasAsSimpleFlag()
+                            && moldType is not MoldType.ComplexObjectMold and not MoldType.ComplexContentMold)
                         {
                             resolvedFlags     |= SuppressOpening | SuppressClosing;
-                            resolvedWrittenAs &= ~(AsComplex | AsContent);
+                            resolvedWrittenAs &= ~(AsComplex | AsContent | AsInnerType);
                             resolvedWrittenAs |= AsSimple | AsObject;
 
                             resolvedWrittenAs |= visitResult.IsARevisit ? Empty : ShowSuppressedContents;
                         }
                         else
                         {
-                            resolvedFlags |= ContentAllowComplexType;
+                            resolvedFlags     |= ContentAllowComplexType;
+                            resolvedWrittenAs &= ~(AsSimple | AsInnerType);
+                            resolvedWrittenAs |= AsComplex;
                             if (proposedWriteType.HasNoneOf(AsCollectionItem))
                             {
                                 resolvedWrittenAs &= ~(AsContent);
@@ -303,43 +305,92 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                         }
                         break;
                     }
-                    if (visitResult.ReusedCount <= 0
+                    
+                    if (visitResult is {IsARevisit: false,  ReusedCount: <= 0 }
                      && !actualType.IsValueType
                      && (proposedWriteType.HasAsRawFlag())
+                     && !proposedWriteType.HasAsComplexFlag()
                      && !proposedWriteType.HasAsCollectionFlag())
                     {
-                        resolvedFlags |= SuppressOpening | SuppressClosing | ContentAllowComplexType;
+                        resolvedFlags     |= SuppressOpening | SuppressClosing | ContentAllowComplexType;
                         resolvedWrittenAs |= ShowSuppressedContents;
                         resolvedWrittenAs &= ~(AsContent);
                         resolvedWrittenAs |= AsComplex | AsObject;
                         break;
                     }
+                    if (visitResult is {IsARevisit: true}
+                     && !actualType.IsValueType
+                     && (!proposedWriteType.HasAsComplexFlag() ))
+                    {
+                        resolvedWrittenAs &= ~(AsComplex | AsObject);
+                        resolvedWrittenAs |= AsSimple | AsContent;
+                        break;
+                    }
+                    if (visitResult is {IsARevisit: true}
+                     && (proposedWriteType.HasAsComplexFlag() ))
+                    {
+                        resolvedFlags     |= SuppressOpening | SuppressClosing | ContentAllowComplexType;
+                        resolvedWrittenAs |= ShowSuppressedContents;
+                        resolvedWrittenAs &= ~(AsContent);
+                        resolvedWrittenAs |= AsComplex | AsObject;
+                        break;
+                    }
+                    // if (proposedWriteType.HasAllOf(AsCollectionItem | AsContent | AsSimple)
+                    //     || proposedWriteType.HasAllOf(AsRaw | AsObject | AsCollectionItem))
+                    if (proposedWriteType.HasAllOf(AsRaw | AsObject | AsCollectionItem))
+                    {
+                        resolvedWrittenAs |= AsCollectionItem;
+                        resolvedFlags     &= ~SuppressOpening;
+                        resolvedFlags     |= SuppressClosing;
+                        resolvedWrittenAs &= ~(AsComplex);
+                        resolvedWrittenAs |= AsSimple;
+                    }
+                    break;
                 }
                 if (actualType.IsSpanFormattableOrNullableCached() || actualType.IsBoolOrNullable())
                 {
+                    if (moldType is MoldType.ComplexObjectMold or MoldType.ComplexContentMold)
+                    {
+                        resolvedFlags     &= ~(SuppressClosing | SuppressOpening);
+                        resolvedFlags     |= ContentAllowComplexType;
+                        resolvedWrittenAs &= ~(AsSimple);
+                        resolvedWrittenAs |= AsComplex;
+                        resolvedFlags     |= shouldShowTypeNameDecision;
+                    }
+                    else
+                    {
+                        if(!visitResult.IsARevisit) resolvedFlags     |= SuppressClosing | SuppressOpening;
+                        resolvedWrittenAs &= ~(AsComplex);
+                        resolvedWrittenAs |= AsSimple;
+                    }
                     resolvedFlags |= shouldShowTypeNameDecision;
                     if (visitResult.IsARevisit)
                     {
                         if (settings.InstanceMarkingIncludeSpanFormattableContents) { resolvedWrittenAs |= ShowSuppressedContents; }
                     }
-                    else
-                    {
-                        if (visitResult.ReusedCount <= 0 
-                         && (formatFlags.HasContentTreatmentFlags()
-                          && (!proposedWriteType.HasAllOf(AsContent | AsInnerType)
-                           || proposedWriteType.HasAllOf(AsRaw | AsContent))))
-                        {
-                            resolvedFlags     |= SuppressOpening | SuppressClosing;
-                            resolvedWrittenAs |= ShowSuppressedContents | AsContent;
-                        }
-                    }
                     break;
                 }
                 if (actualType.IsAnyTypeHoldingCharsCached())
                 {
-                    resolvedFlags |= shouldShowTypeNameDecision;
-                    if (resolvedWrittenAs.HasAnyOf(AsRaw | AsContent) && visitResult.IsARevisit)
+                    resolvedFlags     |= shouldShowTypeNameDecision;
+                    if (moldType is MoldType.ComplexObjectMold or MoldType.ComplexContentMold)
                     {
+                        resolvedFlags     &= ~(SuppressClosing | SuppressOpening);
+                        resolvedFlags     |= ContentAllowComplexType;
+                        resolvedWrittenAs &= ~(AsSimple);
+                        resolvedWrittenAs |= AsComplex;
+                        resolvedFlags     |= shouldShowTypeNameDecision;
+                    }
+                    else
+                    {
+                        if(!visitResult.IsARevisit) resolvedFlags     |= SuppressClosing | SuppressOpening;
+                        resolvedWrittenAs &= ~AsComplex;
+                        resolvedWrittenAs |= AsSimple;
+                    }
+                    
+                    if (visitResult.IsARevisit)
+                    {
+                        resolvedFlags     |= AddTypeNameField;
                         if ((settings.InstanceTrackingIncludeStringInstances
                           && actualType.IsString()
                           && settings.InstanceMarkingIncludeStringContents)
@@ -353,23 +404,16 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                           && actualType.IsCharArray()
                           && settings.InstanceMarkingIncludeCharArrayContents)) { resolvedWrittenAs |= ShowSuppressedContents; }
                     }
-                    else
-                    {
-                        if (visitResult.ReusedCount <= 0 
-                         && (formatFlags.HasContentTreatmentFlags()
-                          && (proposedWriteType.HasAllOf(AsContent | AsInnerType)
-                           || proposedWriteType.HasAllOf(AsRaw | AsContent))))
-                        {
-                            resolvedFlags     |= SuppressOpening | SuppressClosing;
-                            resolvedWrittenAs |= ShowSuppressedContents | AsContent;
-                        }
-                    }
                     break;
                 }
+                resolvedFlags     |= shouldShowTypeNameDecision;
                 var isBuildInputType = actualType.IsInputConstructionTypeCached();
+                if(!visitResult.IsARevisit && shouldShowTypeNameDecision != AddTypeNameField) resolvedFlags     |= SuppressOpening;
+                resolvedFlags     |= SuppressClosing;
+                resolvedWrittenAs &= ~AsComplex;
+                resolvedWrittenAs |= AsSimple;
                 if (!isBuildInputType)
                 {
-                    resolvedFlags     |= shouldShowTypeNameDecision;
                     resolvedWrittenAs |= (settings.InstanceMarkingIncludeObjectToStringContents ? ShowSuppressedContents : Empty) | AsObject;
                 }
                 break;
@@ -380,13 +424,26 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                     ? AsSimple | AsMapCollection
                     : AsComplex | AsMapCollection;
                 break;
+            case AsComplex | AsRaw:
+                resolvedFlags |= ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType | shouldShowTypeNameDecision;
+                if (visitResult.IsARevisit)
+                {
+                    resolvedWrittenAs &= ~AsSimple;
+                    resolvedWrittenAs |= AsComplex | AsObject | WithReferenceToInstanceId;
+                }
+                else
+                {
+                    resolvedWrittenAs &= ~AsSimple;
+                    resolvedWrittenAs |= AsComplex | AsObject; 
+                    resolvedFlags     |= SuppressOpening | SuppressClosing;
+                }
+                break;
             case AsComplex | AsCollectionItem:
             case AsComplex | AsRaw | AsCollectionItem:
             case AsComplex | AsRaw | AsContent:
-            case AsComplex | AsObject:
-            case AsComplex | AsRaw:
+            // case AsComplex | AsRaw:
             case AsComplex:
-                resolvedFlags |= ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType;
+                resolvedFlags |= ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType | shouldShowTypeNameDecision;
                 if (visitResult.IsARevisit)
                 {
                     resolvedFlags     &= (SuppressOpening | SuppressClosing);
@@ -394,7 +451,6 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
                     break;
                 }
                 resolvedWrittenAs |= AsComplex | AsObject;
-                resolvedFlags     |= ContentAllowComplexType | shouldShowTypeNameDecision;
                 break;
             default: resolvedFlags |= formatFlags | ContentAllowText | ContentAllowText | ContentAllowAnyValueType | ContentAllowComplexType; break;
         }
@@ -1152,27 +1208,19 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var appendSummary = valueRevealer(value, mws.Master);
         var contentStart  = appendSummary.StartAt;
         if (sb.Length == contentStart) return mws.Master.EmptyAppendAt(mws.TypeBeingBuilt, contentStart, value.GetType());
-        if (withMoldInherited.HasDisableFieldNameDelimitingFlag()
+        if (!(callerFormatFlags.HasAsStringContentFlag()
+           || writeAs.HasAsStringFlag())
          || mws.CreateMoldFormatFlags.HasAsStringContentFlag()
-         || !callerFormatFlags.HasAsStringContentFlag()
-         || sb[contentStart] == DblQtChar)
+         || callerFormatFlags.HasDisableAutoDelimiting()
+         || sb.WrittenAsFromFirstCharacters(contentStart, Gb).HasAsStringFlag()
+         || appendSummary.WrittenAs.HasAsStringFlag())
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
             Gb.MarkContentEnd();
             return appendSummary;
         }
-        var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
-        mws.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted, charsInserted);
-        charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
-        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        Gb.MarkContentStart(contentStart);
-        Gb.MarkContentEnd();
-        if (!mws.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
-        {
-            mws.Master.UpdateVisitLinesAndLength(appendSummary.VisitNumber, charsInserted);
-        }
-        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
+        return WrapAppend(mws, appendSummary, callerFormatFlags, AsString);
     }
 
     public virtual AppendSummary FormatBearerFieldName<TBearer>(IMoldWriteState mws, TBearer styledObj
@@ -1201,26 +1249,20 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var appendSummary = styledObj.RevealState(mws.Master);
         var contentStart  = appendSummary.StartAt;
         if (sb.Length == contentStart) return mws.Master.EmptyAppendAt(mws.TypeBeingBuilt, contentStart, styledObj.GetType());
-        if (withMoldInherited.HasDisableFieldNameDelimitingFlag()
-         || !callerFormatFlags.HasAsStringContentFlag()
-         || sb[contentStart] == DblQtChar)
+        if (!(callerFormatFlags.HasAsStringContentFlag()
+           || writeAs.HasAsStringFlag())
+         || mws.CreateMoldFormatFlags.HasAsStringContentFlag()
+         || callerFormatFlags.HasDisableAutoDelimiting()
+         || sb.WrittenAsFromFirstCharacters(contentStart, Gb).HasAsStringFlag()
+         || appendSummary.WrittenAs.HasAsStringFlag()
+         || callerFormatFlags.HasAsEmbeddedContentFlags())
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
             Gb.MarkContentEnd();
             return appendSummary;
         }
-        var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
-        mws.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted, charsInserted);
-        charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
-        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        Gb.MarkContentStart(contentStart);
-        Gb.MarkContentEnd();
-        if (!mws.Settings.InstanceTrackingAllAsStringHaveLocalTracking && appendSummary.VisitNumber.VisitIndex >= 0)
-        {
-            mws.Master.UpdateVisitLinesAndLength(appendSummary.VisitNumber, charsInserted);
-        }
-        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
+        return WrapAppend(mws, appendSummary, callerFormatFlags, AsString);
     }
 
     public virtual int SizeFormatFieldContents(int sourceLength, FormatFlags formatFlags = DefaultCallerTypeFlags)
@@ -1520,11 +1562,11 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var appendSummary = valueRevealer(value, mws.Master);
         var contentStart  = appendSummary.StartAt;
         if (sb.Length == contentStart) return mws.Master.EmptyAppendAt(mws.TypeBeingBuilt, contentStart, value.GetType());
-        if (!callerFormatFlags.HasAsStringContentFlag()
-         || appendSummary.WrittenAs.HasAsStringFlag()
-         || withMoldInherited.HasDisableAutoDelimiting()
-         || mws.CreateMoldFormatFlags.HasAsStringContentFlag()
-         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == AsString)
+        if (!(callerFormatFlags.HasAsStringContentFlag()
+             || writeAs.HasAsStringFlag())
+             || callerFormatFlags.HasDisableAutoDelimiting() 
+             || mws.CreateMoldFormatFlags.HasAsStringContentFlag()
+             || sb.WrittenAsFromFirstCharacters(contentStart, Gb).HasAsStringFlag())
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
@@ -1532,13 +1574,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Gb.Complete(callerFormatFlags);
             return appendSummary;
         }
-        Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
-        Gb.MarkContentStart(contentStart);
-        var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
-        mws.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted, charsInserted);
-        charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
-        Gb.MarkContentEnd();
-        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
+        return WrapAppend(mws, appendSummary, callerFormatFlags, AsString);
     }
 
     public virtual AppendSummary FormatBearerFieldContents<TBearer>(IMoldWriteState mws, TBearer styledObj,
@@ -1555,7 +1591,7 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         Gb.StartNextContentSeparatorPaddingSequence(sb, withMoldInherited);
         mws.Master.WithNextCallValueFormatString(callerFormatString);
         mws.Master.WithNextCallFormatFlags(withMoldInherited);
-        mws.Master.WithNextCallWriteAs(writeAs);
+        mws.Master.WithNextCallWriteAs(writeAs & ~AsString);
 
         var visitNumber = mws.MoldGraphVisit.VisitId;
         if (styledObj == null)
@@ -1567,10 +1603,13 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
         var appendSummary = styledObj.RevealState(mws.Master);
         var contentStart  = appendSummary.StartAt;
         if (sb.Length == contentStart) return mws.Master.EmptyAppendAt(mws.TypeBeingBuilt, contentStart, styledObj.GetType());
-        if (!callerFormatFlags.HasAsStringContentFlag()
-         || withMoldInherited.HasDisableAutoDelimiting()
+        if (!(callerFormatFlags.HasAsStringContentFlag()
+           || writeAs.HasAsStringFlag())
          || mws.CreateMoldFormatFlags.HasAsStringContentFlag()
-         || sb.WrittenAsFromFirstCharacters(contentStart, Gb) == AsString)
+         || callerFormatFlags.HasDisableAutoDelimiting()
+         || sb.WrittenAsFromFirstCharacters(contentStart, Gb).HasAsStringFlag()
+         || appendSummary.WrittenAs.HasAsStringFlag()
+         || callerFormatFlags.HasAsEmbeddedContentFlags())
         {
             Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
             Gb.MarkContentStart(contentStart);
@@ -1578,13 +1617,25 @@ public class CompactLogTypeFormatting : DefaultStringFormatter, IStyledTypeForma
             Gb.Complete(callerFormatFlags);
             return appendSummary;
         }
+        return WrapAppend(mws, appendSummary, callerFormatFlags, AsString);
+    }
+
+    public AppendSummary WrapAppend(IMoldWriteState mws, AppendSummary lastAppend, FormatFlags formatFlags, WrittenAsFlags wrapAs)
+    {
+        var sb           = mws.Sb;
+        var contentStart = lastAppend.StartAt;
         Gb.StartNextContentSeparatorPaddingSequence(sb, DefaultCallerTypeFlags);
         Gb.MarkContentStart(contentStart);
-        var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
-        mws.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted, charsInserted);
-        charsInserted += LayoutEncoder.AppendTransfer(DblQt, sb);
-        Gb.MarkContentEnd();
-        return appendSummary.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
+        if (wrapAs.HasAsStringFlag() && !formatFlags.HasDisableAutoDelimiting())
+        {
+            var charsInserted = LayoutEncoder.InsertTransfer(DblQt, sb, contentStart);
+            mws.Master.ShiftRegisteredFromCharOffset(contentStart, charsInserted, charsInserted);
+            charsInserted          += LayoutEncoder.AppendTransfer(DblQt, sb);
+            mws.CurrentWriteMethod |= AsString;
+            Gb.MarkContentEnd();
+            return lastAppend.AddWrittenAsFlags(AsString).ShiftStringEndRangeBy(charsInserted);
+        }
+        return lastAppend;
     }
 
     public virtual ContentSeparatorRanges AppendOpenCollection(IMoldWriteState mws, Type itemElementType, bool? hasItems

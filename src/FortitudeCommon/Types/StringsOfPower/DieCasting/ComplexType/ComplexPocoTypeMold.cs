@@ -12,6 +12,8 @@ public class ComplexPocoTypeMold : MultiValueTypeMolder<ComplexPocoTypeMold>
     private SelectTypeCollectionField<ComplexPocoTypeMold>? addCollectionField;
 
     private UnitField.SelectTypeField<ComplexPocoTypeMold>?           addField;
+    
+    public override MoldType MoldType => MoldType.ComplexObjectMold;
 
     public ComplexPocoTypeMold InitializeComplexTypeBuilder
     (

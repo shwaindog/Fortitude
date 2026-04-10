@@ -96,11 +96,11 @@ public class ContentTypeMoldPrettyLogAsValueTests : ContentTypeMoldAsValueTests
     public void PrettyLogNullStringBearerAsValue(IFormatExpectation formatExpectation, ScaffoldingPartEntry scaffoldingToCall) =>
         ExecuteIndividualScaffoldExpectation(formatExpectation, scaffoldingToCall);
 
-    // [TestMethod]
+    [TestMethod]
     public override void RunExecuteIndividualScaffoldExpectation()
     {
         //VVVVVVVVVVVVVVVVVVV  Paste Here VVVVVVVVVVVVVVVVVVVVVVVVVVVV//
-        ExecuteIndividualScaffoldExpectation(CloakedBearerTestData.AllCloakedBearerExpectations[8], ScaffoldingRegistry.AllScaffoldingTypes[1250]
+        ExecuteIndividualScaffoldExpectation(StringBearerTestData.AllStringBearerExpectations[24], ScaffoldingRegistry.AllScaffoldingTypes[1786]
                                            , StringBuilderType.MutableString);
     }
 
