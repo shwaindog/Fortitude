@@ -179,8 +179,7 @@ public readonly struct CallContextDisposable : IDisposable
     }
 
     public bool ShouldSkip => shouldSkip;
-
-
+    
     public bool HasFormatChange
     {
         [DebuggerStepThrough] get => toRestoreOnDispose != null || contextChangeRequestFlags.HasAsStringContentFlag();

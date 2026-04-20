@@ -1,7 +1,6 @@
 ﻿// Licensed under the MIT license.
 // Copyright Alexis Sawenko 2025 all rights reserved
 
-using System.Diagnostics;
 using FortitudeCommon.Types.StringsOfPower.DieCasting.MoldCrucible;
 using FortitudeCommon.Types.StringsOfPower.Forge;
 using FortitudeCommon.Types.StringsOfPower.Forge.Crucible.FormattingOptions;
@@ -13,69 +12,73 @@ namespace FortitudeCommon.Types.StringsOfPower.DieCasting;
 public enum WrittenAsFlags : uint
 {
     Empty                  = 0x00_00
-  , AsSimple               = 0x00_01 
-  , AsComplex              = 0x00_02 
+  , AsSimple               = 0x00_01
+  , AsComplex              = 0x00_02
   , AsRaw                  = 0x00_04
   , AsContent              = 0x00_08
   , AsCollection           = 0x00_10
   , AsMapCollection        = 0x00_20
-  , AsCollectionItem       = 0x00_40       
-  , AsOuterType            = 0x00_80        
-  , AsInnerType            = 0x01_00        
-  , AsObject               = 0x02_00    
-  , AsNull                 = 0x04_00 
-  , AsFallbackValue        = 0x08_00 
+  , AsCollectionItem       = 0x00_40
+  , AsOuterType            = 0x00_80
+  , AsInnerType            = 0x01_00
+  , AsObject               = 0x02_00
+  , AsNull                 = 0x04_00
+  , AsFallbackValue        = 0x08_00
   , AsString               = 0x10_00
   , AsValue                = 0x20_00
   , SuppressedContents     = 0x40_00
   , ShowSuppressedContents = 0x80_00
-    
+
   , UpgradedToComplex           = 0x01_00_00
   , WithInstanceId              = 0x02_00_00
   , WithReferenceToInstanceId   = 0x04_00_00
   , WithDepthVmemAddress        = 0x08_00_00
-  , WithClippedDepthSuppression = 0x10_00_00 
-  , RemovedDueDepthSuppression  = 0x20_00_00 
+  , WithClippedDepthSuppression = 0x10_00_00
+  , RemovedDueDepthSuppression  = 0x20_00_00
 }
 
 public static class WrittenAsFlagsExtensions
 {
-    public const  WrittenAsFlags ProposedMaskSelectionMask = (WrittenAsFlags)0x0_7F;
-    public static bool           IsEmpty(this WrittenAsFlags flags)                      => flags == Empty;
-    public static bool           HasAsNullFLag(this WrittenAsFlags flags)                => (flags & AsNull) > 0;
-    public static bool           HasAsRawFlag(this WrittenAsFlags flags)                 => (flags & AsRaw) > 0;
-    public static bool           HasAsStringFlag(this WrittenAsFlags flags)              => (flags & AsString) > 0;
-    public static bool           HasAsValueFlag(this WrittenAsFlags flags)               => (flags & AsValue) > 0;
-    public static bool           HasAsContentFlag(this WrittenAsFlags flags)             => (flags & AsContent) > 0;
-    public static bool           HasAsObjectFlag(this WrittenAsFlags flags)              => (flags & AsObject) > 0;
-    public static bool           HasAsCollectionFlag(this WrittenAsFlags flags)          => (flags & AsCollection) > 0;
-    public static bool           HasAsMapCollectionFlag(this WrittenAsFlags flags)       => (flags & AsMapCollection) > 0;
-    public static bool           HasAsCollectionItemFlag(this WrittenAsFlags flags)      => (flags & AsCollectionItem) > 0;
-    public static bool           HasAsSimpleFlag(this WrittenAsFlags flags)              => (flags & AsSimple) > 0;
-    public static bool           HasAsComplexFlag(this WrittenAsFlags flags)             => (flags & AsComplex) > 0;
-    public static bool           HasAsOuterTypeFlag(this WrittenAsFlags flags)           => (flags & AsOuterType) > 0;
-    public static bool           HasAsInnerTypeFlag(this WrittenAsFlags flags)           => (flags & AsInnerType) > 0;
-    public static bool           HasUpgradedToComplexFlag(this WrittenAsFlags flags)     => (flags & UpgradedToComplex) > 0;
-    public static bool           HasShowSuppressedContents(this WrittenAsFlags flags)    => (flags & ShowSuppressedContents) > 0;
-    public static bool           HasWithReferenceToInstanceId(this WrittenAsFlags flags) => (flags & WithReferenceToInstanceId) > 0;
+    public const WrittenAsFlags ProposedMaskSelectionMask = (WrittenAsFlags)0x0_7F;
+
+    public static bool IsEmpty(this WrittenAsFlags flags)          => flags == Empty;
+    public static bool HasAsNullFLag(this WrittenAsFlags flags)    => (flags & AsNull) > 0;
+    public static bool HasAsRawFlag(this WrittenAsFlags flags)     => (flags & AsRaw) > 0;
+    public static bool HasAsStringFlag(this WrittenAsFlags flags)  => (flags & AsString) > 0;
+    public static bool HasAsValueFlag(this WrittenAsFlags flags)   => (flags & AsValue) > 0;
+    public static bool HasAsContentFlag(this WrittenAsFlags flags) => (flags & AsContent) > 0;
+    public static bool HasAsObjectFlag(this WrittenAsFlags flags)  => (flags & AsObject) > 0;
+
+    public static bool HasAsCollectionFlag(this WrittenAsFlags flags)     => (flags & AsCollection) > 0;
+    public static bool HasAsMapCollectionFlag(this WrittenAsFlags flags)  => (flags & AsMapCollection) > 0;
+    public static bool HasAsCollectionItemFlag(this WrittenAsFlags flags) => (flags & AsCollectionItem) > 0;
+
+    public static bool HasAsSimpleFlag(this WrittenAsFlags flags)    => (flags & AsSimple) > 0;
+    public static bool HasAsComplexFlag(this WrittenAsFlags flags)   => (flags & AsComplex) > 0;
+    public static bool HasAsOuterTypeFlag(this WrittenAsFlags flags) => (flags & AsOuterType) > 0;
+    public static bool HasAsInnerTypeFlag(this WrittenAsFlags flags) => (flags & AsInnerType) > 0;
+
+    public static bool HasUpgradedToComplexFlag(this WrittenAsFlags flags)     => (flags & UpgradedToComplex) > 0;
+    public static bool HasShowSuppressedContents(this WrittenAsFlags flags)    => (flags & ShowSuppressedContents) > 0;
+    public static bool HasWithReferenceToInstanceId(this WrittenAsFlags flags) => (flags & WithReferenceToInstanceId) > 0;
 
     public static bool HasAllOf(this WrittenAsFlags flags, WrittenAsFlags checkAllFound)    => (flags & checkAllFound) == checkAllFound;
     public static bool HasNoneOf(this WrittenAsFlags flags, WrittenAsFlags checkNonAreSet)  => (flags & checkNonAreSet) == 0;
     public static bool HasAnyOf(this WrittenAsFlags flags, WrittenAsFlags checkAnyAreFound) => (flags & checkAnyAreFound) > 0;
     public static bool IsExactly(this WrittenAsFlags flags, WrittenAsFlags checkAllFound)   => flags == checkAllFound;
-    
+
     public static WrittenAsFlags ToMultiFieldEquivalent(this WrittenAsFlags value) =>
         value switch
         {
-           _ when value.HasAsSimpleFlag() => (value & ~AsSimple) | AsComplex
-          , _                            => value
+            _ when value.HasAsSimpleFlag() => (value & ~AsSimple) | AsComplex
+          , _                              => value
         };
-    
+
     public static WrittenAsFlags ToNoFieldEquivalent(this WrittenAsFlags value) =>
         value switch
         {
             _ when value.HasAsComplexFlag() => (value & ~AsComplex) | AsSimple
-          , _                           => value
+          , _                               => value
         };
 
     public static bool NoFieldNames(this WrittenAsFlags value) =>
@@ -129,6 +132,5 @@ public static class WrittenAsFlagsExtensions
             default:
                 return sb[firstCharIndex].WrittenAsFromFirstCharacter();
         }
-        ;
     }
 }
